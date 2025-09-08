@@ -1,7 +1,3 @@
-Evidencia 5 - Programador TSDS 2025
-
-Este repositorio está diseñado para alojar los entregables del equipo, siguiendo las directrices de trabajo colaborativo con Git y GitHub.
-
 🚀 Propósito de la Evidencia 5
 
 La Evidencia 5 se enfoca en la implementación de clases de un sistema Smart Home utilizando el enfoque de **Desarrollo Guiado por Pruebas (TDD)**, el diseño y la implementación de una **Base de Datos** con scripts DDL y DML, y la documentación del **Diagrama de Clases**.
@@ -24,3 +20,4 @@ En la raíz de este repositorio, se deben encontrar las siguientes carpetas, cad
         *   Un archivo con extensión `.SQL` que contenga las **consultas DDL** (Data Definition Language). Estas consultas son esenciales para **definir y crear la base de datos y sus tablas**, estableciendo las estructuras adecuadas para la integración de datos.
         *   Un archivo con extensión `.SQL` que incluya las **consultas DML** (Data Manipulation Language). Estas deben permitir la **inserción de al menos 30 datos iniciales** en la base de datos y realizar una **consulta simple para cada tabla**.
         *   Un archivo `README` específico para esta carpeta, que **explique cómo ejecutar cada script en un sistema de gestión de bases de datos (DBMS) online**. Es fundamental **indicar qué DBMS se ha utilizado** (por ejemplo, `https://onecompiler.com/` o `https://runsql.com/`), dado que existen pequeñas variaciones sintácticas entre motores de bases de datos como SQL Server, PostgreSQL o MySQL.
+
