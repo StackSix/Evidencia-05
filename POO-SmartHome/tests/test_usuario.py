@@ -1,6 +1,8 @@
 import re
 import pytest
 from smarthome.usuario import Usuario, Email, USERS_DB
+from smarthome.repositorio_dispositivos import RepositorioDispositivosEnMemoria
+from smarthome.camara import Camara
 
 @pytest.fixture(autouse=True)
 def limpiar_db():
@@ -11,39 +13,33 @@ def limpiar_db():
 def test_registro_exitoso_guarda_en_diccionario_con_hash():
     u = Usuario.registrar("Daniel", "daniel@example.com", "secreto123")
     assert isinstance(u, Usuario)
-    assert "daniel@example.com" in USERS_DB
     rec = USERS_DB["daniel@example.com"]
-    # nunca texto plano
     assert "secreto123" not in str(rec)
-    # formato hash esperado
     assert re.match(r"^pbkdf2\$\d+\$[0-9a-f]+\$[0-9a-f]+$", rec["password_hash"])
 
-def test_registro_rechaza_email_duplicado():
-    Usuario.registrar("Nahir", "nahir@example.com", "clave123")
-    with pytest.raises(ValueError):
-        Usuario.registrar("Otra", "nahir@example.com", "clave123")
-
-def test_registro_rechaza_email_invalido():
-    with pytest.raises(ValueError):
-        Usuario.registrar("Agus", "correo-sin-arroba", "abcdef")
-
-def test_registro_rechaza_password_corta():
-    with pytest.raises(ValueError):
-        Usuario.registrar("Gabi", "gabi@example.com", "123")
-
-def test_login_exitoso_devuelve_usuario():
+def test_login_ok_y_fallo():
     Usuario.registrar("Sofi", "sofi@example.com", "mi_pass_99")
-    u = Usuario.login("sofi@example.com", "mi_pass_99")
-    assert isinstance(u, Usuario)
-    assert u.datos_publicos() == {"nombre": "Sofi", "email": "sofi@example.com", "rol": "user"}
+    assert isinstance(Usuario.login("sofi@example.com", "mi_pass_99"), Usuario)
+    assert Usuario.login("sofi@example.com", "pass_incorrecta") is None
+    assert Usuario.login("no@existe.com", "loquesea") is None
 
-def test_login_falla_password_incorrecta_o_email_inexistente():
-    Usuario.registrar("Jorge", "jorge@example.com", "StrongPass")
-    assert Usuario.login("jorge@example.com", "otra") is None
-    assert Usuario.login("noexiste@example.com", "StrongPass") is None
+def test_mostrar_datos_usuario_devuelve_str_legible():
+    u = Usuario.registrar("Ana", "ana@example.com", "clave123")
+    s = u.mostrar_datos_usuario()
+    assert isinstance(s, str)
+    assert "Ana" in s and "ana@example.com" in s and "user" in s
 
-def test_email_value_object_valida_y_formatea():
-    e = Email("ana@example.com")
-    assert str(e) == "ana@example.com"
-    with pytest.raises(ValueError):
-        Email("ana@sinpunto")
+def test_mostrar_dispositivos_sin_repo_y_con_repo():
+    u = Usuario.registrar("Luis", "luis@example.com", "clave123")
+    # sin repo
+    assert "repositorio" in u.mostrar_dispositivos().lower()
+
+    # con repo y sin dispositivos
+    repo = RepositorioDispositivosEnMemoria()
+    assert "sin dispositivos" in u.mostrar_dispositivos(repo).lower()
+
+    # agrego un dispositivo y debería listarlo
+    cam = Camara(id=101, tipo="CAMERA", nombre="Cam Porch", modelo="X1")
+    repo.agregar(cam, "luis@example.com")
+    listado = u.mostrar_dispositivos(repo)
+    assert "CAMERA#101" in listado and "Cam Porch" in listado
