@@ -1,10 +1,68 @@
--- DML Data Manipulation Language
--- Órdenes para agregar/modificar/eliminar/consultar datos
+-- Listo para copiar y pegar en MySQL 8 (OneCompiler)
 
-USE smarthome_ev5;
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS evento_dispositivo;
+DROP TABLE IF EXISTS camara;
+DROP TABLE IF EXISTS dispositivos;
+DROP TABLE IF EXISTS email;
+DROP TABLE IF EXISTS usuario;
+SET FOREIGN_KEY_CHECKS = 1;
 
--- USUARIO
-INSERT INTO usuario (id, nombre, contraseña_hash, rol, permisos)
+CREATE TABLE usuario (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nombre          VARCHAR(120)      NOT NULL,
+  contraseña_hash   VARCHAR(255)      NOT NULL,
+  rol             ENUM('user','admin') NOT NULL DEFAULT 'user',
+  permisos        BOOLEAN           NULL,
+  created_at      TIMESTAMP         NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE email (
+  usuario_id        INT UNSIGNED NOT NULL,
+  direccion_email   VARCHAR(255) NOT NULL,
+  PRIMARY KEY (usuario_id),
+  UNIQUE KEY uq_email_direccion (direccion_email),
+  CONSTRAINT fk_email_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE dispositivos (
+  id                  BIGINT UNSIGNED PRIMARY KEY,
+  tipo                ENUM('CAMARA','SENSOR','OTRO') NOT NULL,
+  estado_dispositivo  ENUM('ON','OFF') NOT NULL,
+  usuario_id          INT UNSIGNED NOT NULL,
+  CONSTRAINT fk_dispositivo_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE camara (
+  dispositivo_id        BIGINT UNSIGNED PRIMARY KEY,
+  nombre                VARCHAR(120) NOT NULL,
+  modelo                VARCHAR(60)  NOT NULL,
+  grabacion_modo        ENUM('AUTO','MANUAL') NOT NULL,
+  estado_automatizacion BOOLEAN NOT NULL DEFAULT FALSE,
+  CONSTRAINT fk_camara_dispositivo
+    FOREIGN KEY (dispositivo_id) REFERENCES dispositivos(id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE evento_dispositivo (
+  id                      BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  camara_id               BIGINT UNSIGNED NOT NULL,
+  evento                  ENUM('MOTION','SOUND','MANUAL_ON','MANUAL_OFF') NOT NULL,
+  ocurrido_en             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  notificacion_enviada    BOOLEAN NOT NULL DEFAULT FALSE,
+  CONSTRAINT fk_evento_camara
+    FOREIGN KEY (camara_id) REFERENCES camara(dispositivo_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- ===== DML =====
+
+INSERT INTO usuario (id, nombre, password_hash, rol, permisos)
 VALUES
   (1,  'Daniel González',  'pbkdf2$120000$aa1$h1', 'user',  FALSE),
   (2,  'Ana Pérez',        'pbkdf2$120000$aa2$h2', 'user',  FALSE),
@@ -17,7 +75,6 @@ VALUES
   (9,  'Operador Día',     'pbkdf2$120000$aa9$h9', 'admin', TRUE),
   (10, 'Nicolás Román',    'pbkdf2$120000$aaA$hA', 'user',  FALSE);
 
--- EMAIL
 INSERT INTO email (usuario_id, direccion_email)
 VALUES
   (1, 'daniel@gmail.com'),
@@ -31,7 +88,6 @@ VALUES
   (9, 'dayop@gmail.com'),
   (10,'nicolas.roman@gmail.com');
 
--- DISPOSITIVOS
 INSERT INTO dispositivos (id, tipo, estado_dispositivo, usuario_id)
 VALUES
   (101, 'CAMARA', 'OFF', 1),
@@ -45,7 +101,6 @@ VALUES
   (109, 'CAMARA', 'ON',  7),
   (110, 'CAMARA', 'OFF', 7);
 
--- CAMARA
 INSERT INTO camara (dispositivo_id, nombre, modelo, grabacion_modo, estado_automatizacion)
 VALUES
   (101, 'Patio Trasero',    'X1', 'AUTO',   TRUE),
@@ -59,27 +114,36 @@ VALUES
   (109, 'Depósito',         'X5', 'AUTO',   TRUE),
   (110, 'Terraza',          'X2', 'AUTO',   TRUE);
 
--- EVENTO_DISPOSITIVO
 INSERT INTO evento_dispositivo (id, camara_id, evento, ocurrido_en, notificacion_enviada)
 VALUES
-  (1001, 101, 'MOTION',     NOW() - INTERVAL 2 DAY,  TRUE),
-  (1002, 101, 'MOTION',     NOW() - INTERVAL 1 DAY,  TRUE),
+  (1001, 101, 'MOTION',     NOW() - INTERVAL 2 DAY,   TRUE),
+  (1002, 101, 'MOTION',     NOW() - INTERVAL 1 DAY,   TRUE),
   (1003, 102, 'MANUAL_ON',  NOW() - INTERVAL 12 HOUR, FALSE),
   (1004, 102, 'MANUAL_OFF', NOW() - INTERVAL 11 HOUR, FALSE),
-  (1005, 103, 'MOTION',     NOW() - INTERVAL 3 HOUR, TRUE),
-  (1006, 104, 'MOTION',     NOW() - INTERVAL 5 HOUR, TRUE),
-  (1007, 105, 'SOUND',      NOW() - INTERVAL 9 HOUR, FALSE),
-  (1008, 106, 'MOTION',     NOW() - INTERVAL 7 HOUR, TRUE),
-  (1009, 107, 'MOTION',     NOW() - INTERVAL 1 HOUR, TRUE),
+  (1005, 103, 'MOTION',     NOW() - INTERVAL 3 HOUR,  TRUE),
+  (1006, 104, 'MOTION',     NOW() - INTERVAL 5 HOUR,  TRUE),
+  (1007, 105, 'SOUND',      NOW() - INTERVAL 9 HOUR,  FALSE),
+  (1008, 106, 'MOTION',     NOW() - INTERVAL 7 HOUR,  TRUE),
+  (1009, 107, 'MOTION',     NOW() - INTERVAL 1 HOUR,  TRUE),
   (1010, 107, 'SOUND',      NOW() - INTERVAL 50 MINUTE, TRUE),
-  (1011, 108, 'MANUAL_ON',  NOW() - INTERVAL 2 HOUR, FALSE),
+  (1011, 108, 'MANUAL_ON',  NOW() - INTERVAL 2 HOUR,  FALSE),
   (1012, 108, 'MANUAL_OFF', NOW() - INTERVAL 90 MINUTE, FALSE),
   (1013, 109, 'MOTION',     NOW() - INTERVAL 30 MINUTE, TRUE),
   (1014, 110, 'MOTION',     NOW() - INTERVAL 10 MINUTE, TRUE),
   (1015, 110, 'SOUND',      NOW() - INTERVAL 5 MINUTE,  TRUE);
 
--- Consultas simples de verificación
+-- ===== Verificación =====
 
+-- Tablas
+SHOW TABLES;
+
+DESCRIBE usuario;
+DESCRIBE email;
+DESCRIBE dispositivos;
+DESCRIBE camara;
+DESCRIBE evento_dispositivo;
+
+-- Consultas simples
 SELECT id, nombre, rol, permisos, created_at
 FROM usuario
 ORDER BY id;
