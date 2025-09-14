@@ -36,10 +36,8 @@ class Dispositivo:
     # Comportamiento
     def modificar_estado_dispositivo(self, nuevo_estado: str) -> str:
         if nuevo_estado not in ["encendido", "apagado"]:
-            raise ValueError("Debe ingresar 'encendido' o 'apagado'")
+            raise ValueError("Debe ingresar una opción válida segun el estado actual del dispositivo. Para ON: 'encendido' y para OFF: 'apagado'")
             
         self.__estado_dispositivo = nuevo_estado
         logger.info(f"{self.tipo} (ID {self.id}) cambiado a {self.__estado_dispositivo}")
         return self.__estado_dispositivo
-
-        

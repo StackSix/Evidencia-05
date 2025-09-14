@@ -1,6 +1,10 @@
+import sys
+import os
 import pytest
-from camara import Camara, ModoGrabacion
+from smarthome.camara import Camara, ModoGrabacion
 from datetime import datetime
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def test_grabar_manual():
     mycamara = Camara("camara", "encendido", "Cam1", "M1", ModoGrabacion.AUTOMATICO, False, False)
@@ -96,3 +100,4 @@ def test_mostrar_automatizacion_2():
     assert resultado == ( f"Automatización configurada. \n" 
             f"Hora de Inicio: 08:00 \n"
             f"Hora de Finalización 20:00 \n" )
+    
