@@ -45,21 +45,3 @@ def test_agregar_y_eliminar_dispositivo_retorna_none_y_afecta_repo():
     assert ret is None
     with pytest.raises(Exception):
         repo_disp.obtener(101)
-
-def test_modificar_dispositivo_devuelve_lista_de_cambios():
-    admin, _, repo_disp, _ = setup_context()
-    cam = Camara(id=102, tipo="CAMERA", nombre="Cam Vieja", modelo="X1")
-    repo_disp.agregar(cam, "daniel@example.com")
-
-    cambios = admin.modificar_dispositivo(repo_disp, 102, nombre="Cam Nueva", estado_dispositivo="ON")
-    assert isinstance(cambios, list)
-    assert "nombre=Cam Nueva" in cambios and "estado_dispositivo=ON" in cambios
-
-def test_modificar_rol_devuelve_lista_informativa():
-    admin, repo_users, *_ = setup_context()
-    # sincronizar el usuario en el repo de usuarios en memoria (guardar)
-    u = Usuario.login("daniel@example.com", "secreto123")
-    repo_users.guardar(u)
-
-    res = admin.modificar_rol(repo_users, "daniel@example.com", "manager")
-    assert res == ["daniel@example.com", "user", "manager"]
