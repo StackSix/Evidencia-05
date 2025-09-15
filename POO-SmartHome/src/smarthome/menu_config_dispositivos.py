@@ -62,9 +62,12 @@ def menu_dispositivo(camara: Camara):
                     print("No se puede cambiar a modo de grabación automatico porque no hay una automatización configurada.")
                     logger.warning(f"{camara.nombre}: Se intento cambiar a modo automático sin tener configurada una automatización.")
                 else:
-                    camara.modificar_grabacion_modo(True)
+                    modo = camara.modificar_grabacion_modo(True)
+                    encendido_automatico = camara.grabar_automatico()
                     logger.info(f"{camara.nombre}: Se cambió con éxito el modo de grabación")
                     print("El modo se modificó con éxito.")
+                    print(modo)
+                    print(encendido_automatico)
             else:
                 camara.modificar_grabacion_modo(False)
                 logger.info(f"{camara.nombre}: Se cambió con éxito el modo de grabación")
@@ -74,8 +77,10 @@ def menu_dispositivo(camara: Camara):
             print("Ingrese su configuración horaria (HH:MM): \n")
             on = pedir_hora("Horario de Encendido: ")
             off = pedir_hora("Horario de Apagado: ")
-            camara.configurar_automatizacion_horaria(on, off)
-            camara.grabar_automatico()
+            configuracion = camara.configurar_automatizacion_horaria(on, off)
+            automatizacion_inicial = camara.grabar_automatico()
+            print(configuracion)
+            print(automatizacion_inicial)
         
         elif opcion == "6":
             print("\n",camara.mostrar_automatizacion())
