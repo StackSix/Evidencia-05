@@ -1,53 +1,61 @@
+# src/smarthome/admin.py
 from __future__ import annotations
 from .usuario import Usuario, Email, USERS_DB
-from .exceptions import ValidationError 
 
 class Admin(Usuario):
-    def __init__(self, nombre: str, email: Email, permisos: bool = True):
+    def __init__(self, nombre: str, email: Email):
+        # Forzamos el rol "admin"
         super().__init__(nombre=nombre, email=email, rol="admin")
-        self._permisos = permisos
 
+    # ---------- Casos de uso ----------
     @classmethod
     def registrar_admin(cls, nombre: str, email: str, password: str) -> "Admin":
         if email in USERS_DB:
             raise ValueError("Ya existe un usuario con ese email.")
         a = cls(nombre=nombre, email=Email(email))
         a.establecer_password(password)
-        USERS_DB[email] = a._to_record()
+        # En tu Usuario el método se llama almacenar_usuario_en_diccionario
+        USERS_DB[email] = a.almacenar_usuario_en_diccionario()
         return a
 
     @classmethod
     def login_admin(cls, email: str, password: str) -> "Admin | None":
-        u = Usuario.login(email, password)
+        # Tu Usuario usa 'inicio_sesion' en vez de 'login'
+        u = Usuario.inicio_sesion(email, password)
         if u and u.rol == "admin":
             adm = cls(nombre=u.nombre, email=u.email)
-            adm._password_hash = USERS_DB[email]["password_hash"]
+            # preservamos el hash que está en USERS_DB
+            rec = USERS_DB.get(email, {})
+            adm._password_hash = rec.get("password_hash")
             return adm
         return None
 
+    # ---------- Funciones pedidas por tests ----------
     def mostrar_automatizaciones_activas(self, repo_automatizaciones) -> str:
+        """
+        Debe listar solo las automatizaciones activas.
+        Se espera que 'repo_automatizaciones' tenga listar_activas() -> list[Automatizacion]
+        """
+        if repo_automatizaciones is None or not hasattr(repo_automatizaciones, "listar_activas"):
+            return "No hay repositorio de automatizaciones disponible."
         activas = repo_automatizaciones.listar_activas()
         if not activas:
-            return "No hay automatizaciones activas."
-        return "\n".join(f"{a.id}: {a.nombre} ({a.tipo})" for a in activas)
+            return "Sin automatizaciones activas."
+        # Formato simple: "id - nombre (tipo)" por línea
+        return "\n".join(f"{a.id} - {a.nombre} ({a.tipo})" for a in activas)
 
-    def agregar_dispositivo(self, repo_dispositivos, dispositivo, dueño_email: str) -> None:
-        if not dueño_email:
-            raise ValidationError("Dueño inválido.")
-        repo_dispositivos.agregar(dispositivo, dueño_email)
-        return None
+    def agregar_dispositivo(self, repo_dispositivos, dispositivo, owner_email) -> None:
+        """
+        Debe delegar en repo_dispositivos.agregar(dispositivo, owner_email)
+        """
+        if repo_dispositivos is None or not hasattr(repo_dispositivos, "agregar"):
+            raise ValueError("Repositorio de dispositivos inválido.")
+        repo_dispositivos.agregar(dispositivo, owner_email)
 
     def eliminar_dispositivo(self, repo_dispositivos, device_id: int) -> None:
+        """
+        Debe delegar en repo_dispositivos.eliminar(device_id)
+        """
+        if repo_dispositivos is None or not hasattr(repo_dispositivos, "eliminar"):
+            raise ValueError("Repositorio de dispositivos inválido.")
         repo_dispositivos.eliminar(device_id)
-        return None
-
-    def modificar_dispositivo(self, repo_dispositivos, device_id: int, **attrs) -> list:
-        disp = repo_dispositivos.modificar(device_id, **attrs)
-        return [f"{k}={getattr(disp, k)}" for k in attrs.keys()]
-
-    def modificar_rol(self, repo_usuarios, email: str, nuevo_rol: str) -> list:
-        user = repo_usuarios.obtener(email)
-        anterior = user.rol
-        user.modificar_rol(nuevo_rol)
-        repo_usuarios.actualizar(user)
-        return [email, anterior, nuevo_rol]
