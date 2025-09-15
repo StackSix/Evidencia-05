@@ -1,5 +1,9 @@
+import sys
+import os
 import pytest
-from dispositivos import Dispositivo
+from smarthome.dispositivos import Dispositivo
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def test_modificar_estado_dispositivo_1():
     my_dispositivo = Dispositivo("camara", "apagado")

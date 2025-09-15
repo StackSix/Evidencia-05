@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, time
+from datetime import datetime
 from enum import Enum
 
 from dispositivos import Dispositivo
@@ -83,7 +83,7 @@ class Camara(Dispositivo, ControlAutomatizacion):
     def estado_automatizacion(self, estado_automatizacion: bool) -> None:
         if not isinstance(estado_automatizacion, bool):
             raise ValueError("El estado ingresado no es válido.")
-        self.__estado_automatizacion
+        self.__estado_automatizacion = estado_automatizacion
     
     def __str__(self) -> str:
         return (
@@ -105,11 +105,13 @@ class Camara(Dispositivo, ControlAutomatizacion):
         
         self.__modo_grabando = rec
         estado = "Grabando." if rec else "Guardando."
-        logger.info(f"{self.nombre}{estado}")
+        logger.info(f"{self.nombre}: {estado}")
         return estado
         
     def modificar_grabacion_modo(self, automatico: bool) -> str:
         self.__grabacion_modo = ModoGrabacion.AUTOMATICO if automatico else ModoGrabacion.MANUAL
+        if not automatico:
+            self.__modo_grabando = False
         mensaje = f"Modo {self.__grabacion_modo.value} activado."
         logger.info(f"{self.nombre}: {mensaje}")
         return mensaje
@@ -120,11 +122,20 @@ class Camara(Dispositivo, ControlAutomatizacion):
             logger.warning("Automatización apagada.")
             return "Automatización apagada"
         
-        hora_actual = datetime.now().time()
         if self.hora_encendido and self.hora_apagado:
-            if self.hora_encendido <= hora_actual.strftime("%H:%M") < self.hora_apagado:
-                self.__modo_grabando = True
-                return f'{self.nombre} esta grabando'        
+            hora_actual = datetime.now().time()
+            
+            if self.hora_encendido <= self.hora_apagado:
+                #En el mismo día
+                if self.hora_encendido <= hora_actual.strftime("%H:%M") < self.hora_apagado:
+                    self.__modo_grabando = True
+                    return f'{self.nombre} esta grabando' 
+            else:
+                #Cruza la noche
+                if hora_actual.strftime("%H:%M") >= self.hora_encendido or hora_actual.strftime("%H:%M") < self.hora_apagado:
+                    self.__modo_grabando = True
+                    return f'{self.nombre} esta grabando' 
+                
         self.__modo_grabando = False
         return f'{self.nombre} no esta grabando'
       
@@ -153,6 +164,7 @@ class Camara(Dispositivo, ControlAutomatizacion):
         self.estado_automatizacion = True
         self.hora_encendido = on
         self.hora_apagado = off
+        self.__grabacion_modo = ModoGrabacion.AUTOMATICO
         return f'Automatización configurada: ON: {self.hora_encendido} OFF: {self.hora_apagado}'
 
     def mostrar_automatizacion(self) -> str:
