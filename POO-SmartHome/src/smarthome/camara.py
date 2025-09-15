@@ -2,9 +2,9 @@ import logging
 from datetime import datetime
 from enum import Enum
 
-from .dispositivos import Dispositivo
-from .control_automatizacion import ControlAutomatizacion
-from .evento_dispositivo import EventoDispositivo
+from dispositivos import Dispositivo
+from control_automatizacion import ControlAutomatizacion
+from evento_dispositivo import EventoDispositivo
 
 # Configuración de logging: registra mensajes (info, advertencia, errores).
 logger = logging.getLogger(__name__)

@@ -49,9 +49,12 @@ def menu_dispositivo(camara: Camara):
         elif opcion == "2":
             print("\n",camara)
         
-        elif opcion == "3":
-            rec = not camara.modo_grabando
-            camara.grabar_manual(rec)
+        elif opcion == "3":    
+            if camara.estado_dispositivo != "encendido":
+                print(f"{camara.nombre}: No se puede grabar, el dispositivo está apagado.")
+            else:
+                rec = not camara.modo_grabando
+                camara.grabar_manual(rec)
 
         elif opcion == "4":
             if camara.grabacion_modo == ModoGrabacion.MANUAL:
@@ -89,4 +92,3 @@ def menu_dispositivo(camara: Camara):
         
         else:
             print("Debe ingresar una opción válida. Intentelo nuevamente.")
-    
