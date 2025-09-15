@@ -79,8 +79,10 @@ def menu_dispositivo(camara: Camara):
             off = pedir_hora("Horario de Apagado: ")
             configuracion = camara.configurar_automatizacion_horaria(on, off)
             automatizacion_inicial = camara.grabar_automatico()
+            notificacion = camara.procesar_notificacion()
             print(configuracion)
             print(automatizacion_inicial)
+            print(notificacion)
         
         elif opcion == "6":
             print("\n",camara.mostrar_automatizacion())
@@ -97,3 +99,8 @@ def menu_dispositivo(camara: Camara):
         
         else:
             print("Debe ingresar una opción válida. Intentelo nuevamente.")
+
+
+if __name__ == "__main__":
+    camara = Camara("camara", "encendido", "Cam1", "M1", ModoGrabacion.MANUAL, False, False)
+    menu_dispositivo(camara)
