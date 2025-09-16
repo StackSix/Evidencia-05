@@ -1,4 +1,6 @@
-from camara import Camara, ModoGrabacion
+from .camara import Camara, ModoGrabacion
+
+
 import logging
 from datetime import datetime
 
