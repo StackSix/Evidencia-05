@@ -169,7 +169,6 @@ class Camara(Dispositivo, ControlAutomatizacion):
         
         elif hora_actual == self.hora_apagado:
             mensaje = notificacion.enviar_notificacion(False)     
-            notificacion.enviar_notificacion(False)
             self.ultima_notificacion = False
             logger.info(f"{self.nombre}: Notificación de apagado enviada")
             return mensaje

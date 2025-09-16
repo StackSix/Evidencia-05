@@ -101,8 +101,3 @@ def menu_dispositivo(camara: Camara):
         
         else:
             print("Debe ingresar una opción válida. Intentelo nuevamente.")
-
-
-if __name__ == "__main__":
-    camara = Camara("camara", "encendido", "Cam1", "M1", ModoGrabacion.MANUAL, False, False)
-    menu_dispositivo(camara)
