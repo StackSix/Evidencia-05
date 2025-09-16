@@ -18,7 +18,7 @@ class EventoDispositivo:
     
     # Comportamiento de la Clase
     def enviar_notificacion(self, evento: bool) -> str:
-        mensaje = "El dispositivo dejo de grabar" if evento else "El dispositivo comenzo a grabar"
+        mensaje = "El dispositivo comenzó grabar" if evento else "El dispositivo dejó grabar"
         logger.info(f"Evento ID: {self.evento_id}: {mensaje}")
         return mensaje
         

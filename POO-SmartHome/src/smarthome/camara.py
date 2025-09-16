@@ -147,14 +147,16 @@ class Camara(Dispositivo, ControlAutomatizacion):
         hora_actual = datetime.now().strftime("%H:%M")
         notificacion = EventoDispositivo()
         if hora_actual == self.hora_encendido:
-            notificacion.enviar_notificacion(True)
+            mensaje = notificacion.enviar_notificacion(True)
             self.ultima_notificacion = True
             logger.info(f"{self.nombre}: Notificación de inicio enviada.")
-            
+            return mensaje
+        
         elif hora_actual == self.hora_apagado:
-            notificacion.enviar_notificacion(False)     
+            mensaje = notificacion.enviar_notificacion(False)     
             self.ultima_notificacion = False
             logger.info(f"{self.nombre}: Notificación de apagado enviada")
+            return mensaje
     
     # Métodos de la Interfaz
     def configurar_automatizacion_horaria(self, on: str, off: str) -> str:
