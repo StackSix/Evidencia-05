@@ -115,8 +115,9 @@ def menu_admin(admin: Admin):
         print("3) Ir a menú de dispositivo")
         print("4) Agregar dispositivo a un usuario")
         print("5) Eliminar dispositivo de un usuario")
-        print("6) Cerrar sesión")
-        op = pedir_opcion("Elegí una opción: ", {"1", "2", "3", "4","5","6"})
+        print("6) Ver dispositivos de un usuario")
+        print("7) Cerrar sesión")
+        op = pedir_opcion("Elegí una opción: ", {"1", "2", "3", "4", "5", "6", "7"})
 
         if op == "1":
             if not USERS_DB:
@@ -149,7 +150,6 @@ def menu_admin(admin: Admin):
             print(f"\n→ Entrando a configuración de: {getattr(cam, 'nombre', 'Cámara')}")
             menu_dispositivo(cam)
         elif op == "4":
-            # Agregar dispositivo a usuario
             email = pedir_email()
             if email not in USERS_DB:
                 print("No existe ese usuario.")
@@ -159,7 +159,6 @@ def menu_admin(admin: Admin):
                 repo_disps.agregar(cam, email)
                 print(f"✅ Dispositivo {cam.nombre} agregado a {email}.")
         elif op == "5":
-            # Eliminar dispositivo de usuario
             email = pedir_email()
             dispositivos = repo_disps.listar_por_usuario(email)
             if not dispositivos:
@@ -172,6 +171,14 @@ def menu_admin(admin: Admin):
             repo_disps.eliminar(device_id)
             print("✅ Dispositivo eliminado.")
         elif op == "6":
+            email = pedir_email()
+            dispositivos = repo_disps.listar_por_usuario(email)
+            if not dispositivos:
+                print("Este usuario no tiene dispositivos.")
+                continue
+            for d in dispositivos:
+                print(f"- ID: {d.id}, Nombre: {getattr(d, 'nombre', 'Desconocido')}")
+        elif op == "7":
             print("👋 Sesión cerrada.")
             return
 
