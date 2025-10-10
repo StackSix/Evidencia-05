@@ -1,23 +1,57 @@
-🚀 Propósito de la Evidencia 5
+# Evidencia 6 - SmartHome
 
-La Evidencia 5 se enfoca en la implementación de clases de un sistema Smart Home utilizando el enfoque de **Desarrollo Guiado por Pruebas (TDD)**, el diseño y la implementación de una **Base de Datos** con scripts DDL y DML, y la documentación del **Diagrama de Clases**.
+## Propósito
+Desarrollar una aplicación de consola para la gestión de un sistema **Smart Home**, incorporando el patrón de diseño **DAO** para separar la lógica de dominio del acceso a datos y permitiendo la interacción directa con una base de datos.
 
-📂 Estructura del Repositorio
+## Contexto
+Este repositorio continúa el trabajo iniciado en evidencias anteriores para la asignatura **Programación I**. Se parte de las clases de dominio implementadas previamente y se amplía con una capa de acceso a datos, scripts SQL y un programa principal que habilita el registro, autenticación y administración de dispositivos.
 
-En la raíz de este repositorio, se deben encontrar las siguientes carpetas, cada una con su propósito específico:
+## Alcance
+- Implementación del patrón DAO para usuarios, roles y dispositivos.
+- Creación de un menú de consola (`app/main.py`) que soporta:
+  - Registro de usuarios estándar.
+  - Inicio de sesión con verificación de contraseña.
+  - Menú específico para usuarios estándar (consulta de datos personales y dispositivos asignados).
+  - Menú de administración para usuarios con rol **admin** (CRUD de dispositivos y cambio de rol de usuarios).
+- Conexión a una base de datos SQLite embebida para facilitar la ejecución local, manteniendo la estructura compatible con los scripts MySQL entregados.
+- Scripts SQL con las consultas solicitadas en la carpeta `base-de-datos/BD-Evidencia-6`.
 
-1.  **`POO-SmartHome/`**
-    *   **Propósito:** Contiene la implementación de clases bajo el enfoque de **Desarrollo Guiado por Pruebas (TDD)**. Es importante destacar que **no se requiere la implementación de un menú (`main.py`) ni la lógica de programación relacionada con la gestión directa de dispositivos** (altas, bajas, modificaciones, etc.).
-    *   **Estándares de Codificación:** El código Python debe respetar las **nomenclaturas estándar de la comunidad**. Se recomienda seguir la **Guía PEP 8**, propuesta por Guido van Rossum, que promueve un código limpio y legible. Esto incluye el uso de nombres de variables y funciones descriptivos, en minúsculas y separados por guiones bajos.
-    *   **Calidad del Código:** Se valorará especialmente la **modularidad y la legibilidad** del código.
+## Autores
+- Equipo de Programación I - Comisión 2024.
 
-2.  **`Diseño-Evidencia-5/`**
-    *   **Contenido:** Esta carpeta debe contener el **Diagrama de Clases** del sistema, acompañado de las **justificaciones pertinentes**.
+## Estructura del repositorio
+```
+app/
+ ├── conn/               # Conexión y configuración de la base de datos
+ ├── dao/                # Implementaciones DAO
+ ├── dominio/            # Clases de dominio
+ ├── main.py             # Programa de consola
+base-de-datos/
+ └── BD-Evidencia-6/     # Scripts SQL y documentación de la base de datos
+```
 
-3.  **`BD-Evidencia-5/`**
-    *   **Propósito:** Almacena todos los componentes relacionados con la base de datos.
-    *   **Contenido:**
-        *   Un archivo con extensión `.SQL` que contenga las **consultas DDL** (Data Definition Language). Estas consultas son esenciales para **definir y crear la base de datos y sus tablas**, estableciendo las estructuras adecuadas para la integración de datos.
-        *   Un archivo con extensión `.SQL` que incluya las **consultas DML** (Data Manipulation Language). Estas deben permitir la **inserción de al menos 30 datos iniciales** en la base de datos y realizar una **consulta simple para cada tabla**.
-        *   Un archivo `README` específico para esta carpeta, que **explique cómo ejecutar cada script en un sistema de gestión de bases de datos (DBMS) online**. Es fundamental **indicar qué DBMS se ha utilizado** (por ejemplo, `https://onecompiler.com/` o `https://runsql.com/`), dado que existen pequeñas variaciones sintácticas entre motores de bases de datos como SQL Server, PostgreSQL o MySQL.
+## Requisitos previos
+- Python 3.10+
+- Dependencias definidas en `requirements.txt` (`pip install -r requirements.txt`)
 
+## Ejecución
+```bash
+python -m app.main
+```
+Al ejecutar el programa por primera vez se inicializa la base de datos y se crea un usuario administrador por defecto:
+- Email: `admin@smarthome.local`
+- Contraseña: `admin123`
+
+Desde el menú principal se puede registrar un usuario estándar, iniciar sesión y acceder a las distintas funcionalidades según el rol.
+
+## Scripts de base de datos
+En `base-de-datos/BD-Evidencia-6` se incluyen:
+- `Consultas-DDL.sql`: definición del modelo relacional.
+- `Consultas-DML.sql`: inserción de datos iniciales y consultas (simples, multitabla y subconsultas).
+- `README.md`: instrucciones para ejecutar los scripts en un DBMS online compatible.
+
+## Pruebas
+Las pruebas unitarias de evidencias anteriores se mantienen sin modificaciones. Tras instalar los requisitos, pueden ejecutarse mediante:
+```bash
+pytest
+```
