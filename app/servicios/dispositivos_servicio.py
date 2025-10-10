@@ -5,7 +5,6 @@ from app.dao.dispositivos_dao import DispositivosDAO
 class DispositivosService:
     @staticmethod
     def listar_por_usuario(user_id: int) -> List[Dict]:
-        # trae dispositivos: join usuarios_domicilios -> domicilios -> tipo_habitacion -> dispositivos
         return DispositivosDAO.obtener_por_usuario(user_id)
 
     @staticmethod

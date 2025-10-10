@@ -79,14 +79,15 @@ class UsuarioDAO:
             cur.execute(query, (nuevo_id_rol, usuario_id))
 
     @staticmethod
-    def actualizar_contrasena_por_id(usuario_id: int, contrasena: str) -> None:
-        hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        query = "UPDATE usuarios SET contrasena = %s WHERE id = %s"
-        with get_cursor(commit=True) as cur:
-            cur.execute(query, (hashed, usuario_id))
+    def obtener_id_rol_por_nombre(nombre: str) -> Optional[int]:
+        q = "SELECT id_rol FROM rol WHERE nombre = %s"
+        with get_cursor() as cur:
+            cur.execute(q, (nombre,))
+            row = cur.fetchone()
+            return row["id_rol"] if row else None
 
     @staticmethod
-    def actualizar_contrasena_por_dni(dni: int, contrasena: str) -> None:
+    def actualizar_contrasena(dni: int, contrasena: str) -> None:
         hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         query = "UPDATE usuarios SET contrasena = %s WHERE dni = %s"
         with get_cursor(commit=True) as cur:
