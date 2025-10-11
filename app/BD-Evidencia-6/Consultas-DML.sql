@@ -59,7 +59,7 @@ CREATE TABLE domicilios (
 -- Tipo de habitación
 CREATE TABLE tipo_habitacion (
   id_habitacion INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  hogar_id INT UNSIGNED NOT NULL,
+  id_hogar INT UNSIGNED NOT NULL,
   nombre_habitacion VARCHAR(120) NOT NULL,
   CONSTRAINT fk_th_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
@@ -89,7 +89,7 @@ CREATE TABLE rol_permiso (
 -- Junction usuarios <-> domicilios (M:N)
 CREATE TABLE usuarios_domicilios (
   usuario_id INT UNSIGNED NOT NULL,
-  hogar_id INT UNSIGNED NOT NULL,
+  id_hogar INT UNSIGNED NOT NULL,
   PRIMARY KEY (usuario_id, hogar_id),
   CONSTRAINT fk_uh_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_uh_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
