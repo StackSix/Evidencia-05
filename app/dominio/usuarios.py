@@ -19,7 +19,7 @@ class Usuario:
     @DNI.setter
     def DNI(self, DNI_correcto)-> int:
         "Setter para modificar DNI incorrecto con validación."
-        if not isinstance(DNI_correcto):
+        if not isinstance(DNI_correcto, int):
             raise TypeError("El DNI debe ser un numero entero.")
         dni_str = str(DNI_correcto)
         
