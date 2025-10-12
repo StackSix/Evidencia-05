@@ -2,10 +2,10 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
 from app.servicios.auth_service import AuthService
-from app.dao.usuario_dao import UsuarioDAO
-from app.dao.dispositivo_dao import DispositivoDAO
-from app.dao.domicilio_dao import DomicilioDAO
-from app.dao.tipo_habitacion_dao import TipoHabitacionDAO
+from app.dao.usuarios_dao import UsuarioDAO
+from app.dao.dispositivos_dao import DispositivoDAO
+from app.dao.domicilios_dao import DomicilioDAO
+from app.dao.habitacion_dao import TipoHabitacionDAO
 from app.dao.automatizacion_dao import AutomatizacionDAO
 
 print("=== 🔍 TEST GLOBAL SmartHome (Evidencia 6) ===")

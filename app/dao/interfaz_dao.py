@@ -6,18 +6,14 @@ class DataAccessDAO(ABC):
         pass
     
     @abstractmethod
-    def leer(self, id: int):
-        pass
-    """
-    @abstractmethod
-    def leer_todo(self):
-        pass
-    """
-    @abstractmethod
-    def actualizar(self, object):
-        pass
+    def leer(self, identificador: Any) -> Optional[Any]:  # pragma: no cover - interfaz
+        raise NotImplementedError
     
     @abstractmethod
-    def eliminar(self, object):
-        pass
+    def actualizar(self, entidad: Any) -> None:  # pragma: no cover - interfaz
+        raise NotImplementedError
+    
+    @abstractmethod
+    def eliminar(self, entidad: Any) -> None:  # pragma: no cover - interfaz
+        raise NotImplementedError
     

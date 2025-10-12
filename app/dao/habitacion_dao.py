@@ -1,53 +1,56 @@
-class HabitacionDAO:
+"""DAO encargado de la tabla ``tipo_habitacion``."""
+from __future__ import annotations
+
+from typing import Dict, List
+
+import mysql.connector
+
+from app.conn.cursor import get_cursor
+from app.conn.logger import logger
+
+
+class TipoHabitacionDAO:
     @staticmethod
-    def crear(id_hogar: int, nombre_habitacion: str)-> int:
+    def crear(id_hogar: int, nombre_habitacion: str) -> int:
+        query = "INSERT INTO tipo_habitacion (id_hogar, nombre_habitacion) VALUES (%s, %s)"
         try:
             with get_cursor(commit=True) as cursor:
-                query = "INSERT INTO tipo_habitacion (id_hogar, nombre_habitacion) VALUES (%s, %s)"
                 cursor.execute(query, (id_hogar, nombre_habitacion))
                 return cursor.lastrowid
-        except mysql.connector.Error as e:
-            logger.exception("Error al intentar registrar la habitacion.")
-            raise e
+        except mysql.connector.Error as exc:  # pragma: no cover - solo log
+            logger.exception("No se pudo crear la habitación.")
+            raise exc
 
     @staticmethod
-    def leer(id_hogar: int)-> List[Dict]:
+    def listar_por_hogar(id_hogar: int) -> List[Dict]:
+        query = (
+            "SELECT id_habitacion, nombre_habitacion FROM tipo_habitacion "
+            "WHERE id_hogar = %s ORDER BY id_habitacion"
+        )
         try:
-            with get_cursor(commit=False) as cursor:
-                query = """
-                    SELECT id_habitacion, nombre_habitacion 
-                    FROM tipo_habitacion 
-                    WHERE id_hogar = %s ORDER BY id_habitacion
-                """
+            with get_cursor(dictionary=True) as cursor:
                 cursor.execute(query, (id_hogar,))
-                rows = cursor.fetchall()
-                return rows
-        except mysql.connector.Error as e:
-            logger.exception("Error al intentar recuperar las habitaciones del domicilio.")
-            raise e
-    
+                return cursor.fetchall()
+        except mysql.connector.Error as exc:  # pragma: no cover - solo log
+            logger.exception("No se pudieron recuperar las habitaciones del hogar.")
+            raise exc
+
     @staticmethod
-    def actualizar(id_habitacion: int, nombre_habitacion: str)-> bool:
+    def modificar_nombre(id_habitacion: int, nuevo_nombre: str) -> None:
+        query = "UPDATE tipo_habitacion SET nombre_habitacion = %s WHERE id_habitacion = %s"
         try:
             with get_cursor(commit=True) as cursor:
-                query = """
-                    UPDATE tipo_habitacion
-                    SET nombre_habitacion=%s
-                    WHERE id_habitacion=%s
-                """
-                cursor.execute(query, (nombre_habitacion, id_habitacion))
-                return cursor.rowcount > 0
-        except mysql.connector.Error as e:
-            logger.exception("Error al intentar modificar datos de la habitacion.")
-            raise e
-        
+                cursor.execute(query, (nuevo_nombre, id_habitacion))
+        except mysql.connector.Error as exc:  # pragma: no cover - solo log
+            logger.exception("No se pudo actualizar la habitación %s", id_habitacion)
+            raise exc
+
     @staticmethod
-    def eliminar(id_habitacion: int)-> bool:
+    def eliminar(id_habitacion: int) -> None:
+        query = "DELETE FROM tipo_habitacion WHERE id_habitacion = %s"
         try:
             with get_cursor(commit=True) as cursor:
-                query = "DELETE FROM tipo_habitacion WHERE id_habitacion=%s"
                 cursor.execute(query, (id_habitacion,))
-                return cursor.rowcount > 0
-        except mysql.connector.Error as e:
-            logger.exception("Error al intentar eliminar la habitacion.")
-            raise e
+        except mysql.connector.Error as exc:  # pragma: no cover - solo log
+            logger.exception("No se pudo eliminar la habitación %s", id_habitacion)
+            raise exc

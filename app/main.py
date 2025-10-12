@@ -15,7 +15,7 @@ def menu_usuario(session):
         print("0) Salir")
         op = input("> ")
         if op == "1":
-            hogares = DomiciliosService.listar_por_usuario(session["id"])
+            hogares = DomiciliosService.listar_por_usuario(session["dni"])
             for h in hogares:
                 print(h)
         elif op == "2":
@@ -37,6 +37,8 @@ def menu_usuario(session):
             break
 
 def main():
+    print("Sistema SmartHome - Ejecución en memoria")
+    print("Usuario administrador por defecto: admin@example.com / admin123")
     print("1) Registrarse")
     print("2) Iniciar sesión")
     print("3) Recuperar contraseña")
@@ -48,7 +50,7 @@ def main():
         apellido = input("Apellido: ")
         email = input("Email: ")
         pw = input("Contraseña: ")
-        uid = AuthService.registrar_usuario(dni, id_rol, nombre, apellido, email, pw, "usuario")
+        uid = AuthService.registrar_usuario(dni, id_rol, nombre, apellido, email, pw)
         print("Usuario creado con id:", uid)
     elif op == "2":
         email = input("Email: ")
