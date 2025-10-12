@@ -10,7 +10,6 @@ class Usuario:
         self.apellido = apellido
         self.__email = email
         self.__rol = rol
-        self._password_hash: str | None = None
     
     @property     
     def DNI(self)-> int:

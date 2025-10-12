@@ -19,7 +19,7 @@ class UsuarioDAO(DataAccessDAO):
                     INSERT INTO usuarios (dni, id_rol, nombre, apellido, email, contrasena)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (id_rol, nombre, apellido, email, hashed))
+                cursor.execute(query, (dni, id_rol, nombre, apellido, email, hashed))
         except mysql.connector.Error as e:
             logger.exception("No se pudo registrar el usuario en la Base de Datos.")
             raise e
@@ -55,24 +55,6 @@ class UsuarioDAO(DataAccessDAO):
         except mysql.connector.Error as e:
             logger.exception("No se pudo obtener el usuario buscado.")
             raise e
-    
-    @staticmethod
-    def leer_por_nombre(nombre: str) -> List[Dict]:
-        "Busca usuarios por su nombre y devuelve una lista de diccionarios."
-        try:
-            with get_cursor(commit=False, dictionary=True) as cursor:
-                query = """
-                    SELECT u.dni, u.nombre, u.apellido, u.email, u.contrasena, r.nombre AS rol
-                    FROM usuarios u
-                    JOIN roles r ON r.id = u.id_rol
-                    WHERE u.nombre = %s
-                """
-                cursor.excute(query, (nombre,))
-                rows = cursor.fetchall()
-                return rows
-        except mysql.connector.Error as e:
-            logger.exception("No se pudo obtener el usuario buscado.")
-            raise e
         
     @staticmethod
     def actualizar(dni: int, nuevo_id_rol: int) -> bool:
@@ -101,65 +83,18 @@ class UsuarioDAO(DataAccessDAO):
         except mysql.connector.Error as e:
             logger.exception("Error al intentar eliminar el usuario.")
             raise e
-        
-    """
-    @staticmethod
-    def obtener_por_email(email: str, incluir_hash: bool = False) -> Optional[Dict]:
-        
-        incluir_hash=True si se necesita validar contraseña (login).
-        
-        if incluir_hash:
-            query = 
-                SELECT u.id, u.dni, u.id_rol, u.nombre, u.apellido, u.email, u.contrasena, r.nombre AS rol
-                FROM usuarios u
-                JOIN roles r ON r.id = u.id_rol
-                WHERE u.email = %s
-            
-        else:
-            query = 
-                SELECT u.id, u.dni, u.id_rol, u.nombre, u.apellido, u.email, r.nombre AS rol
-                FROM usuarios u
-                JOIN roles r ON r.id = u.id_rol
-                WHERE u.email = %s
-            
-        with get_cursor() as cur:
-            cur.execute(query, (email,))
-            return cur.fetchone()
-
-    @staticmethod
-    def obtener_todos() -> List[Dict]:
-        query = 
-            SELECT u.id, u.dni, u.id_rol, u.nombre, u.apellido, u.email, r.nombre AS rol
-            FROM usuarios u
-            JOIN roles r ON r.id = u.id_rol
-            ORDER BY u.id
-        
-        with get_cursor() as cur:
-            cur.execute(query)
-            return cur.fetchall()
-    """
     
-
-    """
     @staticmethod
-    def actualizar_contrasena(usuario_id: int, contrasena: str) -> None:
-        hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        query = "UPDATE usuarios SET contrasena = %s WHERE id = %s"
-        with get_cursor(commit=True) as cur:
-            cur.execute(query, (hashed, usuario_id))
-
-    @staticmethod
-    def actualizar_contrasena_por_dni(dni: int, contrasena: str) -> None:
-        hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        query = "UPDATE usuarios SET contrasena = %s WHERE dni = %s"
-        with get_cursor(commit=True) as cur:
-            cur.execute(query, (hashed, dni))
-    """
-    """        
-    @staticmethod
-    def eliminar_por_dni(dni: int) -> None:
-        query = "DELETE FROM usuarios WHERE dni = %s"
-        with get_cursor(commit=True) as cur:
-            cur.execute(query, (dni,))
-    """
-
+    def verificar_contrasena(email: str, contrasena: str) -> bool:
+        " Verifica la contraseña de un usuario."
+        try:
+            with get_cursor(commit=False, dictionary=True) as cursor:
+                query = "SELECT contrasena FROM usuarios WHERE email = %s"
+                cursor.execute(query, (email,))
+                usuario = cursor.fetchone()
+                if usuario:
+                    return bcrypt.checkpw(contrasena.encode("utf-8"), usuario['contrasena'].encode("utf-8"))
+                return False
+        except mysql.connector.Error as e:
+            logger.exception("Error al verificar la contraseña.")
+            return False
