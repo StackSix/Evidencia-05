@@ -1,5 +1,4 @@
 -- BD-Evidencia-6/
--- Scripts solicitados (DDL + DML) y consultas segun lo solicitado en Ev6
 -- Motor objetivo: MySQL 8 (probado en OneCompiler)
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -43,7 +42,7 @@ CREATE TABLE rol (
 
 -- Permisos (M:N con roles)
 CREATE TABLE permiso (
-  id_rol INT UNSIGNED PRIMARY KEY,
+  id_permiso INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB;
 
