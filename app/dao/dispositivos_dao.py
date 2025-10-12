@@ -48,9 +48,9 @@ class DispositivoDAO(DataAccessDAO):
                     )
                 else:
                     raise mysql.connector.Error("No se pudo obtener el ID del nuevo dispositivo.")
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("Error al intentar registrar la cámara y su dispositivo.")
-            raise
+            raise e
 
     # ----------------- READ -----------------
     @staticmethod
@@ -80,9 +80,9 @@ class DispositivoDAO(DataAccessDAO):
                         )
                 else:
                     return None  
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("Error al intentar leer la cámara.")
-            return None
+            raise e
     """
     @staticmethod
     def leer_todos() -> List[Camara]:
@@ -163,8 +163,9 @@ class DispositivoDAO(DataAccessDAO):
                 cursor.execute(camara_query, (camara.nombre_camara, camara.grabacion_modo, camara.estado_automatizacion))
                 return cursor.rowcount > 0
         
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("Error al intentar modificar la camara.")
+            raise e
     """
     def actualizar_estado(device_id: int, nuevo_estado: str) -> None:
         query = "UPDATE dispositivos SET estado_dispositivo = %s WHERE id = %s"
@@ -224,9 +225,9 @@ class DispositivoDAO(DataAccessDAO):
                 cursor.execute(dispositivo_query, (id_dispositivo))
                 return cursor.rowcount > 0
         
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("Error, no se pudo eliminar el dispositivo camara.")
-            
+            raise e
     """    
     @staticmethod
     def eliminar_camara(dispositivo_id: int) -> None:

@@ -18,9 +18,9 @@ class AutomatizacionesDAO(DataAccessDAO):
                 """
                 cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
                 return cursor.lastrowid #ID generado por autoincremental
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("No se ha podido registrar la automatización.")
-            raise
+            raise e
     
     def leer(self, automatizacion_id: int)-> Optional[Automatizacion]:
         "Recupera una automatización por su ID"
@@ -45,9 +45,9 @@ class AutomatizacionesDAO(DataAccessDAO):
                         row["hora_apagado"]
                         )
                 return None
-        except mysql.connector.Error as err:
+        except mysql.connector.Error as e:
             logger.exception("Error al intentar recuperar la Automatización por ID.")
-            raise
+            raise e
     """          
     def get_all(self)-> list:
         "Recupera todos los registros de Automatizaciones."
@@ -82,9 +82,9 @@ class AutomatizacionesDAO(DataAccessDAO):
                 WHERE id_automatizacion=%s
                 """
                 cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
-            raise
+            raise e
             
     def eliminar(self, automatizacion: Automatizacion)-> None:
         "Permite eliminar el registro de una automatización de la BD."
@@ -95,7 +95,7 @@ class AutomatizacionesDAO(DataAccessDAO):
                 WHERE id_automatizacion=%s
                 """
                 cursor.execute(query, (automatizacion.id_automatizacion,))
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception(f"Error al intentar eliminar la automatización con ID: {automatizacion.id_automatizacion}")
-            raise
+            raise e
         

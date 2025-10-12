@@ -6,46 +6,102 @@ from app.conn.cursor import get_cursor
 from mysql.connector import Error
 from app.conn.logger import logger
 from interfaz_dao import DataAccessDAO
+from app.dominio.usuarios import Usuario
 
 class UsuarioDAO(DataAccessDAO):
-    """
-    DAO para `usuarios` con FK a `roles`.
-    columnas sugeridas en `usuarios`:
-      id (PK), dni (UNQ), id_rol (FK roles.id), nombre, apellido, email (UNQ), contrasena (hash)
-    """
-
-    # ---------- CREATE ----------
+    "DAO para 'usuarios' con FK a 'roles'"
     @staticmethod
-    def crear(id_rol: int, nombre: str, apellido: str, email: str, contrasena: str) -> int:
+    def crear(dni: int, id_rol: int, nombre: str, apellido: str, email: str, contrasena: str) -> None:
         hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO usuarios (id_rol, nombre, apellido, email, contrasena)
+                    INSERT INTO usuarios (dni, id_rol, nombre, apellido, email, contrasena)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(query, (id_rol, nombre, apellido, email, hashed))
-                return cursor.lastrowid
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("No se pudo registrar el usuario en la Base de Datos.")
-            raise
+            raise e
         
-    # ---------- READ ----------
     @staticmethod
     def leer(dni: int) -> Optional[Dict]:
         try:
-            with get_cursor(commit=False) as cursor:
+            with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
-                    SELECT u.id, u.dni, u.id_rol, u.nombre, u.apellido, u.email, r.nombre AS rol
-                    FROM usuarios 
+                    SELECT u.dni, u.nombre, u.apellido, u.email, u.contrasena, r.nombre AS rol
+                    FROM usuarios u
                     JOIN roles r ON r.id = u.id_rol
                     WHERE u.dni = %s
                 """
                 cursor.execute(query, (dni,))
                 return cursor.fetchone()
-        except mysql.connector.Error:
+        except mysql.connector.Error as e:
             logger.exception("No se pudo obtener el usuario buscado.")
-            raise
+            raise e
+        
+    @staticmethod
+    def leer_por_email(email: str) -> Optional[Dict]:
+        try:
+            with get_cursor(commit=False, dictionary=True) as cursor:
+                query = """
+                    SELECT u.dni, u.nombre, u.apellido, u.email, u.contrasena, r.nombre AS rol
+                    FROM usuarios u
+                    JOIN roles r ON r.id = u.id_rol
+                    WHERE u.email = %s
+                """
+                cursor.execute(query, (email,))
+                return cursor.fetchone()
+        except mysql.connector.Error as e:
+            logger.exception("No se pudo obtener el usuario buscado.")
+            raise e
+    
+    @staticmethod
+    def leer_por_nombre(nombre: str) -> List[Dict]:
+        "Busca usuarios por su nombre y devuelve una lista de diccionarios."
+        try:
+            with get_cursor(commit=False, dictionary=True) as cursor:
+                query = """
+                    SELECT u.dni, u.nombre, u.apellido, u.email, u.contrasena, r.nombre AS rol
+                    FROM usuarios u
+                    JOIN roles r ON r.id = u.id_rol
+                    WHERE u.nombre = %s
+                """
+                cursor.excute(query, (nombre,))
+                rows = cursor.fetchall()
+                return rows
+        except mysql.connector.Error as e:
+            logger.exception("No se pudo obtener el usuario buscado.")
+            raise e
+        
+    @staticmethod
+    def actualizar(dni: int, nuevo_id_rol: int) -> bool:
+        try:
+            with get_cursor(commit=True) as cursor:
+                query = """
+                    UPDATE usuarios 
+                    SET id_rol = %s 
+                    WHERE dni = %s"""
+                cursor.execute(query, (nuevo_id_rol, dni))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception("Error: no se pudo modificar el rol del usuario.")
+            raise e
+        
+    @staticmethod
+    def eliminar(dni: int) -> bool:
+        try:
+            with get_cursor(commit=True) as cursor:
+                query = """
+                    DELETE FROM usuarios 
+                    WHERE dni = %s
+                """
+                cursor.execute(query, (dni,))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar eliminar el usuario.")
+            raise e
+        
     """
     @staticmethod
     def obtener_por_email(email: str, incluir_hash: bool = False) -> Optional[Dict]:
@@ -82,19 +138,8 @@ class UsuarioDAO(DataAccessDAO):
             cur.execute(query)
             return cur.fetchall()
     """
-    # ---------- UPDATE ----------
-    @staticmethod
-    def actualizar(dni: int, nuevo_id_rol: int) -> None:
-        try:
-            with get_cursor(commit=True) as cursor:
-                query = """
-                    UPDATE usuarios 
-                    SET id_rol = %s 
-                    WHERE dni = %s"""
-                cursor.execute(query, (nuevo_id_rol, dni))
-        except mysql.connector.Error:
-            logger.exception("Error: no se pudo modificar el rol del usuario.")
-            raise
+    
+
     """
     @staticmethod
     def actualizar_contrasena(usuario_id: int, contrasena: str) -> None:
@@ -110,20 +155,6 @@ class UsuarioDAO(DataAccessDAO):
         with get_cursor(commit=True) as cur:
             cur.execute(query, (hashed, dni))
     """
-    # ---------- DELETE ----------
-    @staticmethod
-    def eliminar(usuario_id: int) -> None:
-        try:
-            with get_cursor(commit=True) as cursor:
-                query = """
-                    DELETE FROM usuarios 
-                    WHERE dni = %s
-                """
-                cursor.execute(query, (usuario_id,))
-                return cursor.rowcount > 0
-        except mysql.connector.Error:
-            logger.exception("Error al intentar eliminar el usuario.")
-            
     """        
     @staticmethod
     def eliminar_por_dni(dni: int) -> None:
