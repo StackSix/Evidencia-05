@@ -8,25 +8,26 @@ from app.conn.cursor import get_cursor
 from app.conn.logger import logger
 
 class AutomatizacionesDAO(DataAccessDAO):
-    def create(self, automatizacion: Automatizacion)-> None:
+    def crear(self, automatizacion: Automatizacion)-> None:
         "Para insertar un registro en una tabla."
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO automatizaciones (id_automatizacion, id_hogar, nombre, accion) 
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO automatizaciones (id_hogar, nombre, accion, dispositivo_asociado, estado, hora_encendido, hora_apagado) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (automatizacion.id_automatizacion, automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion))
-        except mysql.connector.Error as err:
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
+                return cursor.lastrowid #ID generado por autoincremental
+        except mysql.connector.Error:
             logger.exception("No se ha podido registrar la automatización.")
             raise
     
-    def get(self, automatizacion_id: int)-> Optional[Automatizacion]:
+    def leer(self, automatizacion_id: int)-> Optional[Automatizacion]:
         "Recupera una automatización por su ID"
         try:
-            with get_cursor() as cursor:
+            with get_cursor(commit=False) as cursor:
                 query = """
-                    SELECT id_automatizacion, id_hogar, nombre, accion
+                    SELECT id_automatizacion, id_hogar, nombre, accion, dispositivo_asociado, estado, hora_encendido, hora_apagado
                     FROM automatizaciones
                     WHERE id_automatizacion=%s
                 """
@@ -37,22 +38,26 @@ class AutomatizacionesDAO(DataAccessDAO):
                         row["id_automatizacion"], 
                         row["id_hogar"], 
                         row["nombre"], 
-                        row["accion"]
+                        row["accion"],
+                        row["dispositivo_asociado"],
+                        row["estado"],
+                        row["hora_encendido"],
+                        row["hora_apagado"]
                         )
                 return None
         except mysql.connector.Error as err:
             logger.exception("Error al intentar recuperar la Automatización por ID.")
             raise
-                
+    """          
     def get_all(self)-> list:
         "Recupera todos los registros de Automatizaciones."
         automatizaciones = []
         try:
             with get_cursor() as cursor:
-                query = """
+                query = 
                     SELECT id_automatizacion, id_hogar, nombre, accion
                     FROM automatizaciones
-                """
+                
                 cursor.execute(query)
                 rows = cursor.fetchall()
                 for row in rows:
@@ -66,22 +71,22 @@ class AutomatizacionesDAO(DataAccessDAO):
         except mysql.connector.Error as err:
             logger.exception("Error al intentar recuperar todas las Automatizaciones.", err)
             return []
-    
-    def update(self, automatizacion: Automatizacion)-> None:
+    """
+    def actualizar(self, automatizacion: Automatizacion)-> None:
         "Permite actualizar un registro de una automatización en la BD."
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
                 UPDATE automatizaciones 
-                SET id_hogar=%s, nombre=%s, accion=%s 
+                SET id_hogar=%s, nombre=%s, accion=%s, dispositivo_asociado=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
                 WHERE id_automatizacion=%s
                 """
-                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_automatizacion))
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
         except mysql.connector.Error:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
             raise
             
-    def delete(self, automatizacion: Automatizacion)-> None:
+    def eliminar(self, automatizacion: Automatizacion)-> None:
         "Permite eliminar el registro de una automatización de la BD."
         try:
             with get_cursor(commit=True) as cursor:
@@ -93,3 +98,4 @@ class AutomatizacionesDAO(DataAccessDAO):
         except mysql.connector.Error:
             logger.exception(f"Error al intentar eliminar la automatización con ID: {automatizacion.id_automatizacion}")
             raise
+        

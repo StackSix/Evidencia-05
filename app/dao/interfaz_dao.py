@@ -2,22 +2,22 @@ from abc import ABC, abstractmethod
 
 class DataAccessDAO(ABC):
     @abstractmethod
-    def create(self, object):
+    def crear(self, object):
         pass
     
     @abstractmethod
-    def get(self, id: int):
+    def leer(self, id: int):
+        pass
+    """
+    @abstractmethod
+    def leer_todo(self):
+        pass
+    """
+    @abstractmethod
+    def actualizar(self, object):
         pass
     
     @abstractmethod
-    def get_all(self):
-        pass
-    
-    @abstractmethod
-    def update(self, object):
-        pass
-    
-    @abstractmethod
-    def delete(self, object):
+    def eliminar(self, object):
         pass
     
