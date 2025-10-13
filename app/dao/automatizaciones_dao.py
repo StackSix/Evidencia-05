@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, List
 import mysql.connector
 from mysql.connector import Error
 from interfaz_dao import DataAccessDAO 
@@ -7,103 +7,144 @@ from app.dominio.automatizacion import Automatizacion
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger
 
-
-class AutomatizacionDAO:
+class AutomatizacionesDAO(DataAccessDAO):
     @staticmethod
-    def crear_automatizacion(
-        id_hogar: int,
-        nombre: str,
-        accion: str,
-        dias: str,
-        hora: str,
-        activa: bool,
-    ) -> int:
-        query = (
-            "INSERT INTO automatizaciones (id_hogar, nombre, accion, dias, hora, activa) "
-            "VALUES (%s, %s, %s, %s, %s, %s)"
-        )
+    def crear(self, automatizacion: Automatizacion) -> int:
+        "Inserta un registro en la tabla y devuelve un ID asignado."
         try:
             with get_cursor(commit=True) as cursor:
-                cursor.execute(query, (id_hogar, nombre, accion, dias, hora, activa))
+                query = """
+                    INSERT INTO automatizaciones (id_hogar, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
                 return cursor.lastrowid
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudo registrar la automatización.")
-            raise exc
-
+        except mysql.connector.Error as e:
+            logger.exception("No se ha podido registrar la automatización.")
+            raise e
+    
     @staticmethod
-    def obtener_por_id(automatizacion_id: int) -> Optional[Dict]:
-        query = (
-            "SELECT id_automatizacion, id_hogar, nombre, accion, dias, hora, activa "
-            "FROM automatizaciones WHERE id_automatizacion = %s"
-        )
+    def leer(automatizacion_id: int) -> Optional[Automatizacion]:
+        "Recupera una automatización por su ID."
         try:
-            with get_cursor(dictionary=True) as cursor:
+            with get_cursor(commit=False, dictionary=True) as cursor:
+                query = """
+                    SELECT id_automatizacion, id_hogar, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado
+                    FROM automatizaciones
+                    WHERE id_automatizacion=%s
+                """
                 cursor.execute(query, (automatizacion_id,))
-                return cursor.fetchone()
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudo recuperar la automatización solicitada.")
-            raise exc
+                row = cursor.fetchone()
+                if row:
+                    return Automatizacion(
+                        id_automatizacion=row["id_automatizacion"], 
+                        id_hogar=row["id_hogar"], 
+                        nombre=row["nombre"], 
+                        accion=row["accion"],
+                        id_dispositivo_asociado=row["id_dispositivo_asociado"],
+                        estado=row["estado"],
+                        hora_encendido=row["hora_encendido"],
+                        hora_apagado=row["hora_apagado"]
+                    )
+                return None
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar recuperar la Automatización por ID.")
+            raise e
 
     @staticmethod
-    def listar() -> List[Dict]:
-        query = "SELECT id_automatizacion, id_hogar, nombre, accion, dias, hora, activa FROM automatizaciones ORDER BY id_automatizacion"
+    def leer_todas_activas() -> List[Automatizacion]:
+        "Recupera todas las automatizaciones que están activas."
         try:
             with get_cursor(dictionary=True) as cursor:
+                query = "SELECT * FROM automatizaciones WHERE estado = 1"
                 cursor.execute(query)
-                return cursor.fetchall()
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudieron listar las automatizaciones.")
-            raise exc
+                rows = cursor.fetchall()
+                automatizaciones = [
+                    Automatizacion(
+                        id_automatizacion=row["id_automatizacion"], 
+                        id_hogar=row["id_hogar"],
+                        nombre=row["nombre"],
+                        accion=row["accion"],
+                        id_dispositivo_asociado=row["id_dispositivo_asociado"],
+                        estado=row["estado"],
+                        hora_encendido=row["hora_encendido"],
+                        hora_apagado=row["hora_apagado"]
+                    ) for row in rows
+                ]
+                return automatizaciones
+        except mysql.connector.Error as err:
+            logger.exception("Error al recuperar automatizaciones activas.")
+            return []    
 
     @staticmethod
-    def actualizar(
-        automatizacion_id: int,
-        *,
-        id_hogar: Optional[int] = None,
-        nombre: Optional[str] = None,
-        accion: Optional[str] = None,
-        dias: Optional[str] = None,
-        hora: Optional[str] = None,
-        activa: Optional[bool] = None,
-    ) -> None:
-        campos: Dict[str, object] = {}
-        if id_hogar is not None:
-            campos["id_hogar"] = id_hogar
-        if nombre is not None:
-            campos["nombre"] = nombre
-        if accion is not None:
-            campos["accion"] = accion
-        if dias is not None:
-            campos["dias"] = dias
-        if hora is not None:
-            campos["hora"] = hora
-        if activa is not None:
-            campos["activa"] = activa
-
-        if not campos:
-            return
-
-        sets = ", ".join(f"{col} = %s" for col in campos)
-        valores = list(campos.values())
-        valores.append(automatizacion_id)
-
-        query = f"UPDATE automatizaciones SET {sets} WHERE id_automatizacion = %s"
+    def actualizar(automatizacion: Automatizacion) -> bool:
+        "Permite actualizar un registro de una automatización en la BD."
         try:
             with get_cursor(commit=True) as cursor:
-                cursor.execute(query, tuple(valores))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception(
-                "No se pudo actualizar la automatización con id %s", automatizacion_id
-            )
-            raise exc
-
+                query = """
+                UPDATE automatizaciones 
+                SET id_hogar=%s, nombre=%s, accion=%s, id_dispositivo_asociado=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
+                WHERE id_automatizacion=%s
+                """
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
+            raise e
+            
     @staticmethod
-    def eliminar(automatizacion_id: int) -> None:
-        query = "DELETE FROM automatizaciones WHERE id_automatizacion = %s"
+    def eliminar(id_automatizacion: int) -> bool:
+        "Permite eliminar el registro de una automatización de la BD por su ID."
         try:
             with get_cursor(commit=True) as cursor:
-                cursor.execute(query, (automatizacion_id,))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudo eliminar la automatización %s", automatizacion_id)
-            raise exc
-
+                query = """
+                DELETE FROM automatizaciones 
+                WHERE id_automatizacion=%s
+                """
+                cursor.execute(query, (id_automatizacion,))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception(f"Error al intentar eliminar la automatización con ID: {id_automatizacion}")
+            raise e
+    
+    @staticmethod
+    def es_dueno_de_hogar(dni_usuario: int, id_hogar: int) -> bool:
+        """
+        Verifica si un usuario es el propietario de un hogar.
+        Utiliza una tabla intermedia 'usuarios_domicilios' para la validación.
+        """
+        try:
+            with get_cursor(commit=False) as cursor:
+                query = """
+                    SELECT COUNT(ud.dni)
+                    FROM usuarios_domicilios AS ud
+                    WHERE ud.id_domicilio = %s AND ud.dni = %s
+                """
+                cursor.execute(query, (id_hogar, dni_usuario))
+                resultado = cursor.fetchone()
+                return resultado[0] > 0 if resultado else False
+        except mysql.connector.Error as e:
+            logger.exception("Error al verificar la propiedad del hogar.")
+            raise e
+            
+    @staticmethod
+    def es_dueno_de_automatizacion(dni_usuario: int, automatizacion_id: int) -> bool:
+        """
+        Verifica si un usuario es el propietario de la automatización.
+        Utiliza la tabla intermedia 'usuarios_domicilios' para la validación.
+        """
+        try:
+            with get_cursor(commit=False) as cursor:
+                query = """
+                    SELECT COUNT(a.id_automatizacion)
+                    FROM automatizaciones AS a
+                    JOIN usuarios_domicilios AS ud ON a.id_hogar = ud.id_domicilio
+                    WHERE a.id_automatizacion = %s AND ud.dni = %s
+                """
+                cursor.execute(query, (automatizacion_id, dni_usuario))
+                resultado = cursor.fetchone()
+                return resultado[0] > 0 if resultado else False
+        except mysql.connector.Error as e:
+            logger.exception("Error al verificar la propiedad de la automatización.")
+            raise e
+        

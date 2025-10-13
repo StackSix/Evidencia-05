@@ -1,5 +1,5 @@
 from app.servicios.auth_service import AuthService
-from app.servicios.usuarios_service import UsuarioService
+from app.servicios.usuarios_service import UsuariosService
 from app.servicios.dispositivos_service import DispositivosService
 from app.servicios.domicilios_service import DomiciliosService
 from app.servicios.habitacion_service import HabitacionService
