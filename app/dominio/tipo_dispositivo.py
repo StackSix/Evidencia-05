@@ -1,3 +1,4 @@
+
 class TipoDispositivo:
     "Clase para manejar tipos de dispositivos."
 

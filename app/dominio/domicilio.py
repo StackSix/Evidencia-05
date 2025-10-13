@@ -1,6 +1,7 @@
 from __future__ import annotations
 from usuarios import Usuario
 
+
 class Domicilio:
     "Clase para manejar hogares."
 

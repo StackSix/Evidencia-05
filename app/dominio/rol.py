@@ -1,3 +1,4 @@
+
 class Rol:
     """Clase para manejar los roles de usuarios."""
 

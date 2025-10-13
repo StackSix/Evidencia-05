@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 class Dispositivo(ABC):
     "Clase para manejar dispositivos del hogar inteligente."
 

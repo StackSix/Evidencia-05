@@ -1,6 +1,7 @@
 from __future__ import annotations
 import re
 
+
 class Usuario:
     def __init__(self, DNI: int, nombre: str, apellido: str, email: str, rol: str = "user") -> None:
         if not nombre or len(nombre) < 2:

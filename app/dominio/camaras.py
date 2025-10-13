@@ -1,4 +1,4 @@
-from dispositivos import Dispositivo
+from app.dominio.dispositivos import Dispositivo
 
 class Camara(Dispositivo):
     "Clase para dispositivos de tipo Cámara."

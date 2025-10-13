@@ -1,3 +1,4 @@
+
 class Tipo_habitacion:
     "Clase para manejar ambientes de un hogar."
     def __init__(self, id_habitacion, id_hogar, nombre):
