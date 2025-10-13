@@ -6,81 +6,73 @@ from app.servicios.habitacion_service import HabitacionService
 from app.servicios.automatizaciones_service import AutomatizacionService
 
 
-def menu_automatizacion(session):
+def menu_automatizacion(session: dict):
+    """
+    Menú básico de automatizaciones usando solo los campos que existen en la base.
+    Incluye creación, listado y eliminación.
+    """
+    dni_usuario = session.get("dni")
+    if not dni_usuario:
+        print("⚠️ No se encontró información del usuario en sesión.")
+        return
+
+    # Traer domicilios del usuario
+    domicilios = DomiciliosService.listar_por_usuario(dni_usuario)
+    if not domicilios:
+        print("⚠️ Debes registrar al menos un domicilio antes de usar automatizaciones.")
+        return
+
     while True:
         print("\n--- Menú de Automatizaciones ---")
         print("1. Crear automatización")
         print("2. Eliminar automatización")
-        print("3. Mostrar detalles de una automatización")
-        print("4. Configurar horario de una automatización")
-        print("5. Volver al menú principal")
-        opcion = input("Seleccione una opción: ")
-        
-        try:
-            if opcion == '1':
-                id_hogar = int(input("Ingrese el ID del hogar: "))
-                nombre = input("Ingrese el nombre de la automatización: ")
-                accion = input("Ingrese la acción (ej. 'encender'): ")
-                id_dispositivo = int(input("Ingrese el ID del dispositivo asociado: "))
-                
-                automatizacion_id = AutomatizacionService.crear_automatizacion(
-                    current_user=session["current_user"],
-                    id_hogar=id_hogar,
-                    nombre=nombre,
-                    accion=accion,
-                    id_dispositivo_asociado=id_dispositivo
-                )
-                print(f"Automatización '{nombre}' creada con ID: {automatizacion_id}")
-            
-            elif opcion == '2':
-                # Ejemplo de cómo llamar a la función eliminar_automatizacion
-                automatizacion_id = int(input("Ingrese el ID de la automatización a eliminar: "))
-                AutomatizacionService.eliminar_automatizacion(
-                    current_user=session["current_user"],
-                    automatizacion_id=automatizacion_id
-                )
-                print("Automatización eliminada con éxito.")
+        print("3. Mostrar automatizaciones de mis domicilios")
+        print("4. Volver al menú principal")
+        opcion = input("> ")
 
-            elif opcion == '3':
-                # Ejemplo de cómo llamar a la función mostrar_detalles_automatizacion
-                automatizacion_id = int(input("Ingrese el ID de la automatización a ver: "))
-                detalles = AutomatizacionService.mostrar_detalles_automatizacion(
-                    current_user=session["current_user"],
-                    automatizacion_id=automatizacion_id
+        if opcion == "1":
+            print("\n🏠 Tus domicilios:")
+            for d in domicilios:
+                print(f"{d['id_hogar']}: {d['nombre_domicilio']} ({d['direccion']})")
+            id_hogar = int(input("Seleccione ID del hogar para la automatización: "))
+            nombre = input("Ingrese el nombre de la automatización: ")
+            accion = input("Ingrese la acción (ej. 'encender', 'apagar'): ")
+
+            try:
+                # Se llama al Service que a su vez usa el DAO para escribir en la DB
+                id_auto = AutomatizacionService.crear_automatizacion(
+                    session, id_hogar, nombre, accion
                 )
-                if detalles:
-                    print("\n--- Detalles de la automatización ---")
-                    for key, value in detalles.items():
-                        print(f"{key}: {value}")
+                print(f"✅ Automatización creada con ID {id_auto}.")
+            except Exception as e:
+                print(f"❌ Error al crear la automatización: {e}")
+
+        elif opcion == "2":
+            try:
+                id_eliminar = int(input("Ingrese el ID de la automatización a eliminar: "))
+                AutomatizacionService.eliminar_automatizacion(session, id_eliminar)
+                print(f"✅ Automatización con ID {id_eliminar} eliminada correctamente.")
+            except Exception as e:
+                print(f"❌ Error al eliminar la automatización: {e}")
+
+        elif opcion == "3":
+            print("\n📄 Automatizaciones de tus domicilios:")
+            try:
+                autos_usuario = AutomatizacionService.listar_automatizaciones_por_usuario(session)
+                if not autos_usuario:
+                    print("⚠️ No hay automatizaciones registradas en tus domicilios.")
                 else:
-                    print("Automatización no encontrada.")
-            
-            elif opcion == '4':
-                # Ejemplo de cómo llamar a la función configurar_automatizacion_horaria
-                automatizacion_id = int(input("Ingrese el ID de la automatización a configurar: "))
-                hora_encendido = input("Ingrese la hora de encendido (HH:MM): ")
-                hora_apagado = input("Ingrese la hora de apagado (HH:MM): ")
-                AutomatizacionService.configurar_automatizacion_horaria(
-                    current_user=session["current_user"],
-                    automatizacion_id=automatizacion_id,
-                    on=hora_encendido,
-                    off=hora_apagado
-                )
-                print("Horario de automatización actualizado con éxito.")
+                    for a in autos_usuario:
+                        nombre_hogar = next((d['nombre_domicilio'] for d in domicilios if d['id_hogar'] == a['id_hogar']), "Desconocido")
+                        print(f"ID: {a['id_automatizacion']}, Nombre: {a['nombre']}, Acción: {a['accion']}, Hogar: {nombre_hogar}")
+            except Exception as e:
+                print(f"❌ Error al recuperar automatizaciones: {e}")
 
-            elif opcion == '5':
-                break
-            
-            else:
-                print("Opción no válida. Intente de nuevo.")
-        
-        except PermissionError as e:
-            print(f"Error de permisos: {e}")
-        except ValueError as e:
-            print(f"Error de validación: {e}")
-        except Exception as e:
-            print(f"Ocurrió un error inesperado: {e}")
-            
+        elif opcion == "4":
+            break
+
+        else:
+            print("❌ Opción no válida.")
 
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
@@ -111,7 +103,7 @@ def menu_usuario(session):
                     print(f"- [{d['nombre_tipo']}] {d['etiqueta']} @ {d['nombre_domicilio']} / {d['nombre_habitacion']}  (id={d['id_dispositivo']})")
 
         elif op == "3":
-            UsuariosService.ver_mis_datos(session["id"])
+            UsuariosService.ver_mis_datos(session["dni"])
 
         elif op == "4" and session["rol"] == "admin":
             # --- Submenú CRUD de dispositivos ---
@@ -170,39 +162,45 @@ def menu_usuario(session):
             break
 
 def main():
-    print("Sistema SmartHome - Ejecución en memoria")
-    print("Usuario administrador por defecto: admin@example.com / admin123")
-    print("1) Registrarse")
-    print("2) Iniciar sesión")
-    print("3) Recuperar contraseña")
-    op = input("> ").strip()
+    while True:
+        print("Sistema SmartHome - Ejecución en memoria")
+        print("Usuario administrador por defecto: admin@example.com / admin123")
+        print("1) Registrarse")
+        print("2) Iniciar sesión")
+        print("3) Recuperar contraseña")
+        print("0) Salir")
+        op = input("> ").strip()
 
-    if op == "1":
-        dni = int(input("DNI: "))
-        id_rol = 2  # usuario por defecto
-        nombre = input("Nombre: ")
-        apellido = input("Apellido: ")
-        email = input("Email: ")
-        pw = input("Contraseña: ")
-        uid = AuthService.registrar_usuario(dni, id_rol, nombre, apellido, email, pw)
-        print("Usuario creado con id:", uid)
+        if op == "1":
+            dni = int(input("DNI: "))
+            id_rol = 2  # usuario por defecto
+            nombre = input("Nombre: ")
+            apellido = input("Apellido: ")
+            email = input("Email: ")
+            pw = input("Contraseña: ")
+            uid = AuthService.registrar_usuario(dni, id_rol, nombre, apellido, email, pw)
+            print("Usuario creado con id:", uid)
 
-    elif op == "2":
-        email = input("Email: ")
-        pw = input("Contraseña: ")
-        session = AuthService.login(email, pw)
-        if not session:
-            print("Credenciales inválidas.")
-            return
-        menu_usuario(session)
+        elif op == "2":
+            email = input("Email: ")
+            pw = input("Contraseña: ")
+            session = AuthService.login(email, pw)
+            if not session:
+                print("Credenciales inválidas.")
+                return
+            menu_usuario(session)
 
-    elif op == "3":
-        email = input("Email: ")
-        dni = int(input("DNI: "))
-        nueva_contra = input("Nueva contraseña: ")
-        ok = AuthService.resetear_contrasena(email, dni, nueva_contra)
-        print("Listo" if ok else "No se pudo resetear (email/dni incorrectos).")
+        elif op == "3":
+            email = input("Email: ")
+            dni = int(input("DNI: "))
+            nueva_contra = input("Nueva contraseña: ")
+            ok = AuthService.resetear_contrasena(email, dni, nueva_contra)
+            print("Listo" if ok else "No se pudo resetear (email/dni incorrectos).")
+        elif op == "0":
+                break
+        
+        else:
+            print("Opción no válida.")
 
 if __name__ == "__main__":
     main()
-

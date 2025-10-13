@@ -1,6 +1,6 @@
 """DAO para operar con domicilios y su vinculación con usuarios."""
 from __future__ import annotations
-from typing import Dict, List
+from typing import Dict, List, Any
 import mysql.connector
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger

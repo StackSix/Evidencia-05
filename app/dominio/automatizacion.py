@@ -6,16 +6,11 @@ from app.dominio.dispositivos import Dispositivo
 
 class Automatizacion:
     "Clase para manejar automatizaciones del hogar."
-
-    def __init__(self, id_automatizacion: Optional[int], id_hogar: int, nombre: str, accion: str, id_dispositivo_asociado: int, estado: bool, hora_encendido: Optional[str] = None, hora_apagado: Optional[str] = None):
+    def __init__(self, id_automatizacion: Optional[int], id_hogar: int, nombre: str, accion: str):
         self.id_automatizacion = id_automatizacion
         self.id_hogar = id_hogar
         self.nombre = nombre
         self.accion = accion
-        self.id_dispositivo_asociado = id_dispositivo_asociado
-        self.estado = estado
-        self.hora_encendido = hora_encendido
-        self.hora_apagado = hora_apagado
 
     def configurar_horario(self, on: str, off: str):
         "Configura las horas de encendido y apagado."
