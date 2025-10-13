@@ -1,8 +1,6 @@
 """Servicios de administración de usuarios apoyados en la base remota."""
 from __future__ import annotations
-
 from typing import Dict, List
-
 from app.dao.usuarios_dao import UsuarioDAO
 
 class UsuariosService:
@@ -26,3 +24,19 @@ class UsuariosService:
             raise PermissionError("Solo un admin puede eliminar usuarios.")
 
         UsuarioDAO.eliminar(dni)
+
+    @staticmethod
+    def ver_mis_datos(dni: int) -> None:
+        u = UsuarioDAO.obtener_por_dni(dni)
+        if not u:
+            print("⚠️  No se encontraron datos del usuario.")
+            return
+        # si querés el nombre del rol, lo traes aparte o añadís join en obtener_por_dni
+        print("\n— Mis datos —")
+        print(f"ID: {u['id']}")
+        print(f"DNI: {u['dni']}")
+        print(f"Nombre: {u['nombre']} {u['apellido']}")
+        print(f"Email: {u['email']}")
+        # opcional: rol_nombre si lo agregas al SELECT
+        if 'rol_nombre' in u:
+            print(f"Rol: {u['rol_nombre']}")

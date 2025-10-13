@@ -151,7 +151,7 @@ VALUES
   ('33123460', 2, 'Nahir', 'Bustos', 'nahir@example.com', 'pbkdf2$120000$aa5$h5'),
   ('34123461', 2, 'Sofia', 'Lopez', 'sofia@example.com', 'pbkdf2$120000$aa6$h6'),
   ('40123462', 1, 'Root', 'Admin', 'root@example.com', 'pbkdf2$120000$aa7$h7'),
-  ('41123463', 3, 'Night', 'Op', 'nightop@example.com', 'pbkdf2$120000$aa8$h8'),
+  ('41123463', 3, 'pepe', 'Op', 'nightop@example.com', 'pbkdf2$120000$aa8$h8'),
   ('42123464', 3, 'Day', 'Op', 'dayop@example.com', 'pbkdf2$120000$aa9$h9'),
   ('43123465', 2, 'Nicolas', 'Roman', 'nicolas@example.com', 'pbkdf2$120000$aaA$hA');
 

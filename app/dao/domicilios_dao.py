@@ -1,10 +1,7 @@
 """DAO para operar con domicilios y su vinculación con usuarios."""
 from __future__ import annotations
-
 from typing import Dict, List
-
 import mysql.connector
-
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger
 
@@ -40,18 +37,28 @@ class DomicilioDAO:
             raise exc
 
     @staticmethod
-    def listar_por_usuario(dni: int) -> List[Dict]:
-        query = (
-            "SELECT h.id_hogar, h.alias_domicilio, h.direccion, h.numeracion, h.ciudad "
-            "FROM usuarios_domicilios AS uh "
-            "JOIN domicilios AS h ON h.id_hogar = uh.id_hogar "
-            "WHERE uh.dni = %s ORDER BY h.id_hogar"
-        )
+    def listar_por_usuario(dni: int) -> List[Dict[str, Any]]:
+        """
+        Devuelve los domicilios del usuario cuyo DNI = dni.
+        Une usuarios (por DNI) -> usuarios_hogares (usuario_id) -> domicilios (hogar_id).
+        """
+        query = """
+            SELECT h.id_hogar,
+                   h.nombre_domicilio,
+                   h.direccion,
+                   h.numeracion,
+                   h.ciudad
+            FROM usuarios AS u
+            JOIN usuarios_hogares AS uh ON uh.usuario_id = u.id
+            JOIN domicilios AS h        ON h.id_hogar    = uh.hogar_id
+            WHERE u.dni = %s
+            ORDER BY h.id_hogar
+        """
         try:
             with get_cursor(dictionary=True) as cursor:
                 cursor.execute(query, (dni,))
                 return cursor.fetchall()
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
+        except mysql.connector.Error as exc:
             logger.exception("Error al recuperar los domicilios del usuario.")
             raise exc
 

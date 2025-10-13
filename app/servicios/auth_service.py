@@ -1,12 +1,8 @@
 """Servicios de autenticación basados en la base de datos en la nube."""
 from __future__ import annotations
-
 from typing import Dict, Optional
-
 import bcrypt
-
 from app.dao.usuarios_dao import UsuarioDAO
-
 
 class AuthService:
     @staticmethod
@@ -29,31 +25,26 @@ class AuthService:
 
     @staticmethod
     def login(email: str, contrasena_plana: str) -> Optional[Dict]:
-        registro = UsuarioDAO.obtener_por_email(email)
-        if not registro:
+        rec = UsuarioDAO.obtener_por_email(email)
+        if not rec:
             return None
-
-        hashed = registro.get("contrasena")
+        hashed = rec.pop("contrasena", None)  # viene como alias en el DAO
         if not hashed:
             return None
-
-        if not bcrypt.checkpw(contrasena_plana.encode("utf-8"), hashed.encode("utf-8")):
-            return None
-
-        registro = dict(registro)
-        registro.pop("contrasena", None)
-        return registro
+        ok = bcrypt.checkpw(contrasena_plana.encode("utf-8"), hashed.encode("utf-8"))
+        return rec if ok else None
 
     @staticmethod
-    def resetear_contrasena(email: str, dni: int, nueva_contrasena: str) -> bool:
-        if len(nueva_contrasena) < 6:
+    def resetear_contrasena(email: str, dni: int, nueva_contra: str) -> bool:
+        if len(nueva_contra) < 6:
             raise ValueError("La contraseña debe tener al menos 6 caracteres.")
 
         registro = UsuarioDAO.obtener_por_email(email)
         if not registro or registro.get("dni") != dni:
             return False
 
-        UsuarioDAO.actualizar_contrasena_por_dni(dni, nueva_contrasena)
+        # usa el alias que apunta a actualizar_contrasena_por_dni
+        UsuarioDAO.actualizar_contrasena(dni, nueva_contra)
         return True
 
     @staticmethod

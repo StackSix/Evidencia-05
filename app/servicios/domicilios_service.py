@@ -8,8 +8,15 @@ from app.dao.domicilios_dao import DomicilioDAO
 
 class DomiciliosService:
     @staticmethod
-    def listar_por_usuario(dni: int) -> List[Dict]:
-        return DomicilioDAO.listar_por_usuario(dni)
+    def listar_por_usuario(dni: int):
+        hogares = DomicilioDAO.listar_por_usuario(dni)
+        if not hogares:
+            print("⚠️  No tienes domicilios registrados aún.")
+            return []
+        print("\n🏠 Tus domicilios registrados:")
+        for h in hogares:
+            print(f" - {h['nombre_domicilio']} ({h['direccion']} {h['numeracion']}, {h['ciudad']})")
+        return hogares
 
     @staticmethod
     def crear(dni: int, direccion: str, numeracion: str, ciudad: str, alias: str) -> int:

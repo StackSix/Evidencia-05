@@ -1,10 +1,10 @@
-cat > .gitignore <<'EOF'
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
 
-# Entornos
+# Entornos virtuales
 .venv/
 venv/
 
@@ -18,4 +18,6 @@ htmlcov/
 .vscode/
 .idea/
 .DS_Store
-EOF
+
+# Artefactos de empaquetado
+*.egg-info/

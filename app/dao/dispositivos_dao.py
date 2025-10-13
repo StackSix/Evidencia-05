@@ -1,86 +1,80 @@
-"""Acceso a datos para dispositivos vinculados a la plataforma SmartHome."""
 from __future__ import annotations
-
-from typing import Any, Dict, List, Optional 
-
+from typing import Optional, List, Dict, Any
 import mysql.connector
-
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger
 
-
 class DispositivoDAO:
-    """DAO con operaciones básicas sobre la tabla ``dispositivos``."""
+    @staticmethod
+    def crear(id_habitacion: Optional[int], id_tipo: int, etiqueta: str) -> int:
+        sql = """INSERT INTO dispositivos (id_habitacion, id_tipo, estado, etiqueta)
+                 VALUES (%s, %s, FALSE, %s)"""
+        with get_cursor(commit=True) as cur:
+            cur.execute(sql, (id_habitacion, id_tipo, etiqueta))
+            return cur.lastrowid
 
     @staticmethod
-    def crear_dispositivo(
-        id_habitacion: Optional[int],
-        id_tipo: int,
-        estado: bool,
-        etiqueta: str,
-    ) -> int:
-        """Crea un dispositivo y devuelve su identificador."""
-
-        query = (
-            "INSERT INTO dispositivos (id_habitacion, id_tipo, estado, etiqueta) "
-            "VALUES (%s, %s, %s, %s)"
-        )
-        try:
-            with get_cursor(commit=True) as cursor:
-                cursor.execute(query, (id_habitacion, id_tipo, estado, etiqueta))
-                return cursor.lastrowid
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("Error al intentar crear el dispositivo.")
-            raise exc
+    def obtener_por_id(id_dispositivo: int) -> Optional[Dict[str, Any]]:
+        sql = """SELECT d.id_dispositivo, d.id_habitacion, d.id_tipo, d.estado, d.etiqueta,
+                        td.nombre_tipo, th.nombre_habitacion
+                 FROM dispositivos d
+                 LEFT JOIN tipos_dispositivos td ON td.id_tipo=d.id_tipo
+                 LEFT JOIN tipo_habitacion th   ON th.id_habitacion=d.id_habitacion
+                 WHERE d.id_dispositivo=%s"""
+        with get_cursor(dictionary=True) as cur:
+            cur.execute(sql, (id_dispositivo,))
+            return cur.fetchone()
+        
+    @staticmethod
+    def listar_todos() -> List[Dict[str, Any]]:
+        sql = """SELECT d.id_dispositivo, d.etiqueta, d.estado,
+                        td.nombre_tipo, th.nombre_habitacion, h.nombre_domicilio
+                 FROM dispositivos d
+                 LEFT JOIN tipos_dispositivos td ON td.id_tipo=d.id_tipo
+                 LEFT JOIN tipo_habitacion th   ON th.id_habitacion=d.id_habitacion
+                 LEFT JOIN domicilios h         ON h.id_hogar=th.hogar_id
+                 ORDER BY d.id_dispositivo"""
+        with get_cursor(dictionary=True) as cur:
+            cur.execute(sql)
+            return cur.fetchall()
 
     @staticmethod
-    def obtener_por_usuario(usuario_id: int) -> List[Dict[str, Any]]:
-        """Obtiene los dispositivos asociados al usuario mediante sus domicilios."""
-
-        query = (
-            "SELECT d.id, d.id_habitacion, d.id_tipo, d.estado, d.etiqueta "
-            "FROM dispositivos AS d "
-            "JOIN habitaciones AS h ON h.id = d.id_habitacion "
-            "JOIN usuarios_domicilios AS ud ON ud.id_hogar = h.id_hogar "
-            "JOIN usuarios AS u ON u.dni = ud.dni "
-            "WHERE u.id = %s ORDER BY d.id"
-        )
-        try:
-            with get_cursor(dictionary=True) as cursor:
-                cursor.execute(query, (usuario_id,))
-                return cursor.fetchall()
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("Error al listar los dispositivos del usuario.")
-            raise exc
+    def listar_por_usuario(user_id: int) -> List[Dict[str, Any]]:
+        sql = """SELECT d.id_dispositivo, d.etiqueta, d.estado,
+                        td.nombre_tipo, th.nombre_habitacion, h.nombre_domicilio
+                 FROM usuarios_hogares uh
+                 JOIN domicilios h           ON h.id_hogar = uh.hogar_id
+                 LEFT JOIN tipo_habitacion th ON th.hogar_id = h.id_hogar
+                 LEFT JOIN dispositivos d      ON d.id_habitacion = th.id_habitacion
+                 LEFT JOIN tipos_dispositivos td ON td.id_tipo = d.id_tipo
+                 WHERE uh.usuario_id = %s AND d.id_dispositivo IS NOT NULL
+                 ORDER BY d.id_dispositivo"""
+        with get_cursor(dictionary=True) as cur:
+            cur.execute(sql, (user_id,))
+            return cur.fetchall()
 
     @staticmethod
-    def actualizar(dispositivo_id: int, **campos: Any) -> None:
-        """Actualiza los campos indicados para un dispositivo."""
-
-        if not campos:
-            return
-
-        columnas: List[str] = []
-        valores: List[Any] = []
-        for columna, valor in campos.items():
-            columnas.append(f"{columna} = %s")
-            valores.append(valor)
-        valores.append(dispositivo_id)
-
-        query = f"UPDATE dispositivos SET {', '.join(columnas)} WHERE id = %s"
-        try:
-            with get_cursor(commit=True) as cursor:
-                cursor.execute(query, tuple(valores))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("Error al actualizar el dispositivo %s", dispositivo_id)
-            raise exc
+    def actualizar(id_dispositivo: int, *,
+                   id_habitacion: Optional[int] = None,
+                   id_tipo: Optional[int] = None,
+                   etiqueta: Optional[str] = None) -> None:
+        sets, params = [], []
+        if id_habitacion is not None: sets.append("id_habitacion=%s"); params.append(id_habitacion)
+        if id_tipo is not None:       sets.append("id_tipo=%s");       params.append(id_tipo)
+        if etiqueta:                  sets.append("etiqueta=%s");      params.append(etiqueta)
+        if not sets: return
+        params.append(id_dispositivo)
+        sql = f"UPDATE dispositivos SET {', '.join(sets)} WHERE id_dispositivo=%s"
+        with get_cursor(commit=True) as cur:
+            cur.execute(sql, tuple(params))
 
     @staticmethod
-    def eliminar(dispositivo_id: int) -> None:
-        query = "DELETE FROM dispositivos WHERE id = %s"
-        try:
-            with get_cursor(commit=True) as cursor:
-                cursor.execute(query, (dispositivo_id,))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("Error al eliminar el dispositivo %s", dispositivo_id)
-            raise exc
+    def set_estado(id_dispositivo: int, estado: bool) -> None:
+        with get_cursor(commit=True) as cur:
+            cur.execute("UPDATE dispositivos SET estado=%s WHERE id_dispositivo=%s",
+                        (estado, id_dispositivo))
+
+    @staticmethod
+    def eliminar(id_dispositivo: int) -> None:
+        with get_cursor(commit=True) as cur:
+            cur.execute("DELETE FROM dispositivos WHERE id_dispositivo=%s", (id_dispositivo,))
