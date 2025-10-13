@@ -63,7 +63,6 @@ CREATE TABLE tipo_habitacion (
   CONSTRAINT fk_th_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
-
 -- Dispositivos
 CREATE TABLE dispositivos (
   id_dispositivo INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -74,7 +73,6 @@ CREATE TABLE dispositivos (
   CONSTRAINT fk_disp_habitacion FOREIGN KEY (id_habitacion) REFERENCES tipo_habitacion(id_habitacion) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT fk_disp_tipo FOREIGN KEY (id_tipo) REFERENCES tipos_dispositivos(id_tipo) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
 
 -- rol <-> permiso
 CREATE TABLE rol_permiso (
@@ -110,8 +108,6 @@ CREATE TABLE automatizaciones (
   accion VARCHAR(140) NOT NULL,
   CONSTRAINT fk_auto_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
-
 
 -- ======================================
 -- DML: Inserciones de ejemplo (>=10 por tablas clave)
