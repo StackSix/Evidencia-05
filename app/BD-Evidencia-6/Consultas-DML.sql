@@ -1,5 +1,4 @@
 -- BD-Evidencia-6/
--- Scripts solicitados (DDL + DML) y consultas segun lo solicitado en Ev6
 -- Motor objetivo: MySQL 8 (probado en OneCompiler)
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -43,7 +42,7 @@ CREATE TABLE rol (
 
 -- Permisos (M:N con roles)
 CREATE TABLE permiso (
-  id_rol INT UNSIGNED PRIMARY KEY,
+  id_permiso INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL UNIQUE
 ) ENGINE=InnoDB;
 
@@ -59,11 +58,10 @@ CREATE TABLE domicilios (
 -- Tipo de habitación
 CREATE TABLE tipo_habitacion (
   id_habitacion INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  hogar_id INT UNSIGNED NOT NULL,
+  id_hogar INT UNSIGNED NOT NULL,
   nombre_habitacion VARCHAR(120) NOT NULL,
   CONSTRAINT fk_th_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
 
 -- Dispositivos
 CREATE TABLE dispositivos (
@@ -75,7 +73,6 @@ CREATE TABLE dispositivos (
   CONSTRAINT fk_disp_habitacion FOREIGN KEY (id_habitacion) REFERENCES tipo_habitacion(id_habitacion) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT fk_disp_tipo FOREIGN KEY (id_tipo) REFERENCES tipos_dispositivos(id_tipo) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
 
 -- rol <-> permiso
 CREATE TABLE rol_permiso (
@@ -89,7 +86,7 @@ CREATE TABLE rol_permiso (
 -- Junction usuarios <-> domicilios (M:N)
 CREATE TABLE usuarios_domicilios (
   usuario_id INT UNSIGNED NOT NULL,
-  hogar_id INT UNSIGNED NOT NULL,
+  id_hogar INT UNSIGNED NOT NULL,
   PRIMARY KEY (usuario_id, hogar_id),
   CONSTRAINT fk_uh_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_uh_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
@@ -111,8 +108,6 @@ CREATE TABLE automatizaciones (
   accion VARCHAR(140) NOT NULL,
   CONSTRAINT fk_auto_hogar FOREIGN KEY (hogar_id) REFERENCES domicilios(id_hogar) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
-
-
 
 -- ======================================
 -- DML: Inserciones de ejemplo (>=10 por tablas clave)
@@ -152,7 +147,7 @@ VALUES
   ('33123460', 2, 'Nahir', 'Bustos', 'nahir@example.com', 'pbkdf2$120000$aa5$h5'),
   ('34123461', 2, 'Sofia', 'Lopez', 'sofia@example.com', 'pbkdf2$120000$aa6$h6'),
   ('40123462', 1, 'Root', 'Admin', 'root@example.com', 'pbkdf2$120000$aa7$h7'),
-  ('41123463', 3, 'Night', 'Op', 'nightop@example.com', 'pbkdf2$120000$aa8$h8'),
+  ('41123463', 3, 'pepe', 'Op', 'nightop@example.com', 'pbkdf2$120000$aa8$h8'),
   ('42123464', 3, 'Day', 'Op', 'dayop@example.com', 'pbkdf2$120000$aa9$h9'),
   ('43123465', 2, 'Nicolas', 'Roman', 'nicolas@example.com', 'pbkdf2$120000$aaA$hA');
 

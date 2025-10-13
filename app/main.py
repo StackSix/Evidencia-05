@@ -81,6 +81,7 @@ def menu_automatizacion(session):
         except Exception as e:
             print(f"Ocurrió un error inesperado: {e}")
             
+
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
     while True:
@@ -204,3 +205,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

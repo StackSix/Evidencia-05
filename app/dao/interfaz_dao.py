@@ -1,23 +1,20 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 class DataAccessDAO(ABC):
     @abstractmethod
-    def create(self, object):
+
+    def crear(self, object):
         pass
     
     @abstractmethod
-    def get(self, id: int):
-        pass
+    def leer(self, identificador: Any) -> Optional[Any]:  # pragma: no cover - interfaz
+        raise NotImplementedError
     
     @abstractmethod
-    def get_all(self):
-        pass
+    def actualizar(self, entidad: Any) -> None:  # pragma: no cover - interfaz
+        raise NotImplementedError
     
     @abstractmethod
-    def update(self, object):
-        pass
-    
-    @abstractmethod
-    def delete(self, object):
-        pass
-    
+    def eliminar(self, entidad: Any) -> None:  # pragma: no cover - interfaz
+        raise NotImplementedError

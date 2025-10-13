@@ -1,26 +1,24 @@
 from __future__ import annotations
-from contextlib import contextmanager
 
-# Import absoluto (cuando ejecutás con: python -m app.conn.test_cursor desde /src)
-try:
-    from app.conn.db_conn import connect_to_mysql
-except ImportError:
-    # Import relativo (si corrés el archivo dentro del paquete)
-    from .db_conn import connect_to_mysql
+from contextlib import contextmanager
+from typing import Iterator
+
+from .db_conn import connect_to_mysql
+
 
 @contextmanager
-def get_cursor(commit: bool = False):
+def get_cursor(commit: bool = False, *, dictionary: bool = False) -> Iterator:
     connection = connect_to_mysql()
     if connection is None:
         raise ConnectionError("No se pudo establecer conexión con la base de datos.")
-    cursor = connection.cursor(dictionary=True)
+
+    cursor = connection.cursor(dictionary=dictionary)
     try:
         yield cursor
         if commit:
             connection.commit()
-    except Exception as e:
+    except Exception:
         connection.rollback()
-        print(f"❌ Error en transacción: {e}")
         raise
     finally:
         cursor.close()
