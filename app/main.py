@@ -5,7 +5,7 @@ from app.servicios.domicilios_service import DomiciliosService
 from app.servicios.habitacion_service import HabitacionService  # (si lo usas luego)
 
 def menu_usuario(session):
-    print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
+    print(f"\nBienvenido/a {session['nombre']} ({session.get('rol','usuario')})")
     while True:
         print("\n1) Ver mis domicilios")
         print("2) Ver mis dispositivos")

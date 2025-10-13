@@ -26,17 +26,20 @@ class UsuariosService:
         UsuarioDAO.eliminar(dni)
 
     @staticmethod
-    def ver_mis_datos(dni: int) -> None:
-        u = UsuarioDAO.obtener_por_dni(dni)
-        if not u:
+    def ver_mis_datos(user_id: int, email_fallback: str | None = None) -> None:
+        rec = UsuarioDAO.obtener_por_id(user_id)
+        if not rec and email_fallback:
+            # Fallback por si el id no matchea por algún motivo
+            rec = UsuarioDAO.obtener_por_email(email_fallback)
+
+        if not rec:
             print("⚠️  No se encontraron datos del usuario.")
             return
-        # si querés el nombre del rol, lo traes aparte o añadís join en obtener_por_dni
+
+        rol_nombre = rec.get("rol") or "usuario"
         print("\n— Mis datos —")
-        print(f"ID: {u['id']}")
-        print(f"DNI: {u['dni']}")
-        print(f"Nombre: {u['nombre']} {u['apellido']}")
-        print(f"Email: {u['email']}")
-        # opcional: rol_nombre si lo agregas al SELECT
-        if 'rol_nombre' in u:
-            print(f"Rol: {u['rol_nombre']}")
+        print(f"ID: {rec['id']}")
+        print(f"DNI: {rec['dni']}")
+        print(f"Nombre: {rec['nombre']} {rec['apellido']}")
+        print(f"Email: {rec['email']}")
+        print(f"Rol: {rol_nombre}")

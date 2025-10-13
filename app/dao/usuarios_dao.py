@@ -40,24 +40,19 @@ class UsuarioDAO:
 
     # ---------- READ ----------
     @staticmethod
-    def obtener_por_email(email: str) -> Optional[Dict[str, Any]]:
+    def obtener_por_email(email: str) -> Optional[Dict]:
         query = """
-            SELECT u.id, u.dni, u.id_rol, u.nombre, u.apellido, u.email,
-                u.contrasena_hash AS contrasena,
-                r.nombre AS rol        -- <== alias exactamente 'rol'
+            SELECT  u.id, u.dni, u.id_rol, u.nombre, u.apellido, u.email,
+                    u.contrasena_hash AS contrasena, u.creado_en,
+                    r.nombre AS rol
             FROM usuarios u
             LEFT JOIN rol r ON r.id_rol = u.id_rol
             WHERE u.email = %s
             LIMIT 1
         """
-        try:
-            # usa dictionary=True para obtener dicts
-            with get_cursor(dictionary=True) as cursor:
-                cursor.execute(query, (email,))
-                return cursor.fetchone()
-        except mysql.connector.Error as exc:
-            logger.exception("Error al buscar el usuario por email.")
-            raise exc
+        with get_cursor(dictionary=True) as cur:
+            cur.execute(query, (email,))
+            return cur.fetchone()
 
     @staticmethod
     def obtener_por_dni(dni: int) -> Optional[Dict[str, Any]]:
@@ -77,7 +72,20 @@ class UsuarioDAO:
         except mysql.connector.Error as exc:
             logger.exception("Error al buscar el usuario por DNI.")
             raise exc
-
+    @staticmethod
+    def obtener_por_id(user_id: int):
+        sql = """
+            SELECT  u.id, u.dni, u.nombre, u.apellido, u.email, u.id_rol,
+                    r.nombre AS rol
+            FROM usuarios u
+            LEFT JOIN rol r ON r.id_rol = u.id_rol
+            WHERE u.id = %s
+            LIMIT 1
+        """
+        with get_cursor(dictionary=True) as cur:
+            cur.execute(sql, (user_id,))
+            return cur.fetchone()
+        
     @staticmethod
     def obtener_todos() -> List[Dict[str, Any]]:
         query = """

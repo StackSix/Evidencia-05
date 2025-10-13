@@ -28,11 +28,13 @@ class AuthService:
         rec = UsuarioDAO.obtener_por_email(email)
         if not rec:
             return None
-        hashed = rec.pop("contrasena", None)  # viene como alias en el DAO
-        if not hashed:
+        hashed = rec.pop("contrasena", None)
+        if not hashed or not bcrypt.checkpw(contrasena_plana.encode("utf-8"), hashed.encode("utf-8")):
             return None
-        ok = bcrypt.checkpw(contrasena_plana.encode("utf-8"), hashed.encode("utf-8"))
-        return rec if ok else None
+        # fallback por si el DAO no trajo 'rol'
+        if "rol" not in rec:
+            rec["rol"] = "admin" if rec.get("id_rol") == 1 else "usuario"
+        return rec
 
     @staticmethod
     def resetear_contrasena(email: str, dni: int, nueva_contra: str) -> bool:
