@@ -29,7 +29,7 @@ class AutomatizacionesDAO(DataAccessDAO):
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
-                    SELECT id_automatizacion, hogar_id, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado
+                    SELECT id_automatizacion, id_hogar, nombre, accion
                     FROM automatizaciones
                     WHERE id_automatizacion=%s
                 """
@@ -38,13 +38,9 @@ class AutomatizacionesDAO(DataAccessDAO):
                 if row:
                     return Automatizacion(
                         id_automatizacion=row["id_automatizacion"], 
-                        hogar_id=row["hogar_id"], 
+                        id_hogar=row["id_hogar"], 
                         nombre=row["nombre"], 
-                        accion=row["accion"],
-                        id_dispositivo_asociado=row["id_dispositivo_asociado"],
-                        estado=row["estado"],
-                        hora_encendido=row["hora_encendido"],
-                        hora_apagado=row["hora_apagado"]
+                        accion=row["accion"]
                     )
                 return None
         except mysql.connector.Error as e:
@@ -90,10 +86,10 @@ class AutomatizacionesDAO(DataAccessDAO):
             with get_cursor(commit=True) as cursor:
                 query = """
                 UPDATE automatizaciones 
-                SET id_hogar=%s, nombre=%s, accion=%s, id_dispositivo_asociado=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
+                SET id_hogar=%s, nombre=%s, accion=%s
                 WHERE id_automatizacion=%s
                 """
-                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_automatizacion))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")

@@ -47,3 +47,27 @@ class AutomatizacionService:
         # Recupera todas las automatizaciones y filtra por los domicilios del usuario
         todas = AutomatizacionesDAO.leer_todas()
         return [a for a in todas if a['id_hogar'] in domicilios_ids]
+    
+    @staticmethod
+    def modificar_automatizacion(current_user: Dict, automatizacion_id: int, nuevo_nombre: Optional[str], nueva_accion: Optional[str]) -> None:
+        """
+        Modifica nombre y/o acción de una automatización si pertenece al usuario o es admin.
+        """
+        # Verificar propiedad o rol admin
+        if not AutomatizacionesDAO.es_dueno_de_automatizacion(current_user.get("dni"), automatizacion_id) and current_user.get("rol") != "admin":
+            raise PermissionError("No tienes permiso para modificar esta automatización.")
+
+        # Leer automatización actual
+        automatizacion = AutomatizacionesDAO.leer(automatizacion_id)
+        if not automatizacion:
+            raise ValueError(f"No se encontró la automatización con ID {automatizacion_id}.")
+
+        # Actualizar solo los campos provistos
+        if nuevo_nombre is not None:
+            automatizacion.nombre = nuevo_nombre
+        if nueva_accion is not None:
+            automatizacion.accion = nueva_accion
+
+        # Persistir cambios
+        if not AutomatizacionesDAO.actualizar(automatizacion):
+            raise RuntimeError(f"No se pudo actualizar la automatización con ID {automatizacion_id}.")

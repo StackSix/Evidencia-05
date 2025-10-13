@@ -27,7 +27,8 @@ def menu_automatizacion(session: dict):
         print("1. Crear automatización")
         print("2. Eliminar automatización")
         print("3. Mostrar automatizaciones de mis domicilios")
-        print("4. Volver al menú principal")
+        print("4. Modificar automatización")
+        print("0. Volver al menú principal")
         opcion = input("> ")
 
         if opcion == "1":
@@ -69,6 +70,19 @@ def menu_automatizacion(session: dict):
                 print(f"❌ Error al recuperar automatizaciones: {e}")
 
         elif opcion == "4":
+            try:
+                id_modificar = int(input("Ingrese el ID de la automatización a modificar: "))
+                nueva_nombre = input("Nuevo nombre (Para no modificar presione enter): ").strip()
+                nueva_accion = input("Nueva acción (Para no modificar presione enter): ").strip()
+
+                AutomatizacionService.modificar_automatizacion(
+                    session, id_modificar, nueva_nombre or None, nueva_accion or None
+                )
+                print(f"✅ Automatización con ID {id_modificar} modificada correctamente.")
+            except Exception as e:
+                print(f"❌ Error al modificar la automatización: {e}")
+        
+        elif opcion == "0":
             break
 
         else:
