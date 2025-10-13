@@ -90,6 +90,13 @@ class AutomatizacionesDAO(DataAccessDAO):
                 WHERE id_automatizacion=%s
                 """
                 cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_automatizacion))
+                #cursor.execute(query, (
+                #automatizacion.nombre,
+                #automatizacion.accion,
+                #getattr(automatizacion, "hora_encendido", None),
+                #getattr(automatizacion, "hora_apagado", None),
+                #automatizacion.id_automatizacion
+                #))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")

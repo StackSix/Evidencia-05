@@ -1,6 +1,8 @@
 from typing import List, Dict, Optional
 from app.dao.automatizaciones_dao import AutomatizacionesDAO
 from app.dominio.automatizacion import Automatizacion
+from app.dao.dispositivos_dao import DispositivoDAO
+from datetime import datetime
 
 class AutomatizacionService:
 
@@ -71,3 +73,57 @@ class AutomatizacionService:
         # Persistir cambios
         if not AutomatizacionesDAO.actualizar(automatizacion):
             raise RuntimeError(f"No se pudo actualizar la automatización con ID {automatizacion_id}.")
+        
+    @staticmethod
+    def configurar_automatizacion_horaria(current_user: Dict, automatizacion_id: int, on: str, off: str) -> None:
+        # Validar permisos
+        if (not AutomatizacionesDAO.es_dueno_de_automatizacion(current_user.get("dni"), automatizacion_id)
+                and current_user.get("rol") != "admin"):
+            raise PermissionError("No tienes permiso de administrador para configurar esta automatización.")
+        
+        automatizacion = AutomatizacionesDAO.leer(automatizacion_id)
+        if not automatizacion:
+            raise ValueError("Automatización no encontrada.")
+        
+        # Configurar horario en el objeto
+        automatizacion.configurar_horario(on, off)
+
+        # Actualizar en la base
+        if not AutomatizacionesDAO.actualizar(automatizacion):
+            raise ValueError("No se pudo actualizar la configuración horaria.")
+
+    @staticmethod
+    def ejecutar_accion_automatica(automatizacion_id: int) -> str:
+        automatizacion = AutomatizacionesDAO.leer(automatizacion_id)
+        if not automatizacion or not automatizacion.estado:
+            return "Automatización OFF o no existe."
+
+        if not (automatizacion.hora_encendido and automatizacion.hora_apagado):
+            return "No hay ninguna automatización configurada."
+        
+        hora_actual = datetime.now().strftime("%H:%M")
+        esta_en_horario = False
+
+        # Control de horario, incluyendo automatizaciones que cruzan medianoche
+        if automatizacion.hora_encendido <= automatizacion.hora_apagado:
+            # Mismo día
+            if automatizacion.hora_encendido <= hora_actual < automatizacion.hora_apagado:
+                esta_en_horario = True
+        else:
+            # Cruza medianoche
+            if hora_actual >= automatizacion.hora_encendido or hora_actual < automatizacion.hora_apagado:
+                esta_en_horario = True
+
+        # ⚡ Aplicar acción a todos los dispositivos del hogar
+        dispositivos = DispositivoDAO.listar_por_hogar(automatizacion.id_hogar)
+        if not dispositivos:
+            return f"No hay dispositivos registrados para el hogar {automatizacion.id_hogar}."
+
+        for dispositivo in dispositivos:
+            if esta_en_horario:
+                dispositivo.ejecutar_accion()
+            else:
+                dispositivo.detener_accion()
+
+        return f"Acción automática ejecutada para {len(dispositivos)} dispositivo(s)."
+    

@@ -4,11 +4,12 @@ from abc import ABC, abstractmethod
 class Dispositivo(ABC):
     "Clase para manejar dispositivos del hogar inteligente."
 
-    def __init__(self, accion: str, id_dispositivo: int, id_habitacion: int, estado: str):
-        self.accion = accion
+    def __init__(self, id_dispositivo: int, id_habitacion: int, id_tipo: int, estado: str, etiqueta: str):
         self.id_dispositivo = id_dispositivo
         self.id_habitacion = id_habitacion
+        self.id_tipo = id_tipo
         self.estado = estado
+        self.etiqueta = etiqueta
 
     def cambiar_estado(self, nuevo_estado: str):
         if nuevo_estado in ["encendido", "apagado"]: 

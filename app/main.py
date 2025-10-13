@@ -35,12 +35,24 @@ def menu_automatizacion(session: dict):
             print("\n🏠 Tus domicilios:")
             for d in domicilios:
                 print(f"{d['id_hogar']}: {d['nombre_domicilio']} ({d['direccion']})")
-            id_hogar = int(input("Seleccione ID del hogar para la automatización: "))
-            nombre = input("Ingrese el nombre de la automatización: ")
-            accion = input("Ingrese la acción (ej. 'encender', 'apagar'): ")
+            try:
+                id_hogar = int(input("Seleccione ID del hogar para la automatización: "))
+                if id_hogar not in [d['id_hogar'] for d in domicilios]:
+                    print("❌ El ID ingresado no corresponde a ninguno de tus domicilios.")
+                    continue
+            except ValueError as e:
+                print("❌ Se debe ingresar un numero para seleccionar el ID.")
+                continue
+            
+            nombre = input("Ingrese el nombre de la automatización: ").strip()
+            if not nombre:
+                print("❌ El nombre no debe ingresarse como vacio.")
+                
+            accion = input("Ingrese la acción (ej. 'encender', 'apagar'): ").strip().lower()
+            if accion not in ["encender", "apagar"]:
+                print("❌ Acción invalida, debe coincidir con 'encender' o 'apagar'")
 
             try:
-                # Se llama al Service que a su vez usa el DAO para escribir en la DB
                 id_auto = AutomatizacionService.crear_automatizacion(
                     session, id_hogar, nombre, accion
                 )
@@ -81,7 +93,19 @@ def menu_automatizacion(session: dict):
                 print(f"✅ Automatización con ID {id_modificar} modificada correctamente.")
             except Exception as e:
                 print(f"❌ Error al modificar la automatización: {e}")
-        
+            """
+        elif opcion == "5":
+            try:
+                automatizacion_id = int(input("ID de la automatización: "))
+                hora_on = input("Hora de encendido (HH:MM): ")
+                hora_off = input("Hora de apagado (HH:MM): ")
+                AutomatizacionesService.configurar_automatizacion_horaria(
+                    current_user, automatizacion_id, hora_on, hora_off
+                )
+                print("✅ Horario configurado correctamente.")
+            except Exception as e:
+                print(f"❌ Error al configurar horario: {e}")
+            """
         elif opcion == "0":
             break
 
@@ -124,10 +148,11 @@ def menu_usuario(session):
             while True:
                 print("\n[CRUD Dispositivos]")
                 print(" 1) Menú Automatización")
-                print(" 2) Crear")
+                print(" 2) Crear Dispositivo")
                 print(" 3) Actualizar (mover/renombrar/cambiar tipo)")
-                print(" 4) Encender/Apagar")
-                print(" 5) Eliminar")
+                print(" 4) Encender/Apagar Dispositivo")
+                print(" 5) Eliminar Dispositivo")
+                print(" 6) Registrar Domicilio para sus Dispositivos")
                 print(" 0) Volver")
                 sop = input("> ").strip()
                 if sop == "1":
@@ -161,6 +186,30 @@ def menu_usuario(session):
                     did = int(input("id_dispositivo: ").strip())
                     DispositivosService.eliminar_admin(session, did)
                     print("🗑️  Eliminado.")
+                elif sop == "6":
+                    print("\n🏡 Crear nuevo domicilio 🏡")
+                    try:
+                        direccion = input("Ingrese la dirección: ").strip()
+                        if not direccion:
+                            print("❌ La dirección no puede estar vacía.")
+                            continue
+
+                        numeracion = input("Ingrese la numeración (opcional, puede dejar vacío): ").strip()
+                        ciudad = input("Ingrese la ciudad: ").strip()
+                        if not ciudad:
+                            print("❌ La ciudad no puede estar vacía.")
+                            continue
+
+                        alias = input("Ingrese un nombre o alias para el domicilio: ").strip()
+                        if not alias:
+                            print("❌ El alias no puede estar vacío.")
+                            continue
+
+                        id_hogar = DomiciliosService.crear(session.get("dni"), direccion, numeracion, ciudad, alias)
+                        print(f"✅ Domicilio creado correctamente con ID {id_hogar} y vinculado a tu usuario.")
+
+                    except Exception as e:
+                        print(f"❌ Error al crear el domicilio: {e}")
                 elif sop == "0":
                     break
                 else:

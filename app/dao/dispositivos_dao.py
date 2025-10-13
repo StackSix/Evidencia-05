@@ -3,6 +3,7 @@ from typing import Optional, List, Dict, Any
 import mysql.connector
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger
+from app.dominio.dispositivos import Dispositivo
 
 class DispositivoDAO:
     @staticmethod
@@ -78,3 +79,32 @@ class DispositivoDAO:
     def eliminar(id_dispositivo: int) -> None:
         with get_cursor(commit=True) as cur:
             cur.execute("DELETE FROM dispositivos WHERE id_dispositivo=%s", (id_dispositivo,))
+            
+    @staticmethod
+    def listar_por_hogar(id_hogar: int) -> list[Dispositivo]:
+        """
+        Devuelve todos los dispositivos de todas las habitaciones de un hogar.
+        """
+        with get_cursor(dictionary=True) as cursor:
+            query = """
+                SELECT d.id_dispositivo, d.id_habitacion, d.id_tipo, d.estado, d.etiqueta
+                FROM dispositivos d
+                JOIN tipo_habitacion th ON d.id_habitacion = th.id_habitacion
+                WHERE th.hogar_id = %s
+            """
+            cursor.execute(query, (id_hogar,))
+            rows = cursor.fetchall()
+
+        dispositivos = []
+        for row in rows:
+            dispositivos.append(
+                Dispositivo(
+                    id_dispositivo=row["id_dispositivo"],
+                    id_habitacion=row["id_habitacion"],
+                    id_tipo=row["id_tipo"],
+                    estado=row["estado"],
+                    etiqueta=row["etiqueta"]
+                )
+            )
+        return dispositivos
+    

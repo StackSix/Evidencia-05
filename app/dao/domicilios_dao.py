@@ -15,7 +15,7 @@ class DomicilioDAO:
         nombre_domicilio: str,
     ) -> int:
         query = (
-            "INSERT INTO domicilios (direccion, numeracion, ciudad, alias_domicilio) "
+            "INSERT INTO domicilios (direccion, numeracion, ciudad, nombre_domicilio) "
             "VALUES (%s, %s, %s, %s)"
         )
         try:
@@ -27,12 +27,12 @@ class DomicilioDAO:
             raise exc
 
     @staticmethod
-    def vincular_usuario(dni: int, id_hogar: int) -> None:
-        query = "INSERT IGNORE INTO usuarios_domicilios (dni, id_hogar) VALUES (%s, %s)"
+    def vincular_usuario(usuario_id: int, hogar_id: int) -> None:
+        query = "INSERT IGNORE INTO usuarios_hogares (usuario_id, hogar_id) VALUES (%s, %s)"
         try:
             with get_cursor(commit=True) as cursor:
-                cursor.execute(query, (dni, id_hogar))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
+                cursor.execute(query, (usuario_id, hogar_id))
+        except mysql.connector.Error as exc:  
             logger.exception("No se pudo vincular el usuario al domicilio.")
             raise exc
 
