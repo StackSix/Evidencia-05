@@ -5,6 +5,7 @@ from app.servicios.domicilios_service import DomiciliosService
 from app.servicios.habitacion_service import HabitacionService
 from app.servicios.automatizaciones_service import AutomatizacionService
 
+
 def menu_automatizacion(session):
     while True:
         print("\n--- Menú de Automatizaciones ---")

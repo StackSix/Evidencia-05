@@ -7,6 +7,7 @@ from app.dominio.automatizacion import Automatizacion
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger
 
+
 class AutomatizacionesDAO(DataAccessDAO):
     def create(self, automatizacion: Automatizacion)-> None:
         "Para insertar un registro en una tabla."
