@@ -2,7 +2,15 @@ from typing import List, Dict, Optional
 from app.dao.automatizaciones_dao import AutomatizacionesDAO
 from app.dominio.automatizacion import Automatizacion
 from app.dao.dispositivos_dao import DispositivoDAO
-from datetime import datetime
+from datetime import datetime, timedelta, time
+
+
+def timedelta_a_time(td: timedelta) -> time:
+        # Convierte un timedelta a datetime.time
+        total_segundos = int(td.total_seconds())
+        horas = total_segundos // 3600 % 24
+        minutos = (total_segundos % 3600) // 60
+        return time(hour=horas, minute=minutos)
 
 class AutomatizacionService:
 
@@ -20,6 +28,8 @@ class AutomatizacionService:
             id_hogar=id_hogar,
             nombre=nombre,
             accion=accion,
+            hora_encendido=None,
+            hora_apagado=None
         )
 
         # DAO crea la automatización en la base de datos
@@ -91,27 +101,42 @@ class AutomatizacionService:
         # Actualizar en la base
         if not AutomatizacionesDAO.actualizar(automatizacion):
             raise ValueError("No se pudo actualizar la configuración horaria.")
+        
+    
 
     @staticmethod
     def ejecutar_accion_automatica(automatizacion_id: int) -> str:
         automatizacion = AutomatizacionesDAO.leer(automatizacion_id)
-        if not automatizacion or not automatizacion.estado:
-            return "Automatización OFF o no existe."
+        if not automatizacion:
+            return "Automatización no existe."
 
         if not (automatizacion.hora_encendido and automatizacion.hora_apagado):
             return "No hay ninguna automatización configurada."
-        
-        hora_actual = datetime.now().strftime("%H:%M")
+
+        # Convertir a datetime.time según tipo
+        if isinstance(automatizacion.hora_encendido, timedelta):
+            hora_encendido = timedelta_a_time(automatizacion.hora_encendido)
+        elif isinstance(automatizacion.hora_encendido, str):
+            hora_encendido = datetime.strptime(automatizacion.hora_encendido, "%H:%M").time()
+        else:
+            hora_encendido = automatizacion.hora_encendido
+
+        if isinstance(automatizacion.hora_apagado, timedelta):
+            hora_apagado = timedelta_a_time(automatizacion.hora_apagado)
+        elif isinstance(automatizacion.hora_apagado, str):
+            hora_apagado = datetime.strptime(automatizacion.hora_apagado, "%H:%M").time()
+        else:
+            hora_apagado = automatizacion.hora_apagado
+
+        hora_actual = datetime.now().time()
         esta_en_horario = False
 
-        # Control de horario, incluyendo automatizaciones que cruzan medianoche
-        if automatizacion.hora_encendido <= automatizacion.hora_apagado:
-            # Mismo día
-            if automatizacion.hora_encendido <= hora_actual < automatizacion.hora_apagado:
+        # Control de horario, incluyendo cruces de medianoche
+        if hora_encendido <= hora_apagado:
+            if hora_encendido <= hora_actual < hora_apagado:
                 esta_en_horario = True
         else:
-            # Cruza medianoche
-            if hora_actual >= automatizacion.hora_encendido or hora_actual < automatizacion.hora_apagado:
+            if hora_actual >= hora_encendido or hora_actual < hora_apagado:
                 esta_en_horario = True
 
         # ⚡ Aplicar acción a todos los dispositivos del hogar
@@ -126,4 +151,3 @@ class AutomatizacionService:
                 dispositivo.detener_accion()
 
         return f"Acción automática ejecutada para {len(dispositivos)} dispositivo(s)."
-    

@@ -4,6 +4,7 @@ from app.servicios.dispositivos_service import DispositivosService
 from app.servicios.domicilios_service import DomiciliosService
 from app.servicios.habitacion_service import HabitacionService
 from app.servicios.automatizaciones_service import AutomatizacionService
+from app.dao.automatizaciones_dao import AutomatizacionesDAO
 
 
 def menu_automatizacion(session: dict):
@@ -27,7 +28,9 @@ def menu_automatizacion(session: dict):
         print("1. Crear automatización")
         print("2. Eliminar automatización")
         print("3. Mostrar automatizaciones de mis domicilios")
-        print("4. Modificar automatización")
+        print("4. Editar nombre automatización")
+        print("5. Configurar parametros de la automatización")
+        print("6. Monitorear automatización")
         print("0. Volver al menú principal")
         opcion = input("> ")
 
@@ -77,7 +80,7 @@ def menu_automatizacion(session: dict):
                 else:
                     for a in autos_usuario:
                         nombre_hogar = next((d['nombre_domicilio'] for d in domicilios if d['id_hogar'] == a['id_hogar']), "Desconocido")
-                        print(f"ID: {a['id_automatizacion']}, Nombre: {a['nombre']}, Acción: {a['accion']}, Hogar: {nombre_hogar}")
+                        print(f"ID: {a['id_automatizacion']}, Nombre: {a['nombre']}, Acción: {a['accion']}, Hogar: {nombre_hogar}.\n⚙️  Configuración Horaria ⏰ \nEncendido: {a['hora_encendido']} \nApagado: {a['hora_apagado']}")
             except Exception as e:
                 print(f"❌ Error al recuperar automatizaciones: {e}")
 
@@ -105,6 +108,14 @@ def menu_automatizacion(session: dict):
                 print("✅ Horario configurado correctamente.")
             except Exception as e:
                 print(f"❌ Error al configurar horario: {e}")
+        
+        elif opcion == "6":
+            try:
+                automatizacion_id = int(input("Ingrese el ID de la automatización: "))
+                resultado = AutomatizacionService.ejecutar_accion_automatica(automatizacion_id)
+                print(resultado)
+            except ValueError:
+                print("ID inválido.")
 
         elif opcion == "0":
             break
@@ -227,7 +238,7 @@ def menu_usuario(session):
 def main():
     while True:
         print("Sistema SmartHome - Ejecución en memoria")
-        print("Usuario administrador por defecto: admin@example.com / admin123")
+        print("Usuario administrador por defecto: daniel@example.com / 12345678")
         print("1) Registrarse")
         print("2) Iniciar sesión")
         print("3) Recuperar contraseña")

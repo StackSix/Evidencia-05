@@ -15,9 +15,9 @@ class AutomatizacionesDAO(DataAccessDAO):
             with get_cursor(commit=True) as cursor:
                 query = """
                     INSERT INTO automatizaciones (id_hogar, nombre, accion, hora_encendido, hora_apagado)
-                    VALUES (%s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.hora_encendido, automatizacion.hora_apagado))
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, getattr(automatizacion, "hora_encendido", None), getattr(automatizacion, "hora_apagado", None)))
                 return cursor.lastrowid
         except mysql.connector.Error as e:
             logger.exception("No se ha podido registrar la automatización.")
@@ -29,7 +29,7 @@ class AutomatizacionesDAO(DataAccessDAO):
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
-                    SELECT id_automatizacion, id_hogar, nombre, accion
+                    SELECT id_automatizacion, id_hogar, nombre, accion, hora_encendido, hora_apagado
                     FROM automatizaciones
                     WHERE id_automatizacion=%s
                 """
@@ -88,14 +88,15 @@ class AutomatizacionesDAO(DataAccessDAO):
             with get_cursor(commit=True) as cursor:
                 query = """
                 UPDATE automatizaciones 
-                SET id_hogar=%s, nombre=%s, accion=%s, 
+                SET id_hogar=%s, nombre=%s, accion=%s, hora_encendido=%s, hora_apagado=%s
                 WHERE id_automatizacion=%s
                 """
                 cursor.execute(query, (
+                automatizacion.id_hogar,
                 automatizacion.nombre,
                 automatizacion.accion,
-                automatizacion.hora_encendido,
-                automatizacion.hora_apagado,
+                getattr(automatizacion, "hora_encendido", None),
+                getattr(automatizacion, "hora_apagado", None),
                 automatizacion.id_automatizacion
                 ))
                 return cursor.rowcount > 0

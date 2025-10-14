@@ -28,11 +28,7 @@ class DomicilioDAO:
 
     @staticmethod
     def vincular_usuario(dni: str, hogar_id: int) -> None:
-        """
-        Vincula un usuario a un domicilio usando el DNI del usuario.
-        - dni: DNI del usuario
-        - hogar_id: ID del domicilio (autoincremental)
-        """
+        " Vincula un usuario a un domicilio usando el DNI del usuario. dni: DNI del usuario hogar_id: ID del domicilio (autoincremental)"
         try:
             with get_cursor(commit=True) as cursor:
                 # 1️⃣ Buscar el ID real del usuario por su DNI

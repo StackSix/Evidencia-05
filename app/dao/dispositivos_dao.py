@@ -40,18 +40,20 @@ class DispositivoDAO:
             return cur.fetchall()
 
     @staticmethod
-    def listar_por_usuario(user_id: int) -> List[Dict[str, Any]]:
-        sql = """SELECT d.id_dispositivo, d.etiqueta, d.estado,
-                        td.nombre_tipo, th.nombre_habitacion, h.nombre_domicilio
-                 FROM usuarios_hogares uh
-                 JOIN domicilios h           ON h.id_hogar = uh.hogar_id
-                 LEFT JOIN tipo_habitacion th ON th.hogar_id = h.id_hogar
-                 LEFT JOIN dispositivos d      ON d.id_habitacion = th.id_habitacion
-                 LEFT JOIN tipos_dispositivos td ON td.id_tipo = d.id_tipo
-                 WHERE uh.usuario_id = %s AND d.id_dispositivo IS NOT NULL
-                 ORDER BY d.id_dispositivo"""
+    def listar_por_usuario(user_id: int) -> list[dict]:
+        query = """
+            SELECT d.id_dispositivo, d.etiqueta, d.estado,
+                td.nombre_tipo, th.nombre_habitacion, h.nombre_domicilio
+            FROM usuarios_hogares uh
+            JOIN domicilios h ON h.id_hogar = uh.hogar_id
+            LEFT JOIN tipo_habitacion th ON th.hogar_id = h.id_hogar
+            LEFT JOIN dispositivos d ON d.id_habitacion = th.id_habitacion OR d.id_habitacion IS NULL
+            LEFT JOIN tipos_dispositivos td ON td.id_tipo = d.id_tipo
+            WHERE uh.usuario_id = %s
+            ORDER BY d.id_dispositivo
+        """
         with get_cursor(dictionary=True) as cur:
-            cur.execute(sql, (user_id,))
+            cur.execute(query, (user_id,))
             return cur.fetchall()
 
     @staticmethod
