@@ -93,19 +93,19 @@ def menu_automatizacion(session: dict):
                 print(f"✅ Automatización con ID {id_modificar} modificada correctamente.")
             except Exception as e:
                 print(f"❌ Error al modificar la automatización: {e}")
-            """
+
         elif opcion == "5":
             try:
                 automatizacion_id = int(input("ID de la automatización: "))
                 hora_on = input("Hora de encendido (HH:MM): ")
                 hora_off = input("Hora de apagado (HH:MM): ")
-                AutomatizacionesService.configurar_automatizacion_horaria(
-                    current_user, automatizacion_id, hora_on, hora_off
+                AutomatizacionService.configurar_automatizacion_horaria(
+                    session, automatizacion_id, hora_on, hora_off
                 )
                 print("✅ Horario configurado correctamente.")
             except Exception as e:
                 print(f"❌ Error al configurar horario: {e}")
-            """
+
         elif opcion == "0":
             break
 

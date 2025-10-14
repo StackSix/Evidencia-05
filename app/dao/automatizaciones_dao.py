@@ -14,10 +14,10 @@ class AutomatizacionesDAO(DataAccessDAO):
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO automatizaciones (id_hogar, nombre, accion)
+                    INSERT INTO automatizaciones (id_hogar, nombre, accion, hora_encendido, hora_apagado)
                     VALUES (%s, %s, %s)
                 """
-                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion))
+                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.hora_encendido, automatizacion.hora_apagado))
                 return cursor.lastrowid
         except mysql.connector.Error as e:
             logger.exception("No se ha podido registrar la automatización.")
@@ -40,7 +40,9 @@ class AutomatizacionesDAO(DataAccessDAO):
                         id_automatizacion=row["id_automatizacion"], 
                         id_hogar=row["id_hogar"], 
                         nombre=row["nombre"], 
-                        accion=row["accion"]
+                        accion=row["accion"],
+                        hora_encendido=row["hora_encendido"],
+                        hora_apagado=row["hora_apagado"]
                     )
                 return None
         except mysql.connector.Error as e:
@@ -52,7 +54,7 @@ class AutomatizacionesDAO(DataAccessDAO):
         "Recupera todas las automatizaciones sin filtrar por estado."
         try:
             with get_cursor(dictionary=True) as cursor:
-                query = "SELECT id_automatizacion, id_hogar, nombre, accion FROM automatizaciones"
+                query = "SELECT id_automatizacion, id_hogar, nombre, accion, hora_encendido, hora_apagado FROM automatizaciones"
                 cursor.execute(query)
                 return cursor.fetchall()
         except Exception as e:
@@ -86,17 +88,16 @@ class AutomatizacionesDAO(DataAccessDAO):
             with get_cursor(commit=True) as cursor:
                 query = """
                 UPDATE automatizaciones 
-                SET id_hogar=%s, nombre=%s, accion=%s
+                SET id_hogar=%s, nombre=%s, accion=%s, 
                 WHERE id_automatizacion=%s
                 """
-                cursor.execute(query, (automatizacion.id_hogar, automatizacion.nombre, automatizacion.accion, automatizacion.id_automatizacion))
-                #cursor.execute(query, (
-                #automatizacion.nombre,
-                #automatizacion.accion,
-                #getattr(automatizacion, "hora_encendido", None),
-                #getattr(automatizacion, "hora_apagado", None),
-                #automatizacion.id_automatizacion
-                #))
+                cursor.execute(query, (
+                automatizacion.nombre,
+                automatizacion.accion,
+                automatizacion.hora_encendido,
+                automatizacion.hora_apagado,
+                automatizacion.id_automatizacion
+                ))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
