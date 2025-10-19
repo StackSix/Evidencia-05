@@ -6,15 +6,20 @@ from app.servicios.gestor_domicilio import GestorDomicilio
 
 
 class Usuario:
-    def __init__(self, dni: int, nombre: str, apellido: str, email: str, rol: str = "user", gestor_domicilios: GestorDomicilio = None) -> None:
+    def __init__(self, id_usuario: int, dni: int, nombre: str, apellido: str, email: str, rol: str = "user", gestor_domicilios: GestorDomicilio = None) -> None:
         if not nombre or len(nombre) < 2:
             raise ValueError("Nombre inválido.")
+        self.__id_usuario = id_usuario
         self.__dni = dni
         self.__nombre = nombre
         self.__apellido = apellido
         self.__email = email
         self.__rol = rol
         self.__gestor_domicilios = gestor_domicilios if gestor_domicilios is not None else GestorDomicilio()
+    
+    @property
+    def id_usuario(self) -> int:
+        return self.__id_usuario
     
     @property     
     def dni(self) -> int:
@@ -36,7 +41,7 @@ class Usuario:
     
     @nombre.setter
     def nombre(self, nuevo_nombre):
-        if not isinstance(nuevo_nombre, str):
+        if not isinstance(nuevo_nombre, str) or len(nuevo_nombre) < 2:
             raise TypeError("El nombre no es válido.")
         self.__nombre = nuevo_nombre
         
@@ -46,8 +51,8 @@ class Usuario:
     
     @apellido.setter
     def apellido(self, nuevo_apellido):
-        if not isinstance(nuevo_apellido, str):
-            raise TypeError("El nombre no es válido.")
+        if not isinstance(nuevo_apellido, str) or len(nuevo_apellido) < 2:
+            raise TypeError("El apellido no es válido.")
         self.__apellido = nuevo_apellido
     
     @property 

@@ -6,11 +6,12 @@ from app.dominio.dispositivos import Dispositivo
 
 class Automatizacion:
     "Clase para manejar automatizaciones del hogar."
-    def __init__(self, id_automatizacion: Optional[int], id_domicilio: int, nombre: str, accion: str, hora_encendido:str | None = None, hora_apagado:str | None = None):
+    def __init__(self, id_automatizacion: Optional[int], id_domicilio: int, nombre: str, accion: str, estado: bool = False, hora_encendido:str | None = None, hora_apagado:str | None = None):
         self.__id_automatizacion = id_automatizacion
         self.__id_domicilio = id_domicilio
         self.__nombre = nombre
         self.__accion = accion
+        self.__estado = estado
         self.__hora_encendido = hora_encendido
         self.__hora_apagado = hora_apagado
         
@@ -34,8 +35,8 @@ class Automatizacion:
     
     @nombre.setter
     def nombre(self, nuevo_nombre):
-        if not isinstance(nuevo_nombre, int):
-            raise TypeError("Debe ingresar un numero entero.")
+        if not isinstance(nuevo_nombre, str):
+            raise TypeError("El nombre ingresado no es válido.")
         self.__nombre = nuevo_nombre
     
     @property
@@ -44,9 +45,19 @@ class Automatizacion:
     
     @accion.setter
     def accion(self, nueva_accion):
-        if not isinstance(nueva_accion, int):
-            raise TypeError("Debe ingresar un numero entero.")
+        if not isinstance(nueva_accion, str):
+            raise TypeError("La acción ingresada no es válida.")
         self.__accion = nueva_accion
+    
+    @property
+    def estado(self) -> bool:
+        return self.__estado
+    
+    @estado.setter
+    def estado(self, nuevo_estado):
+        if not isinstance(nuevo_estado, bool):
+            raise TypeError("El estado ingresado no es válido.")
+        self.__estado = nuevo_estado
     
     @property
     def hora_encendido(self) -> str | None:
@@ -82,7 +93,7 @@ class Automatizacion:
         "Devuelve los datos de la automatización en formato de diccionario."
         return {
             "id_automatizacion": self.__id_automatizacion,
-            "id_hogar": self.__id_domicilio,
+            "id_domicilio": self.__id_domicilio,
             "nombre": self.__nombre,
             "accion": self.__accion,
             "estado": self.estado,

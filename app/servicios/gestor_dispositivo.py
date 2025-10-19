@@ -70,3 +70,4 @@ class GestorDispositivo:
     @property
     def dispositivos(self) -> List[Dispositivo]:
         return self.__dispositivos
+    

@@ -97,3 +97,4 @@ class GestorAutomatizacion:
             print(f"⏰ Horario automático configurado para automatización {id_automatizacion}: ON {on} - OFF {off}")
         except Exception as e:
             print(f"❌ Error al configurar horario automático: {e}")
+            

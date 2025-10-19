@@ -27,7 +27,7 @@ class Domicilio:
     
     @direccion.setter
     def direccion(self, nueva_direccion):
-        if not isinstance(nueva_direccion, int):
+        if not isinstance(nueva_direccion, str):
             raise TypeError("La dirección no es válida.")
         self.__direccion = nueva_direccion      
     
@@ -37,7 +37,7 @@ class Domicilio:
     
     @ciudad.setter
     def ciudad(self, nueva_ciudad):
-        if not isinstance(nueva_ciudad, int):
+        if not isinstance(nueva_ciudad, str):
             raise TypeError("La dirección no es válida.")
         self.__ciudad = nueva_ciudad 
     

@@ -60,3 +60,4 @@ def menu_crud_domicilios(session: Dict, gestor: GestorDomicilio):
 
         else:
             print("❌ Opción no válida.")
+            
