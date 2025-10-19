@@ -91,7 +91,7 @@ class DispositivoDAO(IDispositivoDAO):
             cur.execute("DELETE FROM dispositivos WHERE id_dispositivo=%s", (id_dispositivo,))
             
     @staticmethod #Esto si se logra con una funcion de arriba, eliminar
-    def listar_por_hogar(id_hogar: int) -> list[Dispositivo]:
+    def listar_dispositivos_por_domicilio(id_hogar: int) -> list[Dispositivo]:
         """
         Devuelve todos los dispositivos de todas las habitaciones de un hogar.
         """

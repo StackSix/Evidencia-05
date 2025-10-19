@@ -29,7 +29,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
-                    SELECT id_automatizacion, id_hogar, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado
+                    SELECT id_automatizacion, id_domicilio, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado
                     FROM automatizaciones
                     WHERE id_automatizacion=%s
                 """
@@ -38,7 +38,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                 if row:
                     return Automatizacion(
                         id_automatizacion=row["id_automatizacion"], 
-                        id_hogar=row["id_hogar"], 
+                        id_domicilio=row["id_domicilio"], 
                         nombre=row["nombre"], 
                         accion=row["accion"],
                         id_dispositivo_asociado=row["id_dispositivo_asociado"],
@@ -84,7 +84,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             with get_cursor(commit=True) as cursor:
                 query = """
                 UPDATE automatizaciones 
-                SET id_hogar=%s, nombre=%s, accion=%s, id_dispositivo_asociado=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
+                SET id_domicilio=%s, nombre=%s, accion=%s, id_dispositivo_asociado=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
                 WHERE id_automatizacion=%s
                 """
                 cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.id_dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))

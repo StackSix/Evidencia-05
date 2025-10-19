@@ -1,7 +1,9 @@
 from typing import Dict
 from app.dao.automatizaciones_dao import AutomatizacionesDAO
-from app.modulos_de_main.funciones_de_automatizacion import menu_crud_automatizacion, configurar_automatizacion_horaria, configurar_automatizacion_menu
-from app.modulos_de_main.funciones_crud_admin import menu_crud_dispositivos, menu_crud_domicilio, menu_crud_usuario
+from app.modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
+from app.modulos_main.menu_crud_dispositivos import menu_crud_dispositivos
+from app.modulos_main.menu_crud_domicilios import menu_crud_domicilios
+from app.modulos_main.menu_crud_usuarios import menu_crud_usuarios
 from app.dao.dispositivos_dao import DispositivoDAO
 from app.dao.usuarios_dao import UsuarioDAO
 from app.dao.domicilios_dao import DomiciliosDAO
@@ -46,7 +48,7 @@ def menu_usuario(session):
                     menu_crud_automatizacion(session)
                         
                 elif sop == "3":
-                    menu_crud_domicilio(session)
+                    menu_crud_domicilios(session)
                 
                 elif sop == "0":
                     break
@@ -55,15 +57,14 @@ def menu_usuario(session):
                     print("Ingrese una opción válida. Intentelo de nuevo")
                 
         elif op == "5":
-             menu_crud_usuario(session)
+             menu_crud_usuarios(session)
              
         elif op == "6":
             break
         
         else:
             print("Ingrese una opción válida. Intentelo de nuevo")
-                    
-                
+            
 def ver_domicilios_usuario(dni: int):
     domicilios_usuario = DomiciliosDAO.obtener_domicilio_usuario(dni)
     if domicilios_usuario:    
@@ -87,4 +88,3 @@ def ver_datos_personales(dni: int):
               f"{usuario['email']} - {usuario['rol']}")
     else:
         print("❌ No se encontró ningún usuario con ese DNI.")
-       

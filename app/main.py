@@ -1,7 +1,7 @@
-from app.modulos_de_main.funciones_crud_admin import registrar_domicilio
+from app.servicios.gestor_domicilio import GestorDomicilio
 from app.dao.domicilios_dao import DomiciliosDAO
-from app.modulos_de_main.funciones_de_autenticacion import registrar_usuario, login
-from app.modulos_de_main.funciones_usuario import menu_usuario
+from app.modulos_main.funciones_de_autenticacion import registrar_usuario, login
+from app.modulos_main.menu_usuario import menu_usuario
 
 def main():
     while True:
@@ -26,7 +26,7 @@ def main():
                 
                 # Registrar domicilio inicial
                 print("\n🏠 Registrar tu domicilio principal")
-                id_domicilio = registrar_domicilio()
+                id_domicilio = GestorDomicilio.agregar_domicilio()
                 if id_domicilio:
                     DomiciliosDAO.vincular_usuario(dni, id_domicilio)
                     print(f"✅ Domicilio vinculado al usuario (ID domicilio: {id_domicilio})")
@@ -36,13 +36,16 @@ def main():
 
         elif op == "2":
             # Login
-            session = login()
+            email = input("Email: ").strip()
+            contrasena = input("Contraseña: ").strip()
+            session = login(email, contrasena)
             if session:
                 menu_usuario(session)
             else:
                 print("❌ Credenciales inválidas.")
 
         elif op == "0":
+            print("Gracias por utilizar nuestro sistema SmartHome. Hasta pronto.")
             break
 
         else:
