@@ -1,102 +1,111 @@
-"""DAO para operar con domicilios y su vinculación con usuarios."""
-from __future__ import annotations
-from typing import Dict, List, Any
 import mysql.connector
+from mysql.connector import Error
+from typing import List, Dict, Optional
 from app.conn.cursor import get_cursor
+from app.dao.interfaces.i_domicilio_dao import IDomicilioDAO
+from app.dominio.domicilio import Domicilio
 from app.conn.logger import logger
 
-
-class DomicilioDAO:
+class DomiciliosDAO(IDomicilioDAO):
     @staticmethod
-    def crear_domicilio(
-        direccion: str,
-        numeracion: str,
-        ciudad: str,
-        nombre_domicilio: str,
-    ) -> int:
-        query = (
-            "INSERT INTO domicilios (direccion, numeracion, ciudad, nombre_domicilio) "
-            "VALUES (%s, %s, %s, %s)"
-        )
+    def registrar_domicilio(direccion: str, numeracion: str, ciudad: str, nombre_domicilio: str) -> int:
         try:
             with get_cursor(commit=True) as cursor:
+                query = """
+                    INSERT INTO domicilios (direccion, numeracion, ciudad, nombre_domicilio)
+                    VALUES (%s, %s, %s, %s)
+                """
                 cursor.execute(query, (direccion, numeracion, ciudad, nombre_domicilio))
                 return cursor.lastrowid
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudo registrar el domicilio.")
-            raise exc
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar registrar domicilio.")
+            raise e
 
-    @staticmethod
-    def vincular_usuario(dni: str, hogar_id: int) -> None:
-        " Vincula un usuario a un domicilio usando el DNI del usuario. dni: DNI del usuario hogar_id: ID del domicilio (autoincremental)"
+    @staticmethod #revisar
+    def vincular_usuario(dni: int, id_domicilio: int) -> None:
         try:
             with get_cursor(commit=True) as cursor:
-                # 1️⃣ Buscar el ID real del usuario por su DNI
-                cursor.execute("SELECT id FROM usuarios WHERE dni = %s", (dni,))
-                row = cursor.fetchone()
-                if not row:
-                    raise ValueError(f"Usuario con DNI {dni} no existe")
-                usuario_id = row[0]
-
-                # 2️⃣ Insertar vínculo en usuarios_hogares
-                query = "INSERT IGNORE INTO usuarios_hogares (usuario_id, hogar_id) VALUES (%s, %s)"
-                cursor.execute(query, (usuario_id, hogar_id))
-                print(f"[DEBUG] Usuario con DNI {dni} (ID {usuario_id}) vinculado al hogar {hogar_id}")
-
-        except mysql.connector.Error as exc:
-            logger.exception("No se pudo vincular el usuario al domicilio.")
-            raise exc
+                query = "INSERT IGNORE INTO usuarios_domicilios (dni, id_domicilio) VALUES (%s, %s)"
+                cursor.execute(query, (dni, id_domicilio))
+        except mysql.connector.Error as e:
+            logger.exception("No se pudo vincular el usuario con el domicilio.")
+            raise e
+            
+    @staticmethod
+    def obtener_domicilio_usuario(dni: int) -> Optional[List[Domicilio]]:
+        try:
+            with get_cursor(commit=False) as cursor:
+                query = """
+                    SELECT d.id_domicilio, d.nombre_domicilio, d.direccion, d.ciudad
+                    FROM usuarios_domicilios ud
+                    JOIN domicilios d ON d.id_hogar = ud.id_hogar
+                    WHERE ud.dni = %s
+                    ORDER BY d.id_hogar
+                """
+                cursor.execute(query, (dni,))
+                rows = cursor.fetchall()
+            domicilios = []
+            for row in rows:
+                domicilios.append(
+                    Domicilio(
+                        id_domicilio=row["id_domicilio"],
+                        direccion=row["direccion"],
+                        ciudad=row["ciudad"],
+                        alias_domicilio=row["nombre_domicilio"]
+                )
+            )
+            return domicilios
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar recuperar los datos del usuario y su domicilio.")
+            raise e
+        
+    @staticmethod
+    def obtener_todos_domicilios() -> List[Domicilio]:
+        try:
+            with get_cursor() as cursor:
+                query = """
+                    Implementar
+                """
+                cursor.execute(query)
+                rows = cursor.fetchall()
+            domicilios = []
+            for row in rows:
+                domicilios.append(
+                    Domicilio(
+                        id_domicilio=row["id_domicilio"],
+                        direccion=row["direccion"],
+                        ciudad=row["ciudad"],
+                        nombre_domicilio=row["nombre_domicilio"]
+                    )
+                )
+            return domicilios
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar obtener domicilios.")
+            raise e
     
     @staticmethod
-    def listar_por_usuario(dni: int) -> List[Dict[str, Any]]:
-        """
-        Devuelve los domicilios del usuario cuyo DNI = dni.
-        Une usuarios (por DNI) -> usuarios_hogares (usuario_id) -> domicilios (hogar_id).
-        """
-        query = """
-            SELECT h.id_hogar,
-                   h.nombre_domicilio,
-                   h.direccion,
-                   h.numeracion,
-                   h.ciudad
-            FROM usuarios AS u
-            JOIN usuarios_hogares AS uh ON uh.usuario_id = u.id
-            JOIN domicilios AS h        ON h.id_hogar    = uh.hogar_id
-            WHERE u.dni = %s
-            ORDER BY h.id_hogar
-        """
-        try:
-            with get_cursor(dictionary=True) as cursor:
-                cursor.execute(query, (dni,))
-                return cursor.fetchall()
-        except mysql.connector.Error as exc:
-            logger.exception("Error al recuperar los domicilios del usuario.")
-            raise exc
-
-    @staticmethod
-    def actualizar_domicilio(
-        id_hogar: int,
-        direccion: str,
-        numeracion: str,
-        ciudad: str,
-        nombre_domicilio: str,
-    ) -> None:
-        query = (
-            "UPDATE domicilios SET direccion = %s, numeracion = %s, ciudad = %s, alias_domicilio = %s "
-            "WHERE id_hogar = %s"
-        )
+    def actualizar_domicilio(id_hogar: int, direccion: str, numeracion: str, ciudad: str, alias_domicilio: str) -> bool:
         try:
             with get_cursor(commit=True) as cursor:
-                cursor.execute(query, (direccion, numeracion, ciudad, nombre_domicilio, id_hogar))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudo actualizar el domicilio %s", id_hogar)
-            raise exc
-
+                query = """
+                    UPDATE domicilios
+                    SET direccion=%s, numeracion=%s, ciudad=%s, alias_domicilio=%s
+                    WHERE id_hogar=%s
+                """
+                cursor.execute(query, (direccion, numeracion, ciudad, alias_domicilio, id_hogar))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar modificar datos del domicilio.")
+            raise e
+        
     @staticmethod
-    def eliminar(id_hogar: int) -> None:
-        query = "DELETE FROM domicilios WHERE id_hogar = %s"
+    def eliminar_domicilio(id_hogar: int) -> bool:
         try:
             with get_cursor(commit=True) as cursor:
+                query = "DELETE FROM domicilios WHERE id_hogar=%s"
                 cursor.execute(query, (id_hogar,))
-        except mysql.connector.Error as exc:  # pragma: no cover - solo log
-            logger.exception("No se pudo eliminar el domicilio %s", id_hogar)
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception("Error al intentar eliminar el domicilio.")
+            raise e
+        

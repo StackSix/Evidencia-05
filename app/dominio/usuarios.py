@@ -3,29 +3,29 @@ import re
 
 
 class Usuario:
-    def __init__(self, DNI: int, nombre: str, apellido: str, email: str, rol: str = "user") -> None:
+    def __init__(self, dni: int, nombre: str, apellido: str, email: str, rol: str = "user") -> None:
         if not nombre or len(nombre) < 2:
             raise ValueError("Nombre inválido.")
-        self.__DNI = DNI
+        self.__dni = dni
         self.nombre = nombre
         self.apellido = apellido
         self.__email = email
         self.__rol = rol
     
     @property     
-    def DNI(self)-> int:
-        return self.__DNI 
+    def dni(self)-> int:
+        return self.__dni
     
-    @DNI.setter
-    def DNI(self, DNI_correcto)-> int:
+    @dni.setter
+    def dni(self, dni_correcto)-> int:
         "Setter para modificar DNI incorrecto con validación."
-        if not isinstance(DNI_correcto, int):
+        if not isinstance(dni_correcto, int):
             raise TypeError("El DNI debe ser un numero entero.")
-        dni_str = str(DNI_correcto)
+        dni_str = str(dni_correcto)
         
         if len(dni_str) != 8 and len(dni_str) != 7:
             raise ValueError("El DNI debe tener 7 u 8 numeros.")
-        self.__DNI = DNI_correcto
+        self.__dni = dni_correcto
     
     @property 
     def email(self)-> str:
@@ -52,4 +52,4 @@ class Usuario:
         self.__rol = nuevo_rol
         
     def consultar_datos_personales(self):
-        return f"DNI: {self.DNI}\n Nombre: {self.nombre}\n Apellido: {self.apellido}\n Email: {self.email}\n Rol: {self.rol}"
+        return f"DNI: {self.dni}\n Nombre: {self.nombre}\n Apellido: {self.apellido}\n Email: {self.email}\n Rol: {self.rol}"

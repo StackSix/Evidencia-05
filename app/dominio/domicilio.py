@@ -1,24 +1,19 @@
 from __future__ import annotations
-from usuarios import Usuario
-
 
 class Domicilio:
     "Clase para manejar hogares."
-
-    def __init__(self, id_hogar, direccion, numeracion, ciudad, alias_domicilio):
-        self.id_hogar = id_hogar
+    def __init__(self, id_domicilio: int, direccion: str, ciudad: str, nombre_domicilio: str):
+        self.id_domicilio = id_domicilio
         self.direccion = direccion
-        self.numeracion = numeracion
         self.ciudad = ciudad
-        self.alias_domicilio = alias_domicilio
+        self.nombre_domicilio = nombre_domicilio
 
     def mostrar_datos_domicilio(self):
         "Devuelve los datos del hogar."
         return {
-            "id_hogar": self.id_hogar,
+            "id_hogar": self.id_domicilio,
             "direccion": self.direccion,
-            "numeracion": self.numeracion,
             "ciudad": self.ciudad,
-            "domicilio": self.alias_domicilio
+            "domicilio": self.nombre_domicilio
         }
         

@@ -1,12 +1,10 @@
-from abc import ABC, abstractmethod
 
-
-class Dispositivo(ABC):
+class Dispositivo:
     "Clase para manejar dispositivos del hogar inteligente."
 
-    def __init__(self, id_dispositivo: int, id_habitacion: int, id_tipo: int, estado: str, etiqueta: str):
+    def __init__(self, id_dispositivo: int, id_domicilio: int, id_tipo: int, estado: str, etiqueta: str):
         self.id_dispositivo = id_dispositivo
-        self.id_habitacion = id_habitacion
+        self.id_domicilio = id_domicilio
         self.id_tipo = id_tipo
         self.estado = estado
         self.etiqueta = etiqueta

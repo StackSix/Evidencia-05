@@ -4,67 +4,81 @@ import mysql.connector
 from app.conn.cursor import get_cursor
 from app.conn.logger import logger
 from app.dominio.dispositivos import Dispositivo
+from app.dao.interfaces.i_dispositivo_dao import IDispositivoDAO
 
-class DispositivoDAO:
+class DispositivoDAO(IDispositivoDAO):
     @staticmethod
-    def crear(id_habitacion: Optional[int], id_tipo: int, etiqueta: str) -> int:
-        sql = """INSERT INTO dispositivos (id_habitacion, id_tipo, estado, etiqueta)
-                 VALUES (%s, %s, FALSE, %s)"""
-        with get_cursor(commit=True) as cur:
-            cur.execute(sql, (id_habitacion, id_tipo, etiqueta))
-            return cur.lastrowid
-
-    @staticmethod
-    def obtener_por_id(id_dispositivo: int) -> Optional[Dict[str, Any]]:
-        sql = """SELECT d.id_dispositivo, d.id_habitacion, d.id_tipo, d.estado, d.etiqueta,
-                        td.nombre_tipo, th.nombre_habitacion
-                 FROM dispositivos d
-                 LEFT JOIN tipos_dispositivos td ON td.id_tipo=d.id_tipo
-                 LEFT JOIN tipo_habitacion th   ON th.id_habitacion=d.id_habitacion
-                 WHERE d.id_dispositivo=%s"""
-        with get_cursor(dictionary=True) as cur:
-            cur.execute(sql, (id_dispositivo,))
-            return cur.fetchone()
+    def registrar_dispositivo(id_domicilio: Optional[int], id_tipo: int, etiqueta: str) -> int:
+        try:
+            with get_cursor(commit=True) as cursor:
+                query = """INSERT INTO dispositivos (id_domicilio, id_tipo, estado, etiqueta)
+                    VALUES (%s, %s, TRUE, %s)"""
+                cursor.execute(query, (id_domicilio, id_tipo, etiqueta))
+                return cursor.lastrowid
+        except mysql.connector.Error as e:
+            logger.exception("No se pudo registrar el dispositivo en la Base de Datos.")
+            raise e
+    
+    @staticmethod #Esto configurarlo para usuario comun
+    def obtener_dispositivo_usuario(id_usuario: int) -> List[Dispositivo]:
+        try:
+            with get_cursor(dictionary=True) as cursor:
+                query = """
+                    Implementar nueva query
+                """
         
-    @staticmethod
-    def listar_todos() -> List[Dict[str, Any]]:
-        sql = """SELECT d.id_dispositivo, d.etiqueta, d.estado,
-                        td.nombre_tipo, th.nombre_habitacion, h.nombre_domicilio
-                 FROM dispositivos d
-                 LEFT JOIN tipos_dispositivos td ON td.id_tipo=d.id_tipo
-                 LEFT JOIN tipo_habitacion th   ON th.id_habitacion=d.id_habitacion
-                 LEFT JOIN domicilios h         ON h.id_hogar=th.hogar_id
-                 ORDER BY d.id_dispositivo"""
-        with get_cursor(dictionary=True) as cur:
-            cur.execute(sql)
-            return cur.fetchall()
+                cursor.execute(query, (id_usuario,))
+                rows = cursor.fetchall()
+            dispositivos = []
+            for row in rows:
+                dispositivos.append(
+                    Dispositivo(
+                        id_dispositivo=row["id_dispositivo"], 
+                        id_domicilio=row["id_domicilio"],
+                        id_tipo=row["id_tipo"], 
+                        estado=row["estado"], 
+                        etiqueta=row["etiqueta"]
+                        )
+                    )
+            return dispositivos
+        except mysql.connector.Error as e:
+            logger.exception("No se pudieron obtener los dispositivos registrados.")
+            raise e
+    
+    @staticmethod #Esto configurarlo para admin
+    def obtener_todos_dispositivos() -> List[Dispositivo]:
+        try:
+            with get_cursor(dictionary=True) as cursor:
+                query = """
+                    Implementar
+                """
+                cursor.execute(query)
+                rows = cursor.fetchall()
+            dispositivos = []
+            for row in rows:
+                dispositivos.append(
+                    Dispositivo(
+                        id_dispositivo=row["id_dispositivo"], 
+                        id_domicilio=row["id_domicilio"],
+                        id_tipo=row["id_tipo"], 
+                        estado=row["estado"], 
+                        etiqueta=row["etiqueta"]
+                        )
+                    )
+            return dispositivos
+        except mysql.connector.Error as e:
+            logger.exception("No se pudieron obtener los dispositivos registrados.")
+            raise e
 
-    @staticmethod
-    def listar_por_usuario(user_id: int) -> list[dict]:
-        query = """
-            SELECT d.id_dispositivo, d.etiqueta, d.estado,
-                td.nombre_tipo, th.nombre_habitacion, h.nombre_domicilio
-            FROM usuarios_hogares uh
-            JOIN domicilios h ON h.id_hogar = uh.hogar_id
-            LEFT JOIN tipo_habitacion th ON th.hogar_id = h.id_hogar
-            LEFT JOIN dispositivos d ON d.id_habitacion = th.id_habitacion OR d.id_habitacion IS NULL
-            LEFT JOIN tipos_dispositivos td ON td.id_tipo = d.id_tipo
-            WHERE uh.usuario_id = %s
-            ORDER BY d.id_dispositivo
-        """
-        with get_cursor(dictionary=True) as cur:
-            cur.execute(query, (user_id,))
-            return cur.fetchall()
-
-    @staticmethod
-    def actualizar(id_dispositivo: int, *,
-                   id_habitacion: Optional[int] = None,
+    @staticmethod 
+    def actualizar_dispositivo(id_dispositivo: int, *,
+                   id_domicilio: Optional[int] = None,
                    id_tipo: Optional[int] = None,
                    etiqueta: Optional[str] = None) -> None:
         sets, params = [], []
-        if id_habitacion is not None: sets.append("id_habitacion=%s"); params.append(id_habitacion)
-        if id_tipo is not None:       sets.append("id_tipo=%s");       params.append(id_tipo)
-        if etiqueta:                  sets.append("etiqueta=%s");      params.append(etiqueta)
+        if id_domicilio is not None: sets.append("id_habitacion=%s"); params.append(id_domicilio)
+        if id_tipo is not None:      sets.append("id_tipo=%s");       params.append(id_tipo)
+        if etiqueta:                 sets.append("etiqueta=%s");      params.append(etiqueta)
         if not sets: return
         params.append(id_dispositivo)
         sql = f"UPDATE dispositivos SET {', '.join(sets)} WHERE id_dispositivo=%s"
@@ -72,17 +86,11 @@ class DispositivoDAO:
             cur.execute(sql, tuple(params))
 
     @staticmethod
-    def set_estado(id_dispositivo: int, estado: bool) -> None:
-        with get_cursor(commit=True) as cur:
-            cur.execute("UPDATE dispositivos SET estado=%s WHERE id_dispositivo=%s",
-                        (estado, id_dispositivo))
-
-    @staticmethod
-    def eliminar(id_dispositivo: int) -> None:
+    def eliminar_dispositivo(id_dispositivo: int) -> None:
         with get_cursor(commit=True) as cur:
             cur.execute("DELETE FROM dispositivos WHERE id_dispositivo=%s", (id_dispositivo,))
             
-    @staticmethod
+    @staticmethod #Esto si se logra con una funcion de arriba, eliminar
     def listar_por_hogar(id_hogar: int) -> list[Dispositivo]:
         """
         Devuelve todos los dispositivos de todas las habitaciones de un hogar.
@@ -102,7 +110,6 @@ class DispositivoDAO:
             dispositivos.append(
                 Dispositivo(
                     id_dispositivo=row["id_dispositivo"],
-                    id_habitacion=row["id_habitacion"],
                     id_tipo=row["id_tipo"],
                     estado=row["estado"],
                     etiqueta=row["etiqueta"]
