@@ -11,15 +11,16 @@ from app.dominio.usuarios import Usuario
 class UsuarioDAO(IUsuaioDAO):
     "DAO para 'usuarios' con FK a 'roles'"
     @staticmethod
-    def registrar_usuario(dni: int, id_rol: int, nombre: str, apellido: str, email: str, contrasena: str) -> None:
+    def registrar_usuario(dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str) -> None:
         hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO usuarios (dni, id_rol, nombre, apellido, email, contrasena)
+                    INSERT INTO usuarios (dni, nombre, apellido, email, contrasena, rol)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
-                cursor.execute(query, (dni, id_rol, nombre, apellido, email, hashed))
+                cursor.execute(query, (dni, nombre, apellido, email, hashed, rol))
+                return cursor.lastrowid
         except mysql.connector.Error as e:
             logger.exception("No se pudo registrar el usuario en la Base de Datos.")
             raise e

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Optional
 from app.dominio.domicilio import Domicilio
 from app.dao.domicilios_dao import DomiciliosDAO

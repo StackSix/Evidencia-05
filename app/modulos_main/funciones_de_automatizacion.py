@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional
+from __future__ import annotations
 from app.dao.automatizaciones_dao import AutomatizacionesDAO
 from app.dominio.automatizacion import Automatizacion
 from app.dao.dispositivos_dao import DispositivoDAO

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from app.servicios.gestor_domicilio import GestorDomicilio
 from app.dao.domicilios_dao import DomiciliosDAO
 from app.modulos_main.funciones_de_autenticacion import registrar_usuario, login

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from app.servicios.gestor_dispositivo import GestorDispositivo
 from typing import Dict
 

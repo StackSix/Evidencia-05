@@ -1,8 +1,5 @@
 from __future__ import annotations
 from typing import Optional, Dict
-from datetime import datetime
-from app.dominio.dispositivos import Dispositivo
-
 
 class Automatizacion:
     "Clase para manejar automatizaciones del hogar."

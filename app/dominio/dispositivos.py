@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 
 class Dispositivo:
     "Clase para manejar dispositivos del hogar inteligente."

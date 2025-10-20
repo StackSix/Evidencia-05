@@ -14,8 +14,8 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO automatizaciones (id_domicilio, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) 
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
                 return cursor.lastrowid
@@ -24,16 +24,16 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             raise e
     
     @staticmethod
-    def obtener_automatizacion(automatizacion_id: int) -> Optional[Automatizacion]:
+    def obtener_automatizacion(id_automatizacion: int) -> Optional[Automatizacion]:
         "Recupera una automatización por su ID."
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
-                    SELECT id_automatizacion, id_domicilio, nombre, accion, id_dispositivo_asociado, estado, hora_encendido, hora_apagado
+                    SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado
                     FROM automatizaciones
                     WHERE id_automatizacion=%s
                 """
-                cursor.execute(query, (automatizacion_id,))
+                cursor.execute(query, (id_automatizacion,))
                 row = cursor.fetchone()
                 if row:
                     return Automatizacion(
@@ -41,7 +41,6 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                         id_domicilio=row["id_domicilio"], 
                         nombre=row["nombre"], 
                         accion=row["accion"],
-                        id_dispositivo_asociado=row["id_dispositivo_asociado"],
                         estado=row["estado"],
                         hora_encendido=row["hora_encendido"],
                         hora_apagado=row["hora_apagado"]
@@ -84,10 +83,10 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             with get_cursor(commit=True) as cursor:
                 query = """
                 UPDATE automatizaciones 
-                SET id_domicilio=%s, nombre=%s, accion=%s, id_dispositivo_asociado=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
+                SET id_domicilio=%s, nombre=%s, accion=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
                 WHERE id_automatizacion=%s
                 """
-                cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.id_dispositivo_asociado, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
+                cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
@@ -109,7 +108,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             raise e
     
     @staticmethod
-    def verificar_dueno_domicilio(dni_usuario: int, id_hogar: int) -> bool:
+    def verificar_dueno_domicilio(dni: int, id_domicilio: int) -> bool:
         """
         Verifica si un usuario es el propietario de un hogar.
         Utiliza una tabla intermedia 'usuarios_domicilios' para la validación.
@@ -121,7 +120,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                     FROM usuarios_domicilios AS ud
                     WHERE ud.id_domicilio = %s AND ud.dni = %s
                 """
-                cursor.execute(query, (id_hogar, dni_usuario))
+                cursor.execute(query, (id_domicilio, dni))
                 resultado = cursor.fetchone()
                 return resultado[0] > 0 if resultado else False
         except mysql.connector.Error as e:
@@ -129,7 +128,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             raise e
             
     @staticmethod
-    def verificar_dueno_de_automatizacion(dni_usuario: int, automatizacion_id: int) -> bool:
+    def verificar_dueno_de_automatizacion(dni: int, id_automatizacion: int) -> bool:
         """
         Verifica si un usuario es el propietario de la automatización.
         Utiliza la tabla intermedia 'usuarios_domicilios' para la validación.
@@ -142,7 +141,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                     JOIN usuarios_domicilios AS ud ON a.id_hogar = ud.id_domicilio
                     WHERE a.id_automatizacion = %s AND ud.dni = %s
                 """
-                cursor.execute(query, (automatizacion_id, dni_usuario))
+                cursor.execute(query, (id_automatizacion, dni))
                 resultado = cursor.fetchone()
                 # El resultado es una tupla, se comprueba el primer elemento
                 return resultado[0] > 0 if resultado else False

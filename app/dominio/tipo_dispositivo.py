@@ -1,7 +1,7 @@
 class TipoDispositivo:
     """Clase para manejar tipos de dispositivos."""
 
-    def __init__(self, id_tipo, tipo_dispositivo):
+    def __init__(self, id_tipo: int, tipo_dispositivo: str):
         self.__id_tipo = id_tipo
         self.__tipo_dispositivo = tipo_dispositivo
     

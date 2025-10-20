@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Optional
 from app.dominio.usuarios import Usuario
 from app.dao.usuarios_dao import UsuarioDAO

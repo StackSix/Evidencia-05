@@ -1,5 +1,4 @@
-from typing import Dict
-from app.dao.automatizaciones_dao import AutomatizacionesDAO
+from __future__ import annotations
 from app.modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
 from app.modulos_main.menu_crud_dispositivos import menu_crud_dispositivos
 from app.modulos_main.menu_crud_domicilios import menu_crud_domicilios
@@ -7,17 +6,15 @@ from app.modulos_main.menu_crud_usuarios import menu_crud_usuarios
 from app.dao.dispositivos_dao import DispositivoDAO
 from app.dao.usuarios_dao import UsuarioDAO
 from app.dao.domicilios_dao import DomiciliosDAO
-from app.dominio.automatizacion import Automatizacion
 
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
     while True:
-        print("\n1) Ver mis domicilios") #listo
-        print("2) Ver mis dispositivos") #listo
-        print("3) Ver mis datos personales") #listo
+        print("\n1) Ver mis domicilios") 
+        print("2) Ver mis dispositivos") 
+        print("3) Ver mis datos personales") 
         if session["rol"] == "admin":
-            print("4) [ADMIN] Gestionar dispositivos (CRUD)")
-            print("5) [ADMIN] Menú Gestión de Usuarios")
+            print("4) [ADMIN] Gestionar CRUDs")
             
         print("0) Salir")
         op = input("> ").strip()
@@ -32,32 +29,33 @@ def menu_usuario(session):
             ver_datos_personales(session["dni"])
 
         elif op == "4" and session["rol"] == "admin":
-            # --- Submenú CRUD de dispositivos ---
+            # Submenú CRUD
             while True:
-                print("\n[CRUD Dispositivos]")
-                print(" 1) Menú Dispositivos")
-                print(" 2) Menú Automatización")
-                print(" 3) Menú Domicilios")
+                print("\n[Menú CRUD]")
+                print(" 1) Menú CRUD Usuarios")
+                print(" 2) Menú CRUD Domicilios")
+                print(" 3) Menú CRUD Dispositivos")
+                print(" 4) Menú CRUD Automatización")
                 print(" 0) Volver al menú anterior")
                 sop = input("> ").strip()
                 
                 if sop == "1":
-                    menu_crud_dispositivos(session)
+                    menu_crud_usuarios(session)
                     
                 elif sop == "2":
-                    menu_crud_automatizacion(session)
+                    menu_crud_domicilios(session)
                         
                 elif sop == "3":
-                    menu_crud_domicilios(session)
+                    menu_crud_dispositivos(session)
+                    
+                elif op == "4":
+                    menu_crud_automatizacion(session)
                 
                 elif sop == "0":
                     break
                 
                 else:
                     print("Ingrese una opción válida. Intentelo de nuevo")
-                
-        elif op == "5":
-             menu_crud_usuarios(session)
              
         elif op == "6":
             break

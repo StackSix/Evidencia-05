@@ -1,6 +1,6 @@
 import mysql.connector
 from mysql.connector import Error
-from typing import List, Dict, Optional
+from typing import List, Optional
 from app.conn.cursor import get_cursor
 from app.dao.interfaces.i_domicilio_dao import IDomicilioDAO
 from app.dominio.domicilio import Domicilio
@@ -8,14 +8,14 @@ from app.conn.logger import logger
 
 class DomiciliosDAO(IDomicilioDAO):
     @staticmethod
-    def registrar_domicilio(direccion: str, numeracion: str, ciudad: str, nombre_domicilio: str) -> int:
+    def registrar_domicilio(direccion: str, ciudad: str, nombre_domicilio: str) -> int:
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO domicilios (direccion, numeracion, ciudad, nombre_domicilio)
-                    VALUES (%s, %s, %s, %s)
+                    INSERT INTO domicilios (direccion, ciudad, nombre_domicilio)
+                    VALUES (%s, %s, %s)
                 """
-                cursor.execute(query, (direccion, numeracion, ciudad, nombre_domicilio))
+                cursor.execute(query, (direccion, ciudad, nombre_domicilio))
                 return cursor.lastrowid
         except mysql.connector.Error as e:
             logger.exception("Error al intentar registrar domicilio.")
@@ -51,7 +51,7 @@ class DomiciliosDAO(IDomicilioDAO):
                         id_domicilio=row["id_domicilio"],
                         direccion=row["direccion"],
                         ciudad=row["ciudad"],
-                        alias_domicilio=row["nombre_domicilio"]
+                        nombre_domicilio=row["nombre_domicilio"]
                 )
             )
             return domicilios
@@ -84,26 +84,26 @@ class DomiciliosDAO(IDomicilioDAO):
             raise e
     
     @staticmethod
-    def actualizar_domicilio(id_hogar: int, direccion: str, numeracion: str, ciudad: str, alias_domicilio: str) -> bool:
+    def actualizar_domicilio(id_domicilio: int, direccion: str, numeracion: str, ciudad: str, nombre_domicilio: str) -> bool:
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
                     UPDATE domicilios
-                    SET direccion=%s, numeracion=%s, ciudad=%s, alias_domicilio=%s
+                    SET direccion=%s, ciudad=%s, nombre_domicilio=%s
                     WHERE id_hogar=%s
                 """
-                cursor.execute(query, (direccion, numeracion, ciudad, alias_domicilio, id_hogar))
+                cursor.execute(query, (direccion, ciudad, nombre_domicilio, id_domicilio))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception("Error al intentar modificar datos del domicilio.")
             raise e
         
     @staticmethod
-    def eliminar_domicilio(id_hogar: int) -> bool:
+    def eliminar_domicilio(id_domicilio: int) -> bool:
         try:
             with get_cursor(commit=True) as cursor:
-                query = "DELETE FROM domicilios WHERE id_hogar=%s"
-                cursor.execute(query, (id_hogar,))
+                query = "DELETE FROM domicilios WHERE id_domicilio=%s"
+                cursor.execute(query, (id_domicilio,))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception("Error al intentar eliminar el domicilio.")

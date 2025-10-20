@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Dict
 from app.servicios.gestor_automatizacion import GestorAutomatizacion
 from app.dominio.automatizacion import Automatizacion

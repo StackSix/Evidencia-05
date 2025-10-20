@@ -1,12 +1,13 @@
 from __future__ import annotations
 import re
+import bcrypt
 from typing import List
 from app.dominio.domicilio import Domicilio
 from app.servicios.gestor_domicilio import GestorDomicilio
 
 
 class Usuario:
-    def __init__(self, id_usuario: int, dni: int, nombre: str, apellido: str, email: str, rol: str = "user", gestor_domicilios: GestorDomicilio = None) -> None:
+    def __init__(self, id_usuario: int, dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "usuario",  gestor_domicilios: GestorDomicilio = None) -> None:
         if not nombre or len(nombre) < 2:
             raise ValueError("Nombre inválido.")
         self.__id_usuario = id_usuario
@@ -14,6 +15,7 @@ class Usuario:
         self.__nombre = nombre
         self.__apellido = apellido
         self.__email = email
+        self.__contrasena = contrasena
         self.__rol = rol
         self.__gestor_domicilios = gestor_domicilios if gestor_domicilios is not None else GestorDomicilio()
     
@@ -65,6 +67,21 @@ class Usuario:
         if not re.match(regex, nuevo_email):
             raise ValueError(f"Email '{nuevo_email}' inválido.")
         self.__email = nuevo_email
+        
+    @property
+    def contrasena(self) -> str:
+        return self.__contrasena
+    
+    @contrasena.setter
+    def contrasena(self, nueva_contrasena):
+        if len(nueva_contrasena) < 8:
+            raise ValueError("La contraseña debe tener al menos 8 caracteres")
+        if not any(c.isdigit() for c in nueva_contrasena):
+            raise ValueError("La contraseña debe contener al menos un número")
+        
+        # Encriptar y guardar
+        hashed = bcrypt.hashpw(nueva_contrasena.encode("utf-8"), bcrypt.gensalt())
+        self.__contrasena = hashed.decode("utf-8")
         
     @property
     def rol(self) -> str:
