@@ -58,4 +58,12 @@ def timedelta_a_time(td: timedelta) -> time:
         horas = total_segundos // 3600 % 24
         minutos = (total_segundos % 3600) // 60
         return time(hour=horas, minute=minutos)
-    
+
+def pedir_hora(mensaje: str) -> str:
+    while True:
+        hora_str = input(mensaje)
+        try:
+            hora_obj = datetime.strptime(hora_str, "%H:%M")
+            return hora_obj.strftime("%H:%M")
+        except:
+            print("Debe ingresar un horario valido. HH:MM")

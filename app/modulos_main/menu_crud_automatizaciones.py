@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Dict
 from app.servicios.gestor_automatizacion import GestorAutomatizacion
 from app.dominio.automatizacion import Automatizacion
+from app.modulos_main.funciones_de_automatizacion import pedir_hora
 
 
 def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
@@ -27,15 +28,24 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
                 print("❌ Datos inválidos, no se pudo crear la automatización.")
                 continue
             
+            # Pedir horarios al usuario
+            hora_encendido = pedir_hora("Ingrese hora de encendido (HH:MM): ")
+            hora_apagado = pedir_hora("Ingrese hora de apagado (HH:MM): ")
+
+            
             automatizacion = Automatizacion(
                 id_automatizacion=None,
                 id_domicilio=int(id_domicilio),
                 nombre=nombre,
                 accion=accion,
-                estado=1,
+                estado=False,
                 hora_encendido=None,
                 hora_apagado=None
             )
+            
+            # Configurar horario ingresado
+            automatizacion.configurar_horario(hora_encendido, hora_apagado)
+            # Registrar en el gestor/DAO
             gestor.registrar(automatizacion)  
             
         elif opcion == "3":
@@ -44,21 +54,28 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
                 print("❌ ID inválido.")
                 continue
             
+            auto_existente = gestor.obtener_por_id(int(id_auto))
+            if not auto_existente:
+                print("❌ Automatización no encontrada.")
+                continue
+            
             nombre = input("Nuevo nombre (dejar vacío para no cambiar): ").strip()
             accion = input("Nueva acción (dejar vacío para no cambiar): ").strip()
             estado_input = input("Nuevo estado (activo/inactivo, dejar vacío para no cambiar): ").strip().lower()
             
             estado = None
             if estado_input in ["activo", "1", "encendido"]:
-                estado = 1
+                estado = True
             elif estado_input in ["inactivo", "0", "apagado"]:
-                estado = 0
+                estado = False
             
-            auto_existente = gestor.obtener_por_id(int(id_auto))
-            if not auto_existente:
-                print("❌ Automatización no encontrada.")
-                continue
-            
+            # Preguntar si quiere cambiar los horarios
+            cambiar_horarios = input("¿Desea actualizar los horarios? (s/n): ").strip().lower()
+            if cambiar_horarios == "s":
+                hora_encendido = pedir_hora("Ingrese nueva hora de encendido (HH:MM): ")
+                hora_apagado = pedir_hora("Ingrese nueva hora de apagado (HH:MM): ")
+                auto_existente.configurar_horario(hora_encendido, hora_apagado)
+            # Actualizar en gestor y dao
             gestor.actualizar(auto_existente, nombre or None, accion or None, estado)
         
         elif opcion == "4":
