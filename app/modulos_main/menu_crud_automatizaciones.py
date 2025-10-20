@@ -19,24 +19,24 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
             gestor.listar(session.get("dni"))
         
         elif opcion == "2":
-            id_hogar = input("Ingrese ID del domicilio: ").strip()
+            id_domicilio = input("Ingrese ID del domicilio: ").strip()
             nombre = input("Ingrese nombre de la automatización: ").strip()
             accion = input("Ingrese acción de la automatización: ").strip()
             
-            if not (id_hogar.isdigit() and nombre and accion):
+            if not (id_domicilio.isdigit() and nombre and accion):
                 print("❌ Datos inválidos, no se pudo crear la automatización.")
                 continue
             
             automatizacion = Automatizacion(
                 id_automatizacion=None,
-                id_hogar=int(id_hogar),
+                id_domicilio=int(id_domicilio),
                 nombre=nombre,
                 accion=accion,
                 estado=1,
                 hora_encendido=None,
                 hora_apagado=None
             )
-            gestor.registrar(automatizacion)  # Llama al gestor que hace todo
+            gestor.registrar(automatizacion)  
             
         elif opcion == "3":
             id_auto = input("Ingrese ID de la automatización: ").strip()

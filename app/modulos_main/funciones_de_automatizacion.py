@@ -5,7 +5,7 @@ from app.dao.dispositivos_dao import DispositivoDAO
 from app.dao.domicilios_dao import DomiciliosDAO
 from datetime import datetime, timedelta, time
         
-def ejecutar_accion_automatica(automatizacion_id: int) -> str: #simplificar
+def ejecutar_accion_automatica(automatizacion_id: int) -> str:
         automatizacion = AutomatizacionesDAO.obtener_automatizacion(automatizacion_id)
         if not automatizacion:
             return "Automatización no existe."
@@ -39,10 +39,10 @@ def ejecutar_accion_automatica(automatizacion_id: int) -> str: #simplificar
             if hora_actual >= hora_encendido or hora_actual < hora_apagado:
                 esta_en_horario = True
 
-        # ⚡ Aplicar acción a todos los dispositivos del hogar
-        dispositivos = DispositivoDAO.listar_dispositivos_por_domicilio(automatizacion.id_hogar)
+        # ⚡ Aplicar acción a todos los dispositivos del domicilio
+        dispositivos = DispositivoDAO.listar_dispositivos_por_domicilio(automatizacion.id_domicilio)
         if not dispositivos:
-            return f"No hay dispositivos registrados para el hogar {automatizacion.id_hogar}."
+            return f"No hay dispositivos registrados para el domicilio {automatizacion.id_domicilio}."
 
         for dispositivo in dispositivos:
             if esta_en_horario:
