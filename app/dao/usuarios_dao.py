@@ -35,21 +35,30 @@ class UsuarioDAO(IUsuaioDAO):
                 """
                 cursor.execute(query)
                 rows = cursor.fetchall()
+
             usuarios = []
             for row in rows:
+                nombre = row["nombre"]
+                if not nombre or len(nombre) < 2:
+                    logger.warning(f"Nombre inválido para id_usuario={row['id_usuario']}. Se reemplazará por 'Usuario{row['id_usuario']}'")
+                    nombre = f"Usuario{row['id_usuario']}"
+
                 usuarios.append(
                     Usuario(
-                    dni=row["dni"],
-                    nombre=row["nombre"],
-                    apellido=row["apellido"],
-                    email=row["email"],
-                    contrasena=row["contrasena"],
-                    rol=row["rol"] 
+                        id_usuario=row["id_usuario"],
+                        dni=row["dni"],
+                        nombre=nombre,  
+                        apellido=row["apellido"],
+                        email=row["email"],
+                        contrasena=row["contrasena"],
+                        rol=row["rol"]
+                    )
                 )
-            )
+
             return usuarios
+
         except mysql.connector.Error as e:
-            logger.exception("No se pudieron obtener los usuario registrados.")
+            logger.exception("No se pudieron obtener los usuarios registrados.")
             raise e
         
     @staticmethod 

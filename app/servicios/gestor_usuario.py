@@ -7,7 +7,11 @@ class GestorUsuario:
     """Gestiona la lógica de negocio de los usuarios, con lista en memoria y sincronización con DB."""
     
     def __init__(self, usuarios: Optional[List[Usuario]] = None):
-        self.__usuarios = usuarios if usuarios is not None else UsuarioDAO.listar_todos_usuarios()
+        try:
+            self.__usuarios = usuarios if usuarios is not None else UsuarioDAO.listar_todos_usuarios()
+        except ValueError as e:
+            print(f"⚠️ Advertencia al cargar usuarios: {e}")
+            self.__usuarios = []
 
     def agregar_usuario(self, dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "Usuario") -> None:
         try:
@@ -44,12 +48,13 @@ class GestorUsuario:
         else:
             print("⚠️ No se encontró ningún usuario con ese ID.")
 
-    def listar_usuarios(self) -> None:
+    def listar_usuarios(self) -> List[Usuario]:
         if not self.__usuarios:
             print("❌ No hay usuarios registrados.")
-            return
+            return []
         for u in self.__usuarios:
             print(f"{u.dni} - {u.nombre} - {u.apellido} - {u.email} - {u.rol}")
+        return self.__usuarios
 
     def obtener_usuario_por_email(self, email: str) -> Optional[Usuario]:
         for u in self.__usuarios:

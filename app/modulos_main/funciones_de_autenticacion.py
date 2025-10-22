@@ -10,7 +10,7 @@ def registrar_usuario(
     apellido: str,
     email: str,
     contrasena: str,
-    rol: str = "Usuario"  # opcional
+    rol: str = "Usuario"  
 ) -> int:
     if len(contrasena) < 6:
         raise ValueError("La contraseña debe tener al menos 6 caracteres.")
@@ -24,23 +24,6 @@ def registrar_usuario(
     id_usuario = UsuarioDAO.registrar_usuario(dni, nombre, apellido, email, contrasena, rol)
     print(f"✅ Usuario creado con ID {id_usuario}.")
 
-    # Pedir datos de domicilio
-    print("\n🏠 Registrar domicilio principal del usuario")
-    direccion = input("Dirección: ").strip()
-    ciudad = input("Ciudad: ").strip()
-    nombre_domicilio = input("Alias del domicilio: ").strip()
-
-    # Registrar domicilio con el ID del usuario
-    id_domicilio = DomiciliosDAO.registrar_domicilio(
-        direccion=direccion,
-        ciudad=ciudad,
-        nombre_domicilio=nombre_domicilio,
-        id_usuario=id_usuario
-    )
-
-    print(f"✅ Domicilio registrado con ID {id_domicilio}.")
-
-    return id_usuario
 
 def login(email: str, contrasena_plana: str) -> Optional[Dict]:
         rec = UsuarioDAO.obtener_por_email(email)

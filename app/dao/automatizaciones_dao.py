@@ -14,7 +14,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado)
+                    INSERT INTO automatizacion (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
@@ -30,7 +30,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
                     SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado
-                    FROM automatizaciones
+                    FROM automatizacion
                     WHERE id_automatizacion = %s
                 """
                 cursor.execute(query, (id_automatizacion,))
@@ -56,7 +56,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             with get_cursor(dictionary=True) as cursor:
                 query = """
                     SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado 
-                    FROM automatizaciones 
+                    FROM automatizacion
                     WHERE estado = 1 
                     ORDER BY id_automatizacion
                 """
@@ -86,7 +86,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    UPDATE automatizaciones
+                    UPDATE automatizacion
                     SET id_domicilio=%s, nombre=%s, accion=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
                     WHERE id_automatizacion=%s
                 """
@@ -101,7 +101,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         "Permite eliminar el registro de una automatización de la BD por su ID."
         try:
             with get_cursor(commit=True) as cursor:
-                query = "DELETE FROM automatizaciones WHERE id_automatizacion = %s"
+                query = "DELETE FROM automatizacion WHERE id_automatizacion = %s"
                 cursor.execute(query, (id_automatizacion,))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
@@ -137,7 +137,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=False) as cursor:
                 query = """
-                    SELECT COUNT(*) FROM automatizaciones a
+                    SELECT COUNT(*) FROM automatizacion a
                     JOIN domicilio d ON a.id_domicilio = d.id_domicilio
                     JOIN usuario u ON d.id_usuario = u.id_usuario
                     WHERE a.id_automatizacion = %s AND u.dni = %s
