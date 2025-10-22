@@ -8,27 +8,17 @@ from app.conn.logger import logger
 
 class DomiciliosDAO(IDomicilioDAO):
     @staticmethod
-    def registrar_domicilio(direccion: str, ciudad: str, nombre_domicilio: str) -> int:
+    def registrar_domicilio(direccion: str, ciudad: str, nombre_domicilio: str, id_usuario: int) -> int:
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO domicilios (direccion, ciudad, nombre_domicilio)
-                    VALUES (%s, %s, %s)
+                    INSERT INTO domicilio (direccion, ciudad, nombre_domicilio, id_usuario)
+                    VALUES (%s, %s, %s, %s)
                 """
-                cursor.execute(query, (direccion, ciudad, nombre_domicilio))
+                cursor.execute(query, (direccion, ciudad, nombre_domicilio, id_usuario))
                 return cursor.lastrowid
         except mysql.connector.Error as e:
             logger.exception("Error al intentar registrar domicilio.")
-            raise e
-
-    @staticmethod #revisar
-    def vincular_usuario(dni: int, id_domicilio: int) -> None:
-        try:
-            with get_cursor(commit=True) as cursor:
-                query = "INSERT IGNORE INTO usuarios_domicilios (dni, id_domicilio) VALUES (%s, %s)"
-                cursor.execute(query, (dni, id_domicilio))
-        except mysql.connector.Error as e:
-            logger.exception("No se pudo vincular el usuario con el domicilio.")
             raise e
             
     @staticmethod
@@ -37,14 +27,14 @@ class DomiciliosDAO(IDomicilioDAO):
             with get_cursor(commit=False) as cursor:
                 query = """
                     SELECT d.id_domicilio, d.nombre_domicilio, d.direccion, d.ciudad
-                    FROM usuarios_domicilios ud
-                    JOIN domicilios d ON d.id_hogar = ud.id_hogar
-                    WHERE ud.dni = %s
-                    ORDER BY d.id_hogar
+                    FROM domicilio d
+                    JOIN usuario u ON d.id_usuario = u.id_usuario
+                    WHERE u.dni = %s
+                    ORDER BY d.id_domicilio
                 """
                 cursor.execute(query, (dni,))
                 rows = cursor.fetchall()
-            domicilios = []
+            domicilios: List[Domicilio] = []
             for row in rows:
                 domicilios.append(
                     Domicilio(
@@ -64,11 +54,13 @@ class DomiciliosDAO(IDomicilioDAO):
         try:
             with get_cursor() as cursor:
                 query = """
-                    Implementar
+                    SELECT id_domicilio, direccion, ciudad, nombre_domicilio, id_usuario
+                    FROM domicilio
+                    ORDER BY id_domicilio
                 """
                 cursor.execute(query)
                 rows = cursor.fetchall()
-            domicilios = []
+            domicilios: List[Domicilio] = []
             for row in rows:
                 domicilios.append(
                     Domicilio(
@@ -84,13 +76,13 @@ class DomiciliosDAO(IDomicilioDAO):
             raise e
     
     @staticmethod
-    def actualizar_domicilio(id_domicilio: int, direccion: str, numeracion: str, ciudad: str, nombre_domicilio: str) -> bool:
+    def actualizar_domicilio(id_domicilio: int, direccion: str, ciudad: str, nombre_domicilio: str) -> bool:
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    UPDATE domicilios
+                    UPDATE domicilio
                     SET direccion=%s, ciudad=%s, nombre_domicilio=%s
-                    WHERE id_hogar=%s
+                    WHERE id_domicilio=%s
                 """
                 cursor.execute(query, (direccion, ciudad, nombre_domicilio, id_domicilio))
                 return cursor.rowcount > 0
@@ -102,7 +94,7 @@ class DomiciliosDAO(IDomicilioDAO):
     def eliminar_domicilio(id_domicilio: int) -> bool:
         try:
             with get_cursor(commit=True) as cursor:
-                query = "DELETE FROM domicilios WHERE id_domicilio=%s"
+                query = "DELETE FROM domicilio WHERE id_domicilio=%s"
                 cursor.execute(query, (id_domicilio,))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:

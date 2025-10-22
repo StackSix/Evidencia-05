@@ -7,7 +7,7 @@ from app.servicios.gestor_domicilio import GestorDomicilio
 
 
 class Usuario:
-    def __init__(self, id_usuario: int, dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "usuario",  gestor_domicilios: GestorDomicilio = None) -> None:
+    def __init__(self, id_usuario: int, dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "Usuario",  gestor_domicilios: GestorDomicilio = None) -> None:
         if not nombre or len(nombre) < 2:
             raise ValueError("Nombre inválido.")
         self.__id_usuario = id_usuario

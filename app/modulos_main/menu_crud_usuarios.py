@@ -37,10 +37,10 @@ def menu_crud_usuarios(session: Dict, gestor: GestorUsuario):
         elif opcion == "4":
             try:
                 id_usuario = int(input("Ingrese el ID del usuario: ").strip())
-                nuevo_id_rol = int(input("Ingrese el nuevo ID de rol: ").strip())
-                gestor.modificar_rol(id_usuario, nuevo_id_rol)
+                nuevo_rol = input("Ingrese el nuevo rol del usuario (Admin/Usuario): ").strip()
+                gestor.modificar_rol(id_usuario, nuevo_rol)
             except ValueError:
-                print("❌ ID inválido.")
+                print("❌ Debe ingresar la opción correcta (Admin/Usuario). Intentelo de nuevo.")
 
         elif opcion == "0":
             break

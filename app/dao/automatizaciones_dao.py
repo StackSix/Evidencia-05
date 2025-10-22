@@ -14,7 +14,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                    INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) 
+                    INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado)
                     VALUES (%s, %s, %s, %s, %s, %s)
                 """
                 cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado))
@@ -31,7 +31,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                 query = """
                     SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado
                     FROM automatizaciones
-                    WHERE id_automatizacion=%s
+                    WHERE id_automatizacion = %s
                 """
                 cursor.execute(query, (id_automatizacion,))
                 row = cursor.fetchone()
@@ -41,11 +41,10 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                         id_domicilio=row["id_domicilio"], 
                         nombre=row["nombre"], 
                         accion=row["accion"],
-                        estado=row["estado"],
+                        estado=bool(row["estado"]),
                         hora_encendido=row["hora_encendido"],
                         hora_apagado=row["hora_apagado"]
                     )
-                return None
         except mysql.connector.Error as e:
             logger.exception("Error al intentar recuperar la Automatización por ID.")
             raise e
@@ -55,10 +54,15 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         "Recupera todas las automatizaciones que están activas."
         try:
             with get_cursor(dictionary=True) as cursor:
-                query = "SELECT * FROM automatizaciones WHERE estado = 1"
+                query = """
+                    SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado 
+                    FROM automatizaciones 
+                    WHERE estado = 1 
+                    ORDER BY id_automatizacion
+                """
                 cursor.execute(query)
                 rows = cursor.fetchall()
-            automatizaciones = []
+            automatizaciones: List[Automatizacion] = []
             for row in rows:
                 automatizaciones.append(
                     Automatizacion(
@@ -66,7 +70,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
                         id_domicilio=row["id_domicilio"],
                         nombre=row["nombre"],
                         accion=row["accion"],
-                        estado=row["estado"],
+                        estado=bool(row["estado"]),
                         hora_encendido=row["hora_encendido"],
                         hora_apagado=row["hora_apagado"]
                     )
@@ -82,11 +86,11 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
-                UPDATE automatizaciones 
-                SET id_domicilio=%s, nombre=%s, accion=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
-                WHERE id_automatizacion=%s
+                    UPDATE automatizaciones
+                    SET id_domicilio=%s, nombre=%s, accion=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
+                    WHERE id_automatizacion=%s
                 """
-                cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, automatizacion.estado, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
+                cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, 1 if automatizacion.estado else 0, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
@@ -97,10 +101,7 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         "Permite eliminar el registro de una automatización de la BD por su ID."
         try:
             with get_cursor(commit=True) as cursor:
-                query = """
-                DELETE FROM automatizaciones 
-                WHERE id_automatizacion=%s
-                """
+                query = "DELETE FROM automatizaciones WHERE id_automatizacion = %s"
                 cursor.execute(query, (id_automatizacion,))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
@@ -116,9 +117,9 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=False) as cursor:
                 query = """
-                    SELECT COUNT(ud.dni)
-                    FROM usuarios_domicilios AS ud
-                    WHERE ud.id_domicilio = %s AND ud.dni = %s
+                    SELECT COUNT(*) FROM domicilio d
+                    JOIN usuario u ON d.id_usuario = u.id_usuario
+                    WHERE d.id_domicilio = %s AND u.dni = %s
                 """
                 cursor.execute(query, (id_domicilio, dni))
                 resultado = cursor.fetchone()
@@ -136,10 +137,10 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         try:
             with get_cursor(commit=False) as cursor:
                 query = """
-                    SELECT COUNT(a.id_automatizacion)
-                    FROM automatizaciones AS a
-                    JOIN usuarios_domicilios AS ud ON a.id_hogar = ud.id_domicilio
-                    WHERE a.id_automatizacion = %s AND ud.dni = %s
+                    SELECT COUNT(*) FROM automatizaciones a
+                    JOIN domicilio d ON a.id_domicilio = d.id_domicilio
+                    JOIN usuario u ON d.id_usuario = u.id_usuario
+                    WHERE a.id_automatizacion = %s AND u.dni = %s
                 """
                 cursor.execute(query, (id_automatizacion, dni))
                 resultado = cursor.fetchone()

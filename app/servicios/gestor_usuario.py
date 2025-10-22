@@ -9,9 +9,9 @@ class GestorUsuario:
     def __init__(self, usuarios: Optional[List[Usuario]] = None):
         self.__usuarios = usuarios if usuarios is not None else UsuarioDAO.listar_todos_usuarios()
 
-    def agregar_usuario(self, dni: int, id_rol: int, nombre: str, apellido: str, email: str, contrasena: str) -> None:
+    def agregar_usuario(self, dni: int, rol: str, nombre: str, apellido: str, email: str, contrasena: str) -> None:
         try:
-            UsuarioDAO.registrar_usuario(dni, id_rol, nombre, apellido, email, contrasena)
+            UsuarioDAO.registrar_usuario(dni, rol, nombre, apellido, email, contrasena)
             self.__usuarios = UsuarioDAO.listar_todos_usuarios()
             print("✅ Usuario registrado correctamente.")
         except Exception as e:
@@ -29,8 +29,8 @@ class GestorUsuario:
         else:
             print("⚠️ No se encontró ningún usuario con ese email.")
 
-    def modificar_rol(self, id_usuario: int, nuevo_id_rol: int) -> None:
-        modificado = UsuarioDAO.modificar_rol(id_usuario, nuevo_id_rol)
+    def modificar_rol(self, id_usuario: int, nuevo_rol: int) -> None:
+        modificado = UsuarioDAO.modificar_rol(id_usuario, nuevo_rol)
         if modificado:
             print("✅ Rol modificado correctamente.")
         else:
@@ -39,7 +39,7 @@ class GestorUsuario:
     def eliminar_usuario(self, id_usuario: int) -> None:
         eliminado = UsuarioDAO.eliminar_usuario(id_usuario)
         if eliminado:
-            self.__usuarios = [u for u in self.__usuarios if getattr(u, "dni", None) != id_usuario]
+            self.__usuarios = [u for u in self.__usuarios if getattr(u, "id_usuario", None) != id_usuario]
             print("✅ Usuario eliminado correctamente.")
         else:
             print("⚠️ No se encontró ningún usuario con ese ID.")
