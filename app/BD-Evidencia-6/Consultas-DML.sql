@@ -1,5 +1,5 @@
 
-INSERT INTO usuario (dni, nombre, apellido, email, contrasena, id_rol) VALUES
+INSERT INTO usuario (dni, nombre, apellido, email, contrasena, rol) VALUES
     (40111222, 'roberto', 'Volm',      'roberto_volm@hotmail.com',   '1234567',   2),
     (40222333, 'marcelo',   'Tribu',     'marcelo_tribu@hotmail.com','fran23412345',2),
     (40333444, 'Lucia',    'castelli',    'lucia_castelli@gmail.com',  '1236luc24', 2),
@@ -35,7 +35,7 @@ INSERT INTO dispositivo (id_domicilio, id_tipo, estado, etiqueta) VALUES
     (3, 1, 'activo', 'Medidor de Energía'),
     (2, 3, 'activo', 'Cámara Interior');
 
-INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) VALUES
+INSERT INTO automatizacion (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) VALUES
     (11, 'Alarma Gas',           'Apagar gas si se detecta fuga',            TRUE, '18:00:00', NULL),
     (12, 'Luz Entrada',          'Encender luz exterior al anochecer',       TRUE, '19:30:00', NULL),
     (13, 'Riego Jardín',         'Activar riego a las 07:00 horas',          TRUE, '07:00:00', NULL),
@@ -56,7 +56,7 @@ SELECT u.nombre AS nombre_usuario, u.apellido AS apellido_usuario,
 FROM usuario u
 JOIN domicilio dom ON u.id_usuario = dom.id_usuario
 JOIN dispositivo d ON dom.id_domicilio = d.id_domicilio
-JOIN tipos_dispositivos t ON d.id_tipo = t.id_tipo
+JOIN tipo_dispositivo t ON d.id_tipo = t.id_tipo
 ORDER BY u.id_usuario;
 
 -- 2. Cantidad de dispositivos por usuario
@@ -70,12 +70,12 @@ ORDER BY cantidad_dispositivos DESC;
 
 -- 3. Cantidad de automatizaciones por usuario
 SELECT u.nombre AS nombre_usuario, u.apellido AS apellido_usuario,
-       COUNT(a.id_automatizacion) AS cantidad_automatizaciones
+       COUNT(a.id_automatizacion) AS cantidad_automatizacion
 FROM usuario u
 JOIN domicilio dom ON u.id_usuario = dom.id_usuario
-LEFT JOIN automatizaciones a ON dom.id_domicilio = a.id_domicilio
+LEFT JOIN automatizacion a ON dom.id_domicilio = a.id_domicilio
 GROUP BY u.id_usuario
-ORDER BY cantidad_automatizaciones DESC;
+ORDER BY cantidad_automatizacion DESC;
 
 -- 4. Usuarios con más de 2 dispositivos
 SELECT u.nombre AS nombre_usuario, u.apellido AS apellido_usuario
@@ -113,7 +113,7 @@ WHERE d.id_dispositivo = (
 SELECT a.nombre AS automatizacion, a.accion, a.hora_encendido,
        u.nombre AS nombre_usuario, u.apellido AS apellido_usuario,
        dom.nombre_domicilio
-FROM automatizaciones a
+FROM automatizacion a
 JOIN domicilio dom ON a.id_domicilio = dom.id_domicilio
 JOIN usuario u ON dom.id_usuario = u.id_usuario
 ORDER BY a.id_automatizacion;

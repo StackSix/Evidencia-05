@@ -1,12 +1,12 @@
 
 USE bowtbpbberdfnkr3zske;
 
-INSERT INTO rol (nombre) VALUES
+INSERT INTO rol (rol) VALUES
     ('Admin'),
     ('Usuario');
 
 
-INSERT INTO usuario (dni, nombre, apellido, email, contrasena, id_rol) VALUES
+INSERT INTO usuario (dni, nombre, apellido, email, contrasena, rol) VALUES
     (30111222, 'daniel',    'gonzalez', 'danigonzalez@hotmail.com',    '21345558', 2),
     (30222333, 'nicolas',   'romano',    'nico_romano@hotmail.com',    '13345558', 2),
     (30333444, 'Francisco', 'perez',     'franperez@hotmail.com',       '12367876', 2),
@@ -50,7 +50,7 @@ INSERT INTO dispositivo (id_domicilio, id_tipo, estado, etiqueta) VALUES
     (9,  1, 'activo', 'Sensor Luz'),
     (10, 2, 'activo', 'Alarma');
 
-INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) VALUES
+INSERT INTO automatizacion (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) VALUES
     (1,  'Automatizacion 1',  '38°C',                         TRUE, '08:10:00', NULL),
     (1,  'Automatizacion 2',  'Encender si temperatura 38°C', TRUE, '08:20:00', NULL),
     (2,  'Automatizacion 3',  'Detectar movimiento',          TRUE, '10:10:00', NULL),
@@ -66,7 +66,7 @@ INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendi
 SELECT * FROM usuario;
 SELECT * FROM domicilio;
 SELECT * FROM dispositivo;
-SELECT * FROM automatizaciones;
+SELECT * FROM automatizacion;
 
 
 SELECT nombre, apellido, email
@@ -94,5 +94,5 @@ WHERE dom.id_usuario = 1;
 
 
 SELECT nombre, accion, hora_encendido
-FROM automatizaciones
+FROM automatizacion
 WHERE hora_encendido >= '15:00:00';

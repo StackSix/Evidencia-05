@@ -4,7 +4,7 @@ USE bowtbpbberdfnkr3zske;
 
 CREATE TABLE rol (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    rol VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE usuario (
@@ -14,8 +14,8 @@ CREATE TABLE usuario (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
-    id_rol INT NOT NULL,
-    CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES rol(id_rol)
+    rol INT NOT NULL,
+    CONSTRAINT fk_usuario_rol FOREIGN KEY (rol) REFERENCES rol(rol)
 );
 
 CREATE TABLE domicilio (
@@ -45,7 +45,7 @@ CREATE TABLE dispositivo (
         REFERENCES tipos_dispositivos(id_tipo)
 );
 
-CREATE TABLE automatizaciones (
+CREATE TABLE automatizacion (
     id_automatizacion INT AUTO_INCREMENT PRIMARY KEY,
     id_domicilio INT NOT NULL,
     nombre VARCHAR(100) NOT NULL,

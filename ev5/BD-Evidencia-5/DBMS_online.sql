@@ -1,11 +1,10 @@
 -- Script DBMS (DDL + DML) para SmartHome en OneCompiler (MySQL 8)
-
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- Eliminar las tablas existentes (en orden inverso de dependencias)
-DROP TABLE IF EXISTS automatizaciones;
+DROP TABLE IF EXISTS automatizacion;
 DROP TABLE IF EXISTS dispositivo;
-DROP TABLE IF EXISTS tipos_dispositivos;
+DROP TABLE IF EXISTS tipo_dispositivo;
 DROP TABLE IF EXISTS domicilio;
 DROP TABLE IF EXISTS usuario;
 DROP TABLE IF EXISTS rol;
@@ -17,7 +16,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- Tabla de roles
 CREATE TABLE rol (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    rol VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB;
 
 -- Tabla de usuarios
@@ -28,8 +27,8 @@ CREATE TABLE usuario (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
-    id_rol INT NOT NULL,
-    CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol) REFERENCES rol(id_rol)
+    rol INT NOT NULL,
+    CONSTRAINT fk_usuario_rol FOREIGN KEY (rol) REFERENCES rol(rol)
 ) ENGINE=InnoDB;
 
 -- Tabla de domicilios
@@ -44,7 +43,7 @@ CREATE TABLE domicilio (
 ) ENGINE=InnoDB;
 
 -- Tabla de tipos de dispositivos
-CREATE TABLE tipos_dispositivos (
+CREATE TABLE tipo_dispositivo (
     id_tipo INT AUTO_INCREMENT PRIMARY KEY,
     tipo_dispositivo VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB;
@@ -59,11 +58,11 @@ CREATE TABLE dispositivo (
     CONSTRAINT fk_dispositivo_domicilio FOREIGN KEY (id_domicilio)
         REFERENCES domicilio(id_domicilio) ON DELETE CASCADE,
     CONSTRAINT fk_dispositivo_tipo FOREIGN KEY (id_tipo)
-        REFERENCES tipos_dispositivos(id_tipo)
+        REFERENCES tipo_dispositivo(id_tipo)
 ) ENGINE=InnoDB;
 
 -- Tabla de automatizaciones
-CREATE TABLE automatizaciones (
+CREATE TABLE automatizacion (
     id_automatizacion INT AUTO_INCREMENT PRIMARY KEY,
     id_domicilio INT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
@@ -78,10 +77,10 @@ CREATE TABLE automatizaciones (
 -- ====== DML: Inserción de datos ======
 
 -- Roles
-INSERT INTO rol (nombre) VALUES ('Admin'), ('Usuario');
+INSERT INTO rol (rol) VALUES ('Admin'), ('Usuario');
 
 -- Usuarios
-INSERT INTO usuario (dni, nombre, apellido, email, contrasena, id_rol) VALUES
+INSERT INTO usuario (dni, nombre, apellido, email, contrasena, rol) VALUES
     (30111222, 'daniel',    'gonzalez', 'danigonzalez@hotmail.com',    '21345558', 2),
     (30222333, 'nicolas',   'romano',    'nico_romano@hotmail.com',    '13345558', 2),
     (30333444, 'Francisco', 'perez',     'franperez@hotmail.com',       '12367876', 2),
@@ -107,7 +106,7 @@ INSERT INTO domicilio (direccion, ciudad, nombre_domicilio, id_usuario) VALUES
     ('brasil #1000',           'Buenos Aires',   'Casa Valentina', 10);
 
 -- Tipos de dispositivos
-INSERT INTO tipos_dispositivos (tipo_dispositivo) VALUES
+INSERT INTO tipo_dispositivo (tipo_dispositivo) VALUES
     ('Sensor'),
     ('Actuador'),
     ('Cámara');
@@ -126,7 +125,7 @@ INSERT INTO dispositivo (id_domicilio, id_tipo, estado, etiqueta) VALUES
     (10, 2, 'activo', 'Alarma');
 
 -- Automatizaciones
-INSERT INTO automatizaciones (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) VALUES
+INSERT INTO automatizacion (id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado) VALUES
     (1,  'Automatizacion 1',  '38°C',                         TRUE, '08:10:00', NULL),
     (1,  'Automatizacion 2',  'Encender si temperatura 38°C', TRUE, '08:20:00', NULL),
     (2,  'Automatizacion 3',  'Detectar movimiento',          TRUE, '10:10:00', NULL),
@@ -146,7 +145,7 @@ SHOW TABLES;
 DESCRIBE usuario;
 DESCRIBE domicilio;
 DESCRIBE dispositivo;
-DESCRIBE automatizaciones;
+DESCRIBE automatizacion;
 
 SELECT nombre, apellido, email
 FROM usuario
@@ -163,10 +162,10 @@ WHERE id_usuario = 1;
 
 SELECT d.etiqueta AS nombre, t.tipo_dispositivo AS tipo
 FROM dispositivo d
-JOIN tipos_dispositivos t ON d.id_tipo = t.id_tipo
+JOIN tipo_dispositivo t ON d.id_tipo = t.id_tipo
 JOIN domicilio dom ON d.id_domicilio = dom.id_domicilio
 WHERE dom.id_usuario = 1;
 
 SELECT nombre, accion, hora_encendido
-FROM automatizaciones
+FROM automatizacion
 WHERE hora_encendido >= '15:00:00';
