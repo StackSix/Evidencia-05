@@ -1,8 +1,8 @@
 from __future__ import annotations
-from app.dao.automatizaciones_dao import AutomatizacionesDAO
-from app.dominio.automatizacion import Automatizacion
-from app.dao.dispositivos_dao import DispositivoDAO
-from app.dao.domicilios_dao import DomiciliosDAO
+from dao.automatizaciones_dao import AutomatizacionesDAO
+from dominio.automatizacion import Automatizacion
+from dao.dispositivos_dao import DispositivoDAO
+from dao.domicilios_dao import DomiciliosDAO
 from datetime import datetime, timedelta, time
         
 def ejecutar_accion_automatica(automatizacion_id: int) -> str:

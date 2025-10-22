@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from app.dominio.dispositivos import Dispositivo
-from app.dao.dispositivos_dao import DispositivoDAO
+from dominio.dispositivos import Dispositivo
+from dao.dispositivos_dao import DispositivoDAO
 
 class GestorDispositivo:
     """

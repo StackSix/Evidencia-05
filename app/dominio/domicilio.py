@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List
-from app.servicios.gestor_dispositivo import GestorDispositivo
+from servicios.gestor_dispositivo import GestorDispositivo
 
 class Domicilio:
     "Clase para manejar hogares."
@@ -9,7 +9,7 @@ class Domicilio:
         self.__direccion = direccion
         self.__ciudad = ciudad
         self.__nombre_domicilio = nombre_domicilio
-        self.__gestor_dispositivos = gestor_dispositivos if gestor_dispositivos is not None else GestorDispositivo()
+        self.__gestor_dispositivos = gestor_dispositivos if gestor_dispositivos is not None else GestorDispositivo(id_domicilio)
         
     @property
     def id_domicilio(self) -> int:

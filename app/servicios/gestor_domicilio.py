@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from app.dominio.domicilio import Domicilio
-from app.dao.domicilios_dao import DomiciliosDAO
+from dominio.domicilio import Domicilio
+from dao.domicilios_dao import DomiciliosDAO
 
 class GestorDomicilio:
     """
@@ -11,9 +11,9 @@ class GestorDomicilio:
     def __init__(self, domicilios: Optional[List[Domicilio]] = None):
         self.__domicilios = domicilios if domicilios is not None else []
 
-    def agregar_domicilio(self, direccion: str, numeracion: str, ciudad: str, nombre_domicilio: str) -> None:
+    def agregar_domicilio(self, direccion: str, ciudad: str, nombre_domicilio: str) -> None:
         try:
-            id_domicilio = DomiciliosDAO.registrar_domicilio(direccion, numeracion, ciudad, nombre_domicilio)
+            id_domicilio = DomiciliosDAO.registrar_domicilio(direccion, ciudad, nombre_domicilio)
             nuevo_domicilio = Domicilio(
                 id_domicilio=id_domicilio,
                 direccion=direccion,

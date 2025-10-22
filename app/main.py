@@ -1,8 +1,8 @@
 from __future__ import annotations
-from app.servicios.gestor_domicilio import GestorDomicilio
-from app.dao.domicilios_dao import DomiciliosDAO
-from app.modulos_main.funciones_de_autenticacion import registrar_usuario, login
-from app.modulos_main.menu_usuario import menu_usuario
+from servicios.gestor_domicilio import GestorDomicilio
+from dao.domicilios_dao import DomiciliosDAO
+from modulos_main.funciones_de_autenticacion import registrar_usuario, login
+from modulos_main.menu_usuario import menu_usuario
 
 def main():
     while True:
@@ -14,23 +14,14 @@ def main():
         op = input("> ").strip()
 
         if op == "1":
-            # Registrar usuario
             try:
                 dni = int(input("DNI: "))
-                id_rol = 2  # usuario por defecto
                 nombre = input("Nombre: ")
                 apellido = input("Apellido: ")
                 email = input("Email: ")
                 contrasena = input("Contraseña: ")
 
-                registrar_usuario(dni, id_rol, nombre, apellido, email, contrasena)
-                
-                # Registrar domicilio inicial
-                print("\n🏠 Registrar tu domicilio principal")
-                id_domicilio = GestorDomicilio.agregar_domicilio()
-                if id_domicilio:
-                    DomiciliosDAO.vincular_usuario(dni, id_domicilio)
-                    print(f"✅ Domicilio vinculado al usuario (ID domicilio: {id_domicilio})")
+                registrar_usuario(dni, nombre, apellido, email, contrasena, rol="Usuario")
 
             except Exception as e:
                 print(f"❌ Error al registrar usuario: {e}")

@@ -1,11 +1,11 @@
 from __future__ import annotations
-from app.modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
-from app.modulos_main.menu_crud_dispositivos import menu_crud_dispositivos
-from app.modulos_main.menu_crud_domicilios import menu_crud_domicilios
-from app.modulos_main.menu_crud_usuarios import menu_crud_usuarios
-from app.dao.dispositivos_dao import DispositivoDAO
-from app.dao.usuarios_dao import UsuarioDAO
-from app.dao.domicilios_dao import DomiciliosDAO
+from modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
+from modulos_main.menu_crud_dispositivos import menu_crud_dispositivos
+from modulos_main.menu_crud_domicilios import menu_crud_domicilios
+from modulos_main.menu_crud_usuarios import menu_crud_usuarios
+from dao.dispositivos_dao import DispositivoDAO
+from dao.usuarios_dao import UsuarioDAO
+from dao.domicilios_dao import DomiciliosDAO
 
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
@@ -57,7 +57,7 @@ def menu_usuario(session):
                 else:
                     print("Ingrese una opción válida. Intentelo de nuevo")
              
-        elif op == "6":
+        elif op == "0":
             break
         
         else:

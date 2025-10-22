@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from app.dominio.automatizacion import Automatizacion
-from app.dao.automatizaciones_dao import AutomatizacionesDAO
+from dominio.automatizacion import Automatizacion
+from dao.automatizaciones_dao import AutomatizacionesDAO
 
 class GestorAutomatizacion:
     """Gestiona la lógica de negocio de las automatizaciones."""

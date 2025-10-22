@@ -2,10 +2,10 @@ from __future__ import annotations
 from typing import Optional, List
 import mysql.connector
 from mysql.connector import Error
-from app.dominio.automatizacion import Automatizacion
-from app.conn.cursor import get_cursor
-from app.conn.logger import logger
-from app.dao.interfaces.i_automatizaciones_dao import IAutomatizacionesDAO
+from dominio.automatizacion import Automatizacion
+from conn.cursor import get_cursor
+from conn.logger import logger
+from dao.interfaces.i_automatizaciones_dao import IAutomatizacionesDAO
 
 class AutomatizacionesDAO(IAutomatizacionesDAO):
     @staticmethod

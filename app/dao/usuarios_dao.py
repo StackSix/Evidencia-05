@@ -1,12 +1,12 @@
-import mysql.connector
 from __future__ import annotations
+import mysql.connector
 from typing import Optional, List, Dict
 import bcrypt
-from app.conn.cursor import get_cursor
+from conn.cursor import get_cursor
 from mysql.connector import Error
-from app.conn.logger import logger
-from app.dao.interfaces.i_usuario_dao import IUsuaioDAO
-from app.dominio.usuarios import Usuario
+from conn.logger import logger
+from dao.interfaces.i_usuario_dao import IUsuaioDAO
+from dominio.usuarios import Usuario
 
 class UsuarioDAO(IUsuaioDAO):
     @staticmethod

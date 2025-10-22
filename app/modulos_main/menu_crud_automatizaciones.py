@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Dict
-from app.servicios.gestor_automatizacion import GestorAutomatizacion
-from app.dominio.automatizacion import Automatizacion
-from app.modulos_main.funciones_de_automatizacion import pedir_hora
+from servicios.gestor_automatizacion import GestorAutomatizacion
+from dominio.automatizacion import Automatizacion
+from modulos_main.funciones_de_automatizacion import pedir_hora
 
 
 def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):

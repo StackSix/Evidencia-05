@@ -1,5 +1,5 @@
 from __future__ import annotations
-from app.servicios.gestor_domicilio import GestorDomicilio
+from servicios.gestor_domicilio import GestorDomicilio
 from typing import Dict
 
 def menu_crud_domicilios(session: Dict, gestor: GestorDomicilio):
@@ -24,9 +24,10 @@ def menu_crud_domicilios(session: Dict, gestor: GestorDomicilio):
             numeracion = input("Ingrese la numeración: ").strip()
             ciudad = input("Ingrese la ciudad: ").strip()
             nombre_domicilio = input("Ingrese un nombre o alias para el domicilio: ").strip()
-
+            id_usuario = session.get("id_usuario")
+            
             if direccion and numeracion and ciudad and nombre_domicilio:
-                gestor.agregar_domicilio(direccion, numeracion, ciudad, nombre_domicilio)
+                gestor.agregar_domicilio(direccion, numeracion, ciudad, nombre_domicilio, id_usuario)
             else:
                 print("❌ Todos los campos son obligatorios.")
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from app.dominio.usuarios import Usuario
-from app.dao.usuarios_dao import UsuarioDAO
+from dominio.usuarios import Usuario
+from dao.usuarios_dao import UsuarioDAO
 
 class GestorUsuario:
     """Gestiona la lógica de negocio de los usuarios, con lista en memoria y sincronización con DB."""
@@ -9,9 +9,9 @@ class GestorUsuario:
     def __init__(self, usuarios: Optional[List[Usuario]] = None):
         self.__usuarios = usuarios if usuarios is not None else UsuarioDAO.listar_todos_usuarios()
 
-    def agregar_usuario(self, dni: int, rol: str, nombre: str, apellido: str, email: str, contrasena: str) -> None:
+    def agregar_usuario(self, dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "Usuario") -> None:
         try:
-            UsuarioDAO.registrar_usuario(dni, rol, nombre, apellido, email, contrasena)
+            UsuarioDAO.registrar_usuario(dni, nombre, apellido, email, contrasena, rol)
             self.__usuarios = UsuarioDAO.listar_todos_usuarios()
             print("✅ Usuario registrado correctamente.")
         except Exception as e:

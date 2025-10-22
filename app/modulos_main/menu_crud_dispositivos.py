@@ -1,5 +1,5 @@
 from __future__ import annotations
-from app.servicios.gestor_dispositivo import GestorDispositivo
+from servicios.gestor_dispositivo import GestorDispositivo
 from typing import Dict
 
 def menu_crud_dispositivos(session: Dict, gestor: GestorDispositivo, nombre_domicilio: str):
