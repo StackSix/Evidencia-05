@@ -32,7 +32,7 @@ INSERT INTO domicilio (direccion, ciudad, nombre_domicilio, id_usuario) VALUES
     ('brasil #1000',         'Buenos Aires',   'Casa Valentina',  10);
 
 
-INSERT INTO tipos_dispositivos (tipo_dispositivo) VALUES
+INSERT INTO tipo_dispositivo (tipo_dispositivo) VALUES
     ('Sensor'),
     ('Actuador'),
     ('Cámara');
@@ -87,7 +87,7 @@ WHERE id_usuario = 1;
 
 SELECT d.etiqueta AS nombre, t.tipo_dispositivo AS tipo
 FROM dispositivo d
-JOIN tipos_dispositivos t ON d.id_tipo = t.id_tipo
+JOIN tipo_dispositivo t ON d.id_tipo = t.id_tipo
 JOIN domicilio dom ON d.id_domicilio = dom.id_domicilio
 WHERE dom.id_usuario = 1;
 

@@ -14,8 +14,8 @@ CREATE TABLE usuario (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
-    rol INT NOT NULL,
-    CONSTRAINT fk_usuario_rol FOREIGN KEY (rol) REFERENCES rol(rol)
+    rol VARCHAR(100) NOT NULL
+    
 );
 
 CREATE TABLE domicilio (
@@ -28,7 +28,7 @@ CREATE TABLE domicilio (
         REFERENCES usuario(id_usuario) ON DELETE CASCADE
 );
 
-CREATE TABLE tipos_dispositivos (
+CREATE TABLE tipo_dispositivo (
     id_tipo INT AUTO_INCREMENT PRIMARY KEY,
     tipo_dispositivo VARCHAR(100) NOT NULL
 );
@@ -42,7 +42,7 @@ CREATE TABLE dispositivo (
     CONSTRAINT fk_dispositivo_domicilio FOREIGN KEY (id_domicilio)
         REFERENCES domicilio(id_domicilio) ON DELETE CASCADE,
     CONSTRAINT fk_dispositivo_tipo FOREIGN KEY (id_tipo)
-        REFERENCES tipos_dispositivos(id_tipo)
+        REFERENCES tipo_dispositivo(id_tipo)
 );
 
 CREATE TABLE automatizacion (

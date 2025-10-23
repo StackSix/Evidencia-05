@@ -27,8 +27,7 @@ CREATE TABLE usuario (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
-    rol INT NOT NULL,
-    CONSTRAINT fk_usuario_rol FOREIGN KEY (rol) REFERENCES rol(rol)
+    rol VARCHAR(100) NOT NULL
 ) ENGINE=InnoDB;
 
 -- Tabla de domicilios
