@@ -17,7 +17,7 @@ def menu_crud_usuarios(session: Dict, gestor: GestorUsuario):
             gestor.listar_usuarios()
 
         elif opcion == "2":
-            id_usuario = int(input("Ingrese el ID del usuario a actualizar: "))
+            id_usuario = int(input("Ingrese el ID del usuario a actualizar: ").strip())
             email = input("Nuevo mail: ").strip()
             nombre = input("Nuevo nombre: ").strip()
             apellido = input("Nuevo apellido: ").strip()

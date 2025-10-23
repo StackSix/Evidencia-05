@@ -22,17 +22,17 @@ class DomiciliosDAO(IDomicilioDAO):
             raise e
             
     @staticmethod
-    def obtener_domicilio_usuario(dni: int) -> Optional[List[Domicilio]]:
+    def obtener_domicilio_usuario(id_usuario: int) -> Optional[List[Domicilio]]:
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
                     SELECT d.id_domicilio, d.nombre_domicilio, d.direccion, d.ciudad
                     FROM domicilio d
                     JOIN usuario u ON d.id_usuario = u.id_usuario
-                    WHERE u.dni = %s
+                    WHERE u.id_usuario = %s
                     ORDER BY d.id_domicilio
                 """
-                cursor.execute(query, (dni,))
+                cursor.execute(query, (id_usuario,))
                 rows = cursor.fetchall()
             domicilios: List[Domicilio] = []
             for row in rows:

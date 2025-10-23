@@ -11,17 +11,24 @@ class GestorAutomatizacion:
 
     def registrar(self, automatizacion: Automatizacion, configurar_horario: bool = True) -> None:
         try:
+            # Registrar en la BD
             nuevo_id = AutomatizacionesDAO.registrar_automatizacion(automatizacion)
             print(f"✅ Automatización registrada con ID {nuevo_id}.")
+
+            # Solo recargamos la lista si realmente fue creada
             self.__automatizaciones = AutomatizacionesDAO.obtener_todas_activas()
 
-            # Configuración automática de horario
+            # Configuración automática de horario SOLO si faltan horarios
             if configurar_horario:
-                self.__configurar_horario_automatico(nuevo_id)
+                if not automatizacion.hora_encendido or not automatizacion.hora_apagado:
+                    print("⚙️ Configurando horario automático por defecto (08:00 - 22:00)...")
+                    self.__configurar_horario_automatico(nuevo_id)
+                else:
+                    print(f"⏰ Horario personalizado configurado: ON {automatizacion.hora_encendido} - OFF {automatizacion.hora_apagado}")
 
         except Exception as e:
             print(f"❌ Error al registrar la automatización: {e}")
-
+            
     def actualizar(self, automatizacion: Automatizacion, configurar_horario: bool = True) -> None:
         try:
             exito = AutomatizacionesDAO.actualizar_automatizacion(automatizacion)
@@ -53,11 +60,10 @@ class GestorAutomatizacion:
             print(f"❌ Error al eliminar la automatización: {e}")
 
     def listar(self, dni_usuario: Optional[int] = None) -> None:
-        """
-        Lista automatizaciones. Si se pasa dni_usuario, filtra solo domicilios del usuario.
-        """
-        filtradas = self.__automatizaciones
-        if dni_usuario is not None:
+        "Lista automatizaciones por DNI, filtra solo las del usuario."
+        if dni_usuario is None:
+            filtradas = self.__automatizaciones
+        else:
             filtradas = [
                 a for a in self.__automatizaciones
                 if AutomatizacionesDAO.verificar_dueno_de_automatizacion(dni_usuario, a.id_automatizacion)
@@ -67,9 +73,15 @@ class GestorAutomatizacion:
             print("❌ No se encontraron automatizaciones.")
             return
 
+        print("\n📋 Listado de automatizaciones:")
         for a in filtradas:
-            print(f"{a.id_automatizacion} - Hogar: {a.id_domicilio} - {a.nombre} - {a.accion} - ON: {a.hora_encendido} - OFF: {a.hora_apagado}")
+            estado_txt = "🟢 Activa" if a.estado else "🔴 Inactiva"
+            print(f"[{a.id_automatizacion}] {a.nombre} | {a.accion} | Hogar #{a.id_domicilio} | {estado_txt}")
+            print(f"   ⏰ {a.hora_encendido} → {a.hora_apagado}")
 
+    def listar_automatizaciones(self, id_domicilio: int) -> list[Automatizacion]:
+        return AutomatizacionesDAO.obtener_automatizaciones_por_domicilio(id_domicilio)
+    
     def obtener_por_id(self, id_automatizacion: int) -> Optional[Automatizacion]:
         for a in self.__automatizaciones:
             if a.id_automatizacion == id_automatizacion:

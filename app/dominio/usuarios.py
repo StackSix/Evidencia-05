@@ -17,7 +17,7 @@ class Usuario:
         self.__email = email
         self.__contrasena = contrasena
         self.__rol = rol
-        self.__gestor_domicilios = gestor_domicilios if gestor_domicilios is not None else GestorDomicilio()
+        self.__gestor_domicilios = gestor_domicilios if gestor_domicilios is not None else GestorDomicilio(self.__id_usuario)
     
     @property
     def id_usuario(self) -> int:

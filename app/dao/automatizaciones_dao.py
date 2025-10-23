@@ -109,23 +109,26 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             raise e
     
     @staticmethod
-    def verificar_dueno_domicilio(dni: int, id_domicilio: int) -> bool:
+    def verificar_dueno_de_automatizacion(dni: int, id_automatizacion: int) -> bool:
         """
-        Verifica si un usuario es el propietario de un hogar.
-        Utiliza una tabla intermedia 'usuarios_domicilios' para la validación.
+        Verifica si un usuario es propietario de una automatización
+        (según su relación con el domicilio al que pertenece).
         """
         try:
             with get_cursor(commit=False) as cursor:
                 query = """
-                    SELECT COUNT(*) FROM domicilio d
+                    SELECT COUNT(*) 
+                    FROM automatizacion a
+                    JOIN domicilio d ON a.id_domicilio = d.id_domicilio
                     JOIN usuario u ON d.id_usuario = u.id_usuario
-                    WHERE d.id_domicilio = %s AND u.dni = %s
+                    WHERE a.id_automatizacion = %s AND u.dni = %s
                 """
-                cursor.execute(query, (id_domicilio, dni))
+                cursor.execute(query, (id_automatizacion, dni))
                 resultado = cursor.fetchone()
                 return resultado[0] > 0 if resultado else False
+
         except mysql.connector.Error as e:
-            logger.exception("Error al verificar la propiedad del hogar.")
+            logger.exception("Error al verificar la propiedad de la automatización.")
             raise e
             
     @staticmethod
@@ -150,3 +153,35 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             logger.exception("Error al verificar la propiedad de la automatización.")
             raise e
         
+    @staticmethod
+    def obtener_automatizaciones_por_domicilio(id_domicilio: int) -> list[Automatizacion]:
+        """
+        Devuelve todas las automatizaciones asociadas a un domicilio específico.
+        """
+        try:
+            with get_cursor(commit=False, dictionary=True) as cursor:
+                query = """
+                    SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado
+                    FROM automatizacion
+                    WHERE id_domicilio = %s
+                """
+                cursor.execute(query, (id_domicilio,))
+                rows = cursor.fetchall()
+                
+                automatizaciones = []
+                for row in rows:
+                    automatizaciones.append(
+                        Automatizacion(
+                            id_automatizacion=row["id_automatizacion"],
+                            id_domicilio=row["id_domicilio"],
+                            nombre=row["nombre"],
+                            accion=row["accion"],
+                            estado=bool(row["estado"]),
+                            hora_encendido=row["hora_encendido"],
+                            hora_apagado=row["hora_apagado"]
+                        )
+                    )
+                return automatizaciones
+        except mysql.connector.Error as e:
+            logger.exception("Error al obtener automatizaciones por domicilio.")
+            raise e

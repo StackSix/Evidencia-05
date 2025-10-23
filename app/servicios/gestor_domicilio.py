@@ -8,12 +8,13 @@ class GestorDomicilio:
     Gestiona la lógica de negocio de los domicilios, manteniendo una lista en memoria
     y sincronizando con la base de datos mediante el DAO.
     """
-    def __init__(self, domicilios: Optional[List[Domicilio]] = None):
+    def __init__(self, id_usuario: int, domicilios: Optional[List[Domicilio]] = None):
+        self.__id_usuario = id_usuario
         self.__domicilios = domicilios if domicilios is not None else []
 
     def agregar_domicilio(self, direccion: str, ciudad: str, nombre_domicilio: str) -> None:
         try:
-            id_domicilio = DomiciliosDAO.registrar_domicilio(direccion, ciudad, nombre_domicilio)
+            id_domicilio = DomiciliosDAO.registrar_domicilio(direccion, ciudad, nombre_domicilio, self.__id_usuario)
             nuevo_domicilio = Domicilio(
                 id_domicilio=id_domicilio,
                 direccion=direccion,
@@ -36,9 +37,9 @@ class GestorDomicilio:
         except Exception as e:
             print(f"❌ Error al eliminar el domicilio: {e}")
 
-    def actualizar_domicilio(self, id_domicilio: int, direccion: str, numeracion: str, ciudad: str, nombre_domicilio: str) -> None:
+    def actualizar_domicilio(self, id_domicilio: int, direccion: str, ciudad: str, nombre_domicilio: str) -> None:
         try:
-            actualizado = DomiciliosDAO.actualizar_domicilio(id_domicilio, direccion, numeracion, ciudad, nombre_domicilio)
+            actualizado = DomiciliosDAO.actualizar_domicilio(id_domicilio, direccion, ciudad, nombre_domicilio)
             if actualizado:
                 domicilio = self.obtener_domicilio(id_domicilio)
                 if domicilio:

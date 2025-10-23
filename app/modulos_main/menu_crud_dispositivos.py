@@ -1,6 +1,63 @@
 from __future__ import annotations
 from servicios.gestor_dispositivo import GestorDispositivo
+from servicios.gestor_usuario import GestorUsuario
+from dao.domicilios_dao import DomiciliosDAO
 from typing import Dict
+
+
+def gestionar_dispositivos(session: Dict):
+    while True:
+        print("\nCRUD - Dispositivos")
+        print(" 1) Gestionar dispositivos")
+        print(" 0) Volver al menú anterior")
+        opcion = input("> ").strip()
+
+        if opcion == "0":
+            break
+
+        elif opcion == "1":
+            gestor_usuario = GestorUsuario()
+            usuarios = gestor_usuario.listar_usuarios()
+            if not usuarios:
+                print("❌ No hay usuarios registrados.")
+                continue
+
+            print("\n--- Seleccione un usuario ---")
+            for u in usuarios:
+                print(f"ID: {u.id_usuario} - {u.nombre} {u.apellido} ({u.rol})")
+
+            try:
+                id_usuario = int(input("Ingrese el ID del usuario: ").strip())
+            except ValueError:
+                print("❌ ID inválido.")
+                continue
+
+            # Obtener domicilios del usuario
+            domicilios_usuario = DomiciliosDAO.obtener_domicilio_usuario(id_usuario)
+            if not domicilios_usuario:
+                print("❌ Este usuario no tiene domicilios registrados.")
+                continue
+
+            print("\n--- Seleccione un domicilio ---")
+            for i, d in enumerate(domicilios_usuario, start=1):
+                print(f"{i}) {d.nombre_domicilio} | {d.direccion} ({d.ciudad})")
+
+            try:
+                op_d = int(input("> ").strip()) - 1
+                domicilio_seleccionado = domicilios_usuario[op_d]
+            except (ValueError, IndexError):
+                print("❌ Opción inválida.")
+                continue
+
+            # Crear gestor de dispositivos para el domicilio seleccionado
+            gestor_dispositivo = GestorDispositivo(domicilio_seleccionado.id_domicilio)
+
+            # Llamar al menú de dispositivos
+            menu_crud_dispositivos(session, gestor_dispositivo, domicilio_seleccionado.nombre_domicilio)
+
+        else:
+            print("❌ Opción no válida. Intentelo de nuevo.")
+
 
 def menu_crud_dispositivos(session: Dict, gestor: GestorDispositivo, nombre_domicilio: str):
     """
@@ -20,18 +77,18 @@ def menu_crud_dispositivos(session: Dict, gestor: GestorDispositivo, nombre_domi
             gestor.listar_dispositivos(nombre_domicilio)
 
         elif opcion == "2":
+            id_tipo_input = input("Ingrese el ID del tipo de dispositivo: ").strip()
+            if not id_tipo_input.isdigit():
+                print("❌ ID de tipo inválido.")
+                continue
+            id_tipo = int(id_tipo_input)
+                        
             etiqueta = input("Ingrese una etiqueta para el dispositivo: ").strip()
             if not etiqueta:
                 print("❌ La etiqueta no puede estar vacía.")
                 continue
 
-            id_tipo_input = input("Ingrese el ID del tipo de dispositivo: ").strip()
-            if not id_tipo_input.isdigit():
-                print("❌ ID de tipo inválido.")
-                continue
-
-            id_tipo = int(id_tipo_input)
-            gestor.agregar_dispositivo(etiqueta, id_tipo)
+            gestor.agregar_dispositivo(id_tipo, etiqueta)
 
         elif opcion == "3":
             id_disp_input = input("Ingrese el ID del dispositivo a actualizar: ").strip()

@@ -13,9 +13,9 @@ class GestorDispositivo:
         self.__dispositivos_dao = DispositivoDAO()
         self.__dispositivos = self.__dispositivos_dao.listar_dispositivos_por_domicilio(id_domicilio)
 
-    def agregar_dispositivo(self, etiqueta: str, id_tipo: int) -> None:
+    def agregar_dispositivo(self, id_tipo: int, etiqueta: str) -> None:
         try:
-            id_nuevo = self.__dispositivos_dao.registrar_dispositivo(self.__id_domicilio, id_tipo, etiqueta)
+            id_nuevo = self.__dispositivos_dao.registrar_dispositivo(self.__id_domicilio, id_tipo, "apagado", etiqueta)
             if id_nuevo:
                 self.__dispositivos = self.__dispositivos_dao.listar_dispositivos_por_domicilio(self.__id_domicilio)
                 print("✅ Dispositivo agregado correctamente.")
@@ -59,14 +59,14 @@ class GestorDispositivo:
                 return d
         return None
 
-    def listar_dispositivos(self) -> None:
+    def listar_dispositivos(self, nombre_domicilio: Optional[str] = None) -> None:
         if not self.__dispositivos:
             print(f"No hay dispositivos cargados en este domicilio.")
         else:
-            print(f"\n--- Dispositivos en domicilio {self.__id_domicilio} ---")
+            encabezado = (f"\n--- Dispositivos en domicilio {nombre_domicilio or self.__id_domicilio} ---")
+            print(encabezado)
             for d in self.__dispositivos:
-                estado_str = "Encendido" if d.estado else "Apagado"
-                print(f"- ID: {d.id_dispositivo} | Etiqueta: {d.etiqueta} | Tipo: {d.id_tipo} | Estado: {estado_str}")
+                print(f"- ID: {d.id_dispositivo} | Etiqueta: {d.etiqueta} | Tipo: {d.id_tipo} | Estado: {d.estado}")
 
     @property
     def dispositivos(self) -> List[Dispositivo]:

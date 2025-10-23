@@ -87,13 +87,13 @@ class DispositivoDAO(IDispositivoDAO):
         if id_domicilio is not None: sets.append("id_domicilio=%s"); params.append(id_domicilio)
         if id_tipo is not None:      sets.append("id_tipo=%s");       params.append(id_tipo)
         if estado is not None:      sets.append("estado=%s");       params.append(estado)
-        if etiqueta:                 sets.append("etiqueta=%s");      params.append(etiqueta)
+        if etiqueta is not None: sets.append("etiqueta=%s"); params.append(etiqueta)
         if not sets: return False
         params.append(id_dispositivo)
         
         try:
             with get_cursor(commit=True) as cur:
-                query = f"UPDATE dispositivos SET {', '.join(sets)} WHERE id_dispositivo=%s"
+                query = f"UPDATE dispositivo SET {', '.join(sets)} WHERE id_dispositivo=%s"
                 cur.execute(query, tuple(params))
                 return cur.rowcount > 0
         except mysql.connector.Error as e:

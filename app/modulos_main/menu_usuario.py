@@ -10,6 +10,7 @@ from servicios.gestor_usuario import GestorUsuario
 from servicios.gestor_domicilio import GestorDomicilio
 from servicios.gestor_dispositivo import GestorDispositivo
 from servicios.gestor_automatizacion import GestorAutomatizacion
+from modulos_main.menu_crud_dispositivos import gestionar_dispositivos
 
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
@@ -48,43 +49,11 @@ def menu_usuario(session):
                     menu_crud_usuarios(session, gestor_usuario)
                     
                 elif sop == "2":
-                    gestor_domicilio = GestorDomicilio()
+                    gestor_domicilio = GestorDomicilio(session["id_usuario"])
                     menu_crud_domicilios(session, gestor_domicilio)
                         
                 elif sop == "3":
-                    usuarios = gestor_usuario.listar_usuarios()
-                    if not usuarios:
-                        print("❌ No hay usuarios registrados.")
-                        continue
-
-                    print("\n--- Seleccione un usuario ---")
-                    for i, u in enumerate(usuarios, start=1):
-                        print(f"{i}) {u.nombre} ({u.rol})")
-                    try:
-                        op_u = int(input("> ")) - 1
-                        usuario_seleccionado = usuarios[op_u]
-                    except (ValueError, IndexError):
-                        print("❌ Opción inválida.")
-                        continue
-
-                    # Selección de domicilio del usuario
-                    domicilios = usuario_seleccionado.gestor_domicilios.domicilios
-                    if not domicilios:
-                        print("❌ Este usuario no tiene domicilios registrados.")
-                        continue
-
-                    print("\n--- Seleccione un domicilio ---")
-                    for i, d in enumerate(domicilios, start=1):
-                        print(f"{i}) {d.nombre_domicilio} | {d.direccion} ({d.ciudad})")
-                    try:
-                        op_d = int(input("> ")) - 1
-                        domicilio_seleccionado = domicilios[op_d]
-                    except (ValueError, IndexError):
-                        print("❌ Opción inválida.")
-                        continue
-
-                    gestor_dispositivo = GestorDispositivo(domicilio_seleccionado.id_domicilio)
-                    menu_crud_dispositivos(session, gestor_dispositivo)
+                    gestionar_dispositivos(session)
                             
                 elif sop == "4":
                     menu_crud_automatizacion(session, gestor_automatizacion)
@@ -94,6 +63,14 @@ def menu_usuario(session):
                 
                 else:
                     print("Ingrese una opción válida. Intentelo de nuevo")
+        
+        elif op == "0":
+            print("Cerrando Sesión.")
+            break
+        
+        else:
+            print("La opción ingresada no es válida. Intentelo nuevamente.")
+        
             
 def ver_domicilios_usuario(dni: int):
     domicilios_usuario = DomiciliosDAO.obtener_domicilio_usuario(dni)
