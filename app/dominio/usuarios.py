@@ -89,7 +89,7 @@ class Usuario:
     
     @rol.setter
     def rol(self, nuevo_rol):
-        ROLES_PERMITIDOS = ["admin", "user"]
+        ROLES_PERMITIDOS = ["Admin", "Usuario"]
         
         if nuevo_rol not in ROLES_PERMITIDOS:
             raise ValueError("El rol ingresado no es valido.")

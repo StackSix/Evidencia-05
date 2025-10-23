@@ -92,31 +92,35 @@ class UsuarioDAO(IUsuaioDAO):
             raise e
     
     @staticmethod
-    def actualizar_usuario(email: str, nombre: str, apellido: str, contrasena: str) -> bool:
+    def actualizar_usuario(id_usuario, email: str, nombre: str, apellido: str, contrasena: str) -> bool:
         hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
                     UPDATE usuario
-                    SET nombre = %s, apellido = %s, contrasena = %s
-                    WHERE email = %s
+                    SET email = %s, nombre = %s, apellido = %s, contrasena = %s
+                    WHERE id_usuario = %s
                 """
-                cursor.execute(query, (nombre, apellido, hashed, email))
+                cursor.execute(query, (email, nombre, apellido, hashed, id_usuario))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception("Error: no se pudo actualizar el usuario.")
             raise e
         
     @staticmethod
-    def modificar_rol(id_usuario: int, nuevo_rol: int) -> bool:
+    def modificar_rol(id_usuario: int, nuevo_rol: str) -> bool:
+        ROLES_VALIDOS = ["Admin", "Usuario"]
+        if nuevo_rol not in ROLES_VALIDOS:
+            raise ValueError(f"El rol '{nuevo_rol}' no es válido. Debe ser 'Admin' o 'Usuario'.")
+
         try:
             with get_cursor(commit=True) as cursor:
                 query = """
                     UPDATE usuario
-                    SET rol=%s
-                    WHERE id_usuario=%s
+                    SET rol = %s
+                    WHERE id_usuario = %s
                 """
-                cursor.execute(query, (nuevo_rol, id_usuario,))
+                cursor.execute(query, (nuevo_rol, id_usuario))
                 return cursor.rowcount > 0
         except mysql.connector.Error as e:
             logger.exception("Error: no se pudo modificar el rol del usuario.")

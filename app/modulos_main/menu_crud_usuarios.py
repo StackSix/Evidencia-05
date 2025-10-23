@@ -17,11 +17,12 @@ def menu_crud_usuarios(session: Dict, gestor: GestorUsuario):
             gestor.listar_usuarios()
 
         elif opcion == "2":
-            email = input("Ingrese el email del usuario a actualizar: ").strip()
+            id_usuario = int(input("Ingrese el ID del usuario a actualizar: "))
+            email = input("Nuevo mail: ").strip()
             nombre = input("Nuevo nombre: ").strip()
             apellido = input("Nuevo apellido: ").strip()
             contrasena = input("Nueva contraseña: ").strip()
-            gestor.actualizar_usuario(email, nombre, apellido, contrasena)
+            gestor.actualizar_usuario(id_usuario, email, nombre, apellido, contrasena)
 
         elif opcion == "3":
             try:
@@ -46,3 +47,4 @@ def menu_crud_usuarios(session: Dict, gestor: GestorUsuario):
             break
         else:
             print("❌ Opción no válida.")
+            

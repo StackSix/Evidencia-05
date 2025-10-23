@@ -1,8 +1,15 @@
 from __future__ import annotations
 from typing import Dict, Optional
 import bcrypt
+import re
 from dao.usuarios_dao import UsuarioDAO
 from dao.domicilios_dao import DomiciliosDAO
+
+
+def validar_email(email: str):
+    regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(regex, email):
+        raise ValueError(f"Email '{email}' inválido.")
 
 def registrar_usuario(
     dni: int,
@@ -14,6 +21,8 @@ def registrar_usuario(
 ) -> int:
     if len(contrasena) < 6:
         raise ValueError("La contraseña debe tener al menos 6 caracteres.")
+    
+    validar_email(email)
 
     # Verificar si el email ya existe
     existente = UsuarioDAO.obtener_por_email(email)
