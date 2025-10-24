@@ -2,16 +2,15 @@ from __future__ import annotations
 from typing import Dict
 from servicios.gestor_automatizacion import GestorAutomatizacion
 from dominio.automatizacion import Automatizacion
+from dao.automatizaciones_dao import AutomatizacionesDAO
 from modulos_main.funciones_de_automatizacion import pedir_hora
+from dao.domicilios_dao import DomiciliosDAO
 
 def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
-    """Menú CRUD para automatizaciones del usuario o administrador."""
-    dni_usuario = session.get("dni")
-    rol = session.get("rol", "usuario")
-
+    """Menú CRUD de automatizaciones (asume admin)."""
     while True:
-        print("\n=== CRUD - Automatizaciones ===")
-        print(" 1) Ver Automatizaciones")
+        print("\n=== CRUD - Automatizaciones (Admin) ===")
+        print(" 1) Ver Todas las Automatizaciones")
         print(" 2) Crear Automatización")
         print(" 3) Actualizar Automatización")
         print(" 4) Eliminar Automatización")
@@ -19,22 +18,29 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
         opcion = input("> ").strip()
 
         if opcion == "1":
-            if rol == "admin":
-                gestor.listar()  
-            else:
-                gestor.listar(dni_usuario)
+            gestor.listar()
 
         elif opcion == "2":
-            print("\n📍 Creación de nueva automatización")
+            print("\n⏰ Creación de nueva automatización ⚙️")
+            print("\n--- Domicilios disponibles ---")
+            for d in DomiciliosDAO.obtener_todos_domicilios():
+                print(f"- ID: {d.id_domicilio} | {d.nombre_domicilio} | {d.direccion} ({d.ciudad})")
             id_domicilio = input("Ingrese ID del domicilio: ").strip()
             nombre = input("Ingrese nombre de la automatización: ").strip()
             accion = input("Ingrese acción (ej: encender luces, abrir portón): ").strip()
-            hora_on = pedir_hora("Ingrese hora de encendido (HH:MM): ")
-            hora_off = pedir_hora("Ingrese hora de apagado (HH:MM): ")
             
+            usar_horario_por_defecto = input("¿Usar horario por defecto (08:00-22:00)? [s/n]: ").lower() == "s"
+    
+            if usar_horario_por_defecto:
+                hora_on, hora_off = None, None
+            else:
+                hora_on = pedir_hora("Ingrese hora de encendido (HH:MM): ")
+                hora_off = pedir_hora("Ingrese hora de apagado (HH:MM): ")
+
+            # Crear el objeto Automatizacion
             automatizacion = Automatizacion(
                 id_automatizacion=None,
-                id_domicilio=id_domicilio,
+                id_domicilio=int(id_domicilio),
                 nombre=nombre,
                 accion=accion,
                 estado=False,
@@ -42,10 +48,11 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
                 hora_apagado=hora_off
             )
 
+            # Registrar en el gestor
             gestor.registrar(automatizacion)
-            print("✅ Automatización creada con éxito.")
 
         elif opcion == "3":
+            gestor.listar()
             id_auto = input("Ingrese ID de la automatización: ").strip()
             if not id_auto.isdigit():
                 print("❌ ID inválido.")
@@ -61,9 +68,9 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
             estado_input = input("Nuevo estado (activo/inactivo, enter para mantener): ").strip().lower()
 
             estado = None
-            if estado_input in ["activo", "1", "encendido"]:
+            if estado_input in ["activo"]:
                 estado = True
-            elif estado_input in ["inactivo", "0", "apagado"]:
+            elif estado_input in ["inactivo"]:
                 estado = False
 
             if input("¿Actualizar horarios? (s/n): ").strip().lower() == "s":
@@ -71,18 +78,19 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
                 hora_off = pedir_hora("Nueva hora de apagado (HH:MM): ")
                 existente.configurar_horario(hora_on, hora_off)
 
-            gestor.actualizar(existente, nombre or None, accion or None, estado)
+            # Actualizar automatización
+            gestor.actualizar(existente)
 
         elif opcion == "4":
-            id_automatizacion = input("Ingrese ID de la automatización a eliminar: ").strip()
-            if not id_automatizacion.isdigit():
+            id_auto = input("Ingrese ID de la automatización a eliminar: ").strip()
+            if not id_auto.isdigit():
                 print("❌ ID inválido.")
                 continue
-            gestor.eliminar(int(id_automatizacion))
+            gestor.eliminar(int(id_auto))
 
         elif opcion == "0":
             print("↩️ Volviendo al menú anterior...")
             break
-
         else:
             print("❌ Opción no válida.")
+            

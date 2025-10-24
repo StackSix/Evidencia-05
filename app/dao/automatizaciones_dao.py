@@ -50,32 +50,31 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
             raise e
 
     @staticmethod 
-    def obtener_todas_activas() -> List[Automatizacion]:
-        "Recupera todas las automatizaciones que están activas."
+    def obtener_todas() -> List[Automatizacion]:
+        "Recupera todas las automatizaciones."
         try:
             with get_cursor(dictionary=True) as cursor:
                 query = """
-                    SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado 
+                    SELECT id_automatizacion, id_domicilio, nombre, accion, estado, hora_encendido, hora_apagado
                     FROM automatizacion
-                    WHERE estado = 1 
                     ORDER BY id_automatizacion
                 """
                 cursor.execute(query)
                 rows = cursor.fetchall()
-            automatizaciones: List[Automatizacion] = []
-            for row in rows:
-                automatizaciones.append(
-                    Automatizacion(
-                        id_automatizacion=row["id_automatizacion"], 
-                        id_domicilio=row["id_domicilio"],
-                        nombre=row["nombre"],
-                        accion=row["accion"],
-                        estado=bool(row["estado"]),
-                        hora_encendido=row["hora_encendido"],
-                        hora_apagado=row["hora_apagado"]
+                automatizaciones: List[Automatizacion] = []
+                for row in rows:
+                    automatizaciones.append(
+                        Automatizacion(
+                            id_automatizacion=row["id_automatizacion"], 
+                            id_domicilio=row["id_domicilio"],
+                            nombre=row["nombre"],
+                            accion=row["accion"],
+                            estado=bool(row["estado"]),
+                            hora_encendido=row["hora_encendido"],
+                            hora_apagado=row["hora_apagado"]
+                        )
                     )
-                )
-            return automatizaciones
+                return automatizaciones
         except mysql.connector.Error as err:
             logger.exception("Error al recuperar automatizaciones activas.")
             return []    

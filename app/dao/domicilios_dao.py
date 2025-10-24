@@ -52,7 +52,7 @@ class DomiciliosDAO(IDomicilioDAO):
     @staticmethod
     def obtener_todos_domicilios() -> List[Domicilio]:
         try:
-            with get_cursor() as cursor:
+            with get_cursor(dictionary=True) as cursor:
                 query = """
                     SELECT id_domicilio, direccion, ciudad, nombre_domicilio, id_usuario
                     FROM domicilio
