@@ -1,10 +1,9 @@
 from __future__ import annotations
 from typing import Dict
-from servicios.gestor_automatizacion import GestorAutomatizacion
-from dominio.automatizacion import Automatizacion
-from dao.automatizaciones_dao import AutomatizacionesDAO
-from modulos_main.funciones_de_automatizacion import pedir_hora
-from dao.domicilios_dao import DomiciliosDAO
+from app.servicios.gestor_automatizacion import GestorAutomatizacion
+from app.dominio.automatizacion import Automatizacion
+from app.dao.domicilio_dao import DomicilioDAO
+
 
 def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
     """Menú CRUD de automatizaciones (asume admin)."""
@@ -23,7 +22,7 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
         elif opcion == "2":
             print("\n⏰ Creación de nueva automatización ⚙️")
             print("\n--- Domicilios disponibles ---")
-            for d in DomiciliosDAO.obtener_todos_domicilios():
+            for d in DomicilioDAO.obtener_todos_domicilios():
                 print(f"- ID: {d.id_domicilio} | {d.nombre_domicilio} | {d.direccion} ({d.ciudad})")
             id_domicilio = input("Ingrese ID del domicilio: ").strip()
             nombre = input("Ingrese nombre de la automatización: ").strip()
@@ -32,10 +31,10 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
             usar_horario_por_defecto = input("¿Usar horario por defecto (08:00-22:00)? [s/n]: ").lower() == "s"
     
             if usar_horario_por_defecto:
-                hora_on, hora_off = None, None
+                hora_encendido, hora_apagado = None, None
             else:
-                hora_on = pedir_hora("Ingrese hora de encendido (HH:MM): ")
-                hora_off = pedir_hora("Ingrese hora de apagado (HH:MM): ")
+                hora_encendido = gestor.pedir_hora("Ingrese hora de encendido (HH:MM): ")
+                hora_apagado = gestor.pedir_hora("Ingrese hora de apagado (HH:MM): ")
 
             # Crear el objeto Automatizacion
             automatizacion = Automatizacion(
@@ -44,8 +43,8 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
                 nombre=nombre,
                 accion=accion,
                 estado=False,
-                hora_encendido=hora_on,
-                hora_apagado=hora_off
+                hora_encendido=hora_encendido,
+                hora_apagado=hora_apagado
             )
 
             # Registrar en el gestor
@@ -67,16 +66,20 @@ def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):
             accion = input("Nueva acción (enter para mantener): ").strip()
             estado_input = input("Nuevo estado (activo/inactivo, enter para mantener): ").strip().lower()
 
-            estado = None
+            if nombre:
+                existente.nombre = nombre
+            if accion:
+                existente.accion = accion
+            
             if estado_input in ["activo"]:
-                estado = True
+                existente.estado = True
             elif estado_input in ["inactivo"]:
-                estado = False
+                existente.estado = False
 
             if input("¿Actualizar horarios? (s/n): ").strip().lower() == "s":
-                hora_on = pedir_hora("Nueva hora de encendido (HH:MM): ")
-                hora_off = pedir_hora("Nueva hora de apagado (HH:MM): ")
-                existente.configurar_horario(hora_on, hora_off)
+                hora_encendido = gestor.pedir_hora("Nueva hora de encendido (HH:MM): ")
+                hora_apagado = gestor.pedir_hora("Nueva hora de apagado (HH:MM): ")
+                existente.configurar_horario(hora_encendido, hora_apagado)
 
             # Actualizar automatización
             gestor.actualizar(existente)

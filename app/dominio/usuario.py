@@ -2,8 +2,8 @@ from __future__ import annotations
 import re
 import bcrypt
 from typing import List
-from dominio.domicilio import Domicilio
-from servicios.gestor_domicilio import GestorDomicilio
+from app.dominio.domicilio import Domicilio
+from app.servicios.gestor_domicilio import GestorDomicilio
 
 
 class Usuario:

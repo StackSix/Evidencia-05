@@ -1,10 +1,11 @@
 from __future__ import annotations
-from servicios.gestor_domicilio import GestorDomicilio
-from servicios.gestor_usuario import GestorUsuario
-from dao.domicilios_dao import DomiciliosDAO
 from typing import Dict
+from app.servicios.gestor_domicilio import GestorDomicilio
+from app.servicios.gestor_usuario import GestorUsuario
+from app.dao.domicilio_dao import DomicilioDAO
 
-def menu_crud_domicilios(session: Dict, gestor: GestorDomicilio):
+
+def menu_crud_domicilios(session: Dict, gestor_domicilio: GestorDomicilio):
     """
     Menú de interacción con domicilios, separado del gestor.
     Recibe un GestorDomicilio y llama sus métodos.
@@ -37,7 +38,7 @@ def menu_crud_domicilios(session: Dict, gestor: GestorDomicilio):
             print("❌ ID inválido.")
             continue
 
-        domicilios_usuario = DomiciliosDAO.obtener_domicilio_usuario(id_usuario)
+        domicilios_usuario = DomicilioDAO.obtener_domicilio_usuario(id_usuario)
         gestor_domicilio = GestorDomicilio(id_usuario=id_usuario, domicilios=domicilios_usuario)
 
         if opcion == "1":  
@@ -80,3 +81,4 @@ def menu_crud_domicilios(session: Dict, gestor: GestorDomicilio):
 
         else:
             print("❌ Opción no válida. Intente de nuevo.")
+            

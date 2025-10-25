@@ -1,16 +1,14 @@
 from __future__ import annotations
-from modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
-from modulos_main.menu_crud_dispositivos import menu_crud_dispositivos
-from modulos_main.menu_crud_domicilios import menu_crud_domicilios
-from modulos_main.menu_crud_usuarios import menu_crud_usuarios
-from dao.dispositivos_dao import DispositivoDAO
-from dao.usuarios_dao import UsuarioDAO
-from dao.domicilios_dao import DomiciliosDAO
-from servicios.gestor_usuario import GestorUsuario
-from servicios.gestor_domicilio import GestorDomicilio
-from servicios.gestor_dispositivo import GestorDispositivo
-from servicios.gestor_automatizacion import GestorAutomatizacion
-from modulos_main.menu_crud_dispositivos import gestionar_dispositivos
+from app.dao.dispositivo_dao import DispositivoDAO
+from app.dao.usuario_dao import UsuarioDAO
+from app.dao.domicilio_dao import DomicilioDAO
+from app.servicios.gestor_usuario import GestorUsuario
+from app.servicios.gestor_domicilio import GestorDomicilio
+from app.servicios.gestor_automatizacion import GestorAutomatizacion
+from app.modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
+from app.modulos_main.menu_crud_domicilios import menu_crud_domicilios
+from app.modulos_main.menu_crud_usuarios import menu_crud_usuarios
+from app.modulos_main.menu_crud_dispositivos import gestionar_dispositivos
 
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")
@@ -25,7 +23,7 @@ def menu_usuario(session):
         op = input("> ").strip()
 
         if op == "1":
-            ver_domicilios_usuario(session["dni"])
+            ver_domicilios_usuario(session["id_usuario"])
 
         elif op == "2":
             ver_dispositivos_usuario(session["id_usuario"])
@@ -72,11 +70,11 @@ def menu_usuario(session):
             print("La opción ingresada no es válida. Intentelo nuevamente.")
         
             
-def ver_domicilios_usuario(dni: int):
-    domicilios_usuario = DomiciliosDAO.obtener_domicilio_usuario(dni)
+def ver_domicilios_usuario(id_usuario: int):
+    domicilios_usuario = DomicilioDAO.obtener_domicilio_usuario(id_usuario)
     if domicilios_usuario:    
         for du in domicilios_usuario:
-            print(f"{du.id_domicilio} - {du.nombre_domicilio} - {du.direccion} - {du.ciudad}")
+            print(f"\nMIS DOMICILIOS \nID Domicilio: {du.id_domicilio}\nNombre de Domicilio: {du.nombre_domicilio}\nDirección: {du.direccion}\nCiudad: {du.ciudad}")
     else:
         print("❌ No se encontró domicilio del usuario.")
         
@@ -84,14 +82,15 @@ def ver_dispositivos_usuario(id_usuario: int):
     dispositivos_usuario = DispositivoDAO.obtener_dispositivo_usuario(id_usuario)
     if dispositivos_usuario:
         for disp in dispositivos_usuario:
-            print(f"{disp.id_dispositivo} - {disp.id_domicilio} - {disp.id_tipo} - {disp.estado} - {disp.etiqueta}")
+            print(f"\nMIS DISPOSITIVOS \nID Dispositivo: {disp.id_dispositivo}\nID Domicilio: {disp.id_domicilio}\nEstado: {disp.estado}\nEtiqueta: {disp.etiqueta}")
     else:
         print("❌ No se encontraron dispositivos del usuario.")
         
 def ver_datos_personales(dni: int):
     usuario = UsuarioDAO.obtener_por_dni(dni)
     if usuario:
-        print(f"{usuario['dni']} - {usuario['nombre']} - {usuario['apellido']} - "
-              f"{usuario['email']} - {usuario['rol']}")
+        print(f"\nMIS DATOS PERSONALES \nDNI: {usuario['dni']}\nNombre: {usuario['nombre']}\nApellido {usuario['apellido']}\n"
+              f"Email: {usuario['email']}\nRol: {usuario['rol']}")
     else:
         print("❌ No se encontró ningún usuario con ese DNI.")
+        

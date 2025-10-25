@@ -1,8 +1,9 @@
 from __future__ import annotations
 from typing import List, Optional
-from dominio.usuarios import Usuario
-from dao.usuarios_dao import UsuarioDAO
-from modulos_main.funciones_de_autenticacion import validar_email
+import bcrypt
+from app.dominio.usuario import Usuario
+from app.dao.usuario_dao import UsuarioDAO
+from app.modulos_main.funcion_autenticacion import validar_email
 
 class GestorUsuario:
     """Gestiona la lógica de negocio de los usuarios, con lista en memoria y sincronización con DB."""
@@ -13,6 +14,31 @@ class GestorUsuario:
         except ValueError as e:
             print(f"⚠️ Advertencia al cargar usuarios: {e}")
             self.__usuarios = []
+    
+    @staticmethod
+    def registrar_usuario(dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "Usuario") -> int:
+        if len(contrasena) < 6:
+            raise ValueError("La contraseña debe tener al menos 6 caracteres.")
+        
+        validar_email(email)
+        
+        existente = UsuarioDAO.obtener_por_email(email)
+        if existente:
+            raise ValueError("Ya existe un usuario con ese email.")
+        
+        id_usuario = UsuarioDAO.registrar_usuario(dni, nombre, apellido, email, contrasena, rol)
+        print(f"✅ Usuario creado con ID {id_usuario}.")
+
+    @staticmethod
+    def login(email: str, contrasena_plana: str) -> Optional[dict]:
+        rec = UsuarioDAO.obtener_por_email(email)
+        if not rec:
+            return None
+        hashed = rec.pop("contrasena", None)
+        if not hashed:
+            return None
+        ok = bcrypt.checkpw(contrasena_plana.encode("utf-8"), hashed.encode("utf-8"))
+        return rec if ok else None
 
     def agregar_usuario(self, dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str = "Usuario") -> None:
         try:

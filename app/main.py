@@ -1,10 +1,10 @@
 from __future__ import annotations
-from servicios.gestor_domicilio import GestorDomicilio
-from dao.domicilios_dao import DomiciliosDAO
-from modulos_main.funciones_de_autenticacion import registrar_usuario, login
-from modulos_main.menu_usuario import menu_usuario
+from app.servicios.gestor_usuario import GestorUsuario
+from app.modulos_main.menu_usuario import menu_usuario
+
 
 def main():
+    gestor_usuario = GestorUsuario()
     while True:
         print("\nSistema SmartHome - Ejecución en memoria")
         print("Usuario administrador por defecto: daniel@example.com / 12345678")
@@ -21,16 +21,15 @@ def main():
                 email = input("Email: ")
                 contrasena = input("Contraseña: ")
 
-                registrar_usuario(dni, nombre, apellido, email, contrasena, rol="Usuario")
+                gestor_usuario.registrar_usuario(dni, nombre, apellido, email, contrasena, rol="Usuario")
 
             except Exception as e:
                 print(f"❌ Error al registrar usuario: {e}")
 
         elif op == "2":
-            # Login
             email = input("Email: ").strip()
             contrasena = input("Contraseña: ").strip()
-            session = login(email, contrasena)
+            session = gestor_usuario.login(email, contrasena)
             if session:
                 menu_usuario(session)
             else:

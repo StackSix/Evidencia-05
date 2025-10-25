@@ -1,13 +1,12 @@
 from __future__ import annotations
 from typing import Optional, List
 import mysql.connector
-from mysql.connector import Error
-from dominio.automatizacion import Automatizacion
-from conn.cursor import get_cursor
-from conn.logger import logger
-from dao.interfaces.i_automatizaciones_dao import IAutomatizacionesDAO
+from app.dominio.automatizacion import Automatizacion
+from app.conn.cursor import get_cursor
+from app.conn.logger import logger
+from app.dao.interfaces.i_automatizacion_dao import IAutomatizacionDAO
 
-class AutomatizacionesDAO(IAutomatizacionesDAO):
+class AutomatizacionDAO(IAutomatizacionDAO):
     @staticmethod
     def registrar_automatizacion(automatizacion: Automatizacion) -> int:
         "Inserta un registro en la tabla y devuelve un ID asignado."
@@ -78,79 +77,6 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         except mysql.connector.Error as err:
             logger.exception("Error al recuperar automatizaciones activas.")
             return []    
-
-    @staticmethod
-    def actualizar_automatizacion(automatizacion: Automatizacion) -> bool:
-        "Permite actualizar un registro de una automatización en la BD."
-        try:
-            with get_cursor(commit=True) as cursor:
-                query = """
-                    UPDATE automatizacion
-                    SET id_domicilio=%s, nombre=%s, accion=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
-                    WHERE id_automatizacion=%s
-                """
-                cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, 1 if automatizacion.estado else 0, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
-                return cursor.rowcount > 0
-        except mysql.connector.Error as e:
-            logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
-            raise e
-            
-    @staticmethod
-    def eliminar_automatizacion(id_automatizacion: int) -> bool:
-        "Permite eliminar el registro de una automatización de la BD por su ID."
-        try:
-            with get_cursor(commit=True) as cursor:
-                query = "DELETE FROM automatizacion WHERE id_automatizacion = %s"
-                cursor.execute(query, (id_automatizacion,))
-                return cursor.rowcount > 0
-        except mysql.connector.Error as e:
-            logger.exception(f"Error al intentar eliminar la automatización con ID: {id_automatizacion}")
-            raise e
-    
-    @staticmethod
-    def verificar_dueno_de_automatizacion(dni: int, id_automatizacion: int) -> bool:
-        """
-        Verifica si un usuario es propietario de una automatización
-        (según su relación con el domicilio al que pertenece).
-        """
-        try:
-            with get_cursor(commit=False) as cursor:
-                query = """
-                    SELECT COUNT(*) 
-                    FROM automatizacion a
-                    JOIN domicilio d ON a.id_domicilio = d.id_domicilio
-                    JOIN usuario u ON d.id_usuario = u.id_usuario
-                    WHERE a.id_automatizacion = %s AND u.dni = %s
-                """
-                cursor.execute(query, (id_automatizacion, dni))
-                resultado = cursor.fetchone()
-                return resultado[0] > 0 if resultado else False
-
-        except mysql.connector.Error as e:
-            logger.exception("Error al verificar la propiedad de la automatización.")
-            raise e
-            
-    @staticmethod
-    def verificar_dueno_de_automatizacion(dni: int, id_automatizacion: int) -> bool:
-        """
-        Verifica si un usuario es el propietario de la automatización.
-        Utiliza la tabla intermedia 'usuarios_domicilios' para la validación.
-        """
-        try:
-            with get_cursor(commit=False) as cursor:
-                query = """
-                    SELECT COUNT(*) FROM automatizacion a
-                    JOIN domicilio d ON a.id_domicilio = d.id_domicilio
-                    JOIN usuario u ON d.id_usuario = u.id_usuario
-                    WHERE a.id_automatizacion = %s AND u.dni = %s
-                """
-                cursor.execute(query, (id_automatizacion, dni))
-                resultado = cursor.fetchone()
-                # El resultado es una tupla, se comprueba el primer elemento
-                return resultado[0] > 0 if resultado else False
-        except mysql.connector.Error as e:
-            logger.exception("Error al verificar la propiedad de la automatización.")
-            raise e
         
     @staticmethod
     def obtener_automatizaciones_por_domicilio(id_domicilio: int) -> list[Automatizacion]:
@@ -184,3 +110,32 @@ class AutomatizacionesDAO(IAutomatizacionesDAO):
         except mysql.connector.Error as e:
             logger.exception("Error al obtener automatizaciones por domicilio.")
             raise e
+
+    @staticmethod
+    def actualizar_automatizacion(automatizacion: Automatizacion) -> bool:
+        "Permite actualizar un registro de una automatización en la BD."
+        try:
+            with get_cursor(commit=True) as cursor:
+                query = """
+                    UPDATE automatizacion
+                    SET id_domicilio=%s, nombre=%s, accion=%s, estado=%s, hora_encendido=%s, hora_apagado=%s
+                    WHERE id_automatizacion=%s
+                """
+                cursor.execute(query, (automatizacion.id_domicilio, automatizacion.nombre, automatizacion.accion, 1 if automatizacion.estado else 0, automatizacion.hora_encendido, automatizacion.hora_apagado, automatizacion.id_automatizacion))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception(f"Error al actualizar la automatización con ID: {automatizacion.id_automatizacion}")
+            raise e
+            
+    @staticmethod
+    def eliminar_automatizacion(id_automatizacion: int) -> bool:
+        "Permite eliminar el registro de una automatización de la BD por su ID."
+        try:
+            with get_cursor(commit=True) as cursor:
+                query = "DELETE FROM automatizacion WHERE id_automatizacion = %s"
+                cursor.execute(query, (id_automatizacion,))
+                return cursor.rowcount > 0
+        except mysql.connector.Error as e:
+            logger.exception(f"Error al intentar eliminar la automatización con ID: {id_automatizacion}")
+            raise e
+        

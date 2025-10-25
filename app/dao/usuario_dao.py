@@ -2,15 +2,14 @@ from __future__ import annotations
 import mysql.connector
 from typing import Optional, List, Dict
 import bcrypt
-from conn.cursor import get_cursor
-from mysql.connector import Error
-from conn.logger import logger
-from dao.interfaces.i_usuario_dao import IUsuaioDAO
-from dominio.usuarios import Usuario
+from app.conn.cursor import get_cursor
+from app.conn.logger import logger
+from app.dao.interfaces.i_usuario_dao import IUsuarioDAO
+from app.dominio.usuario import Usuario
 
-class UsuarioDAO(IUsuaioDAO):
+class UsuarioDAO(IUsuarioDAO):
     @staticmethod
-    def registrar_usuario(dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str) -> None:
+    def registrar_usuario(dni: int, nombre: str, apellido: str, email: str, contrasena: str, rol: str) -> int:
         hashed = bcrypt.hashpw(contrasena.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         try:
             with get_cursor(commit=True) as cursor:
@@ -136,19 +135,4 @@ class UsuarioDAO(IUsuaioDAO):
         except mysql.connector.Error as e:
             logger.exception("Error al intentar eliminar el usuario.")
             raise e
-    
-    @staticmethod 
-    def verificar_contrasena(email: str, contrasena: str) -> bool:
-        " Verifica la contraseña de un usuario."
-        try:
-            with get_cursor(commit=False, dictionary=True) as cursor:
-                query = "SELECT contrasena FROM usuario WHERE email = %s"
-                cursor.execute(query, (email,))
-                usuario = cursor.fetchone()
-                if usuario and "contrasena" in usuario:
-                    return bcrypt.checkpw(contrasena.encode("utf-8"), usuario['contrasena'].encode("utf-8"))
-                return False
-        except mysql.connector.Error as e:
-            logger.exception("Error al verificar la contraseña.")
-            return False
         

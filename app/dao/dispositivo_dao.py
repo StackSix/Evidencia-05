@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import Optional, List
 import mysql.connector
-from conn.cursor import get_cursor
-from conn.logger import logger
-from dominio.dispositivos import Dispositivo
-from dao.interfaces.i_dispositivo_dao import IDispositivoDAO
+from app.conn.cursor import get_cursor
+from app.conn.logger import logger
+from app.dominio.dispositivo import Dispositivo
+from app.dao.interfaces.i_dispositivo_dao import IDispositivoDAO
 
 class DispositivoDAO(IDispositivoDAO):
     @staticmethod
@@ -21,7 +21,7 @@ class DispositivoDAO(IDispositivoDAO):
             logger.exception("No se pudo registrar el dispositivo en la Base de Datos.")
             raise e
     
-    @staticmethod #Esto configurarlo para usuario comun
+    @staticmethod 
     def obtener_dispositivo_usuario(id_usuario: int) -> List[Dispositivo]:
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
@@ -50,7 +50,7 @@ class DispositivoDAO(IDispositivoDAO):
             logger.exception("No se pudieron obtener los dispositivos registrados.")
             raise e
     
-    @staticmethod #Esto configurarlo para admin
+    @staticmethod 
     def obtener_todos_dispositivos() -> List[Dispositivo]:
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:

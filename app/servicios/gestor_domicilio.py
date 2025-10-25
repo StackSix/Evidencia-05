@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from dominio.domicilio import Domicilio
-from dao.domicilios_dao import DomiciliosDAO
+from app.dominio.domicilio import Domicilio
+from app.dao.domicilio_dao import DomicilioDAO
 
 class GestorDomicilio:
     """
@@ -14,7 +14,7 @@ class GestorDomicilio:
 
     def agregar_domicilio(self, direccion: str, ciudad: str, nombre_domicilio: str) -> None:
         try:
-            id_domicilio = DomiciliosDAO.registrar_domicilio(direccion, ciudad, nombre_domicilio, self.__id_usuario)
+            id_domicilio = DomicilioDAO.registrar_domicilio(direccion, ciudad, nombre_domicilio, self.__id_usuario)
             nuevo_domicilio = Domicilio(
                 id_domicilio=id_domicilio,
                 direccion=direccion,
@@ -28,7 +28,7 @@ class GestorDomicilio:
 
     def eliminar_domicilio(self, id_domicilio: int) -> None:
         try:
-            eliminado = DomiciliosDAO.eliminar_domicilio(id_domicilio)
+            eliminado = DomicilioDAO.eliminar_domicilio(id_domicilio)
             if eliminado:
                 self.__domicilios = [d for d in self.__domicilios if d.id_domicilio != id_domicilio]
                 print("✅ Domicilio eliminado correctamente.")
@@ -39,7 +39,7 @@ class GestorDomicilio:
 
     def actualizar_domicilio(self, id_domicilio: int, direccion: str, ciudad: str, nombre_domicilio: str) -> None:
         try:
-            actualizado = DomiciliosDAO.actualizar_domicilio(id_domicilio, direccion, ciudad, nombre_domicilio)
+            actualizado = DomicilioDAO.actualizar_domicilio(id_domicilio, direccion, ciudad, nombre_domicilio)
             if actualizado:
                 domicilio = self.obtener_domicilio(id_domicilio)
                 if domicilio:

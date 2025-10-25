@@ -1,12 +1,12 @@
+from __future__ import annotations
 import mysql.connector
-from mysql.connector import Error
 from typing import List, Optional
-from conn.cursor import get_cursor
-from dao.interfaces.i_domicilio_dao import IDomicilioDAO
-from dominio.domicilio import Domicilio
-from conn.logger import logger
+from app.conn.cursor import get_cursor
+from app.dao.interfaces.i_domicilio_dao import IDomicilioDAO
+from app.dominio.domicilio import Domicilio
+from app.conn.logger import logger
 
-class DomiciliosDAO(IDomicilioDAO):
+class DomicilioDAO(IDomicilioDAO):
     @staticmethod
     def registrar_domicilio(direccion: str, ciudad: str, nombre_domicilio: str, id_usuario: int) -> int:
         try:
@@ -26,11 +26,10 @@ class DomiciliosDAO(IDomicilioDAO):
         try:
             with get_cursor(commit=False, dictionary=True) as cursor:
                 query = """
-                    SELECT d.id_domicilio, d.nombre_domicilio, d.direccion, d.ciudad
-                    FROM domicilio d
-                    JOIN usuario u ON d.id_usuario = u.id_usuario
-                    WHERE u.id_usuario = %s
-                    ORDER BY d.id_domicilio
+                    SELECT id_domicilio, nombre_domicilio, direccion, ciudad
+                    FROM domicilio
+                    WHERE id_usuario = %s
+                    ORDER BY id_domicilio
                 """
                 cursor.execute(query, (id_usuario,))
                 rows = cursor.fetchall()

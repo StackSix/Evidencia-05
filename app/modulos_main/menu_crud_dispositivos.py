@@ -1,8 +1,9 @@
 from __future__ import annotations
-from servicios.gestor_dispositivo import GestorDispositivo
-from servicios.gestor_usuario import GestorUsuario
-from dao.domicilios_dao import DomiciliosDAO
 from typing import Dict
+from app.servicios.gestor_dispositivo import GestorDispositivo
+from app.servicios.gestor_usuario import GestorUsuario
+from app.dao.domicilio_dao import DomicilioDAO
+
 
 
 def gestionar_dispositivos(session: Dict):
@@ -32,8 +33,8 @@ def gestionar_dispositivos(session: Dict):
                 print("❌ ID inválido.")
                 continue
 
-            # Obtener domicilios del usuario
-            domicilios_usuario = DomiciliosDAO.obtener_domicilio_usuario(id_usuario)
+            # Obtener todos los domicilios del usuario
+            domicilios_usuario = DomicilioDAO.obtener_domicilio_usuario(id_usuario)
             if not domicilios_usuario:
                 print("❌ Este usuario no tiene domicilios registrados.")
                 continue
