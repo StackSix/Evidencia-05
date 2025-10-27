@@ -47,13 +47,9 @@ class Camara(Dispositivo, ControlAutomatizacion):
         self.__grabacion_modo = grabacion_modo
         self.__modo_grabando = modo_grabando
         self.__estado_automatizacion = estado_automatizacion
-        self.hora_encendido: str | None = None
-        self.hora_apagado: str | None = None
-        self.ultima_notificacion: bool | None = None
-
-        # Si tu clase base no define 'id', el router lo setea después.
-        # Podés dejarlo así o inicializarlo con None:
-        # self.id: int | None = None
+        self.__hora_encendido: str | None = None
+        self.__hora_apagado: str | None = None
+        self.__ultima_notificacion: bool | None = None
 
     # -------- Propiedades --------
     @property
@@ -99,6 +95,35 @@ class Camara(Dispositivo, ControlAutomatizacion):
         if not isinstance(estado_automatizacion, bool):
             raise ValueError("El estado ingresado no es válido.")
         self.__estado_automatizacion = estado_automatizacion
+        
+    @property
+    def hora_encendido(self) -> str | None:
+        return self.__hora_encendido
+    
+    @hora_encendido.setter
+    def hora_encendido(self, on):
+        if not isinstance(on, str):
+            raise TypeError("El horario ingresado no es válido.")
+        self.__hora_encendido = on
+    
+    @property
+    def hora_apagado(self) -> str | None:
+        return self.__hora_apagado
+    
+    @hora_apagado.setter
+    def hora_apagado(self, off):
+        if not isinstance(off, str):
+            raise TypeError("El horario ingresado no es válido.")
+        self.__hora_apagado = off
+        
+    @property
+    def ultima_notificacion(self) -> bool | None:
+        return self.__ultima_notificacion
+    
+    @ultima_notificacion.setter
+    def ultima_notificacion(self, ultima_notificacion):
+        if not isinstance(ultima_notificacion, bool):
+            raise TypeError("El valor ingresado no es válido.")
 
     def __str__(self) -> str:
         return (
@@ -195,3 +220,4 @@ class Camara(Dispositivo, ControlAutomatizacion):
             f"Hora de Inicio: {self.hora_encendido}\n"
             f"Hora de Finalización {self.hora_apagado}\n"
         )
+    
