@@ -36,7 +36,7 @@ class GestorDispositivo:
         except Exception as e:
             print(f"❌ Error al eliminar el dispositivo: {e}")
 
-    def actualizar_dispositivo(self, id_dispositivo: int, *, id_domicilio: Optional[int] = None, id_tipo: Optional[int] = None, etiqueta: Optional[str] = None) -> None:
+    def actualizar_dispositivo(self, id_dispositivo: int, *, id_domicilio: Optional[int] = None, id_tipo: Optional[int] = None, estado: Optional[int] = None, etiqueta: Optional[str] = None) -> None:
         dispositivo_existente = self.obtener_dispositivo(id_dispositivo)
         if not dispositivo_existente:
             print("⚠️ Dispositivo no encontrado en este domicilio.")
@@ -46,6 +46,7 @@ class GestorDispositivo:
                 id_dispositivo,
                 id_domicilio=id_domicilio,
                 id_tipo=id_tipo,
+                estado=estado,
                 etiqueta=etiqueta
             )
             self.__dispositivos = self.__dispositivos_dao.listar_dispositivos_por_domicilio(self.__id_domicilio)

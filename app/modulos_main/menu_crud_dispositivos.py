@@ -78,13 +78,13 @@ def menu_crud_dispositivos(session: Dict, gestor: GestorDispositivo, nombre_domi
             gestor.listar_dispositivos(nombre_domicilio)
 
         elif opcion == "2":
-            id_tipo_input = input("Ingrese el ID del tipo de dispositivo: ").strip()
-            if not id_tipo_input.isdigit():
+            id_tipo_input = input("Ingrese el ID del tipo de dispositivo (1: Sensor - 2: Camara): ").strip()
+            if not id_tipo_input.isdigit() or id_tipo_input != "1" and id_tipo_input != "2":
                 print("❌ ID de tipo inválido.")
                 continue
             id_tipo = int(id_tipo_input)
                         
-            etiqueta = input("Ingrese una etiqueta para el dispositivo: ").strip()
+            etiqueta = input("Ingrese una etiqueta para el dispositivo (descripción del dispositivo): ").strip()
             if not etiqueta:
                 print("❌ La etiqueta no puede estar vacía.")
                 continue
@@ -101,13 +101,15 @@ def menu_crud_dispositivos(session: Dict, gestor: GestorDispositivo, nombre_domi
             id_tipo_input = input("Ingrese el nuevo ID de tipo (deje vacío para no modificar): ").strip()
             id_tipo = int(id_tipo_input) if id_tipo_input else None
 
+            estado = input("Ingrese nuevo estado del dispositivo (encendido/apagado): ")
             etiqueta = input("Ingrese la nueva etiqueta (deje vacío para no modificar): ").strip() or None
-
-            if id_tipo is None and etiqueta is None:
+            
+            
+            if id_tipo is None and estado is None and etiqueta is None:
                 print("⚠️ No se ingresó ningún cambio.")
                 continue
 
-            gestor.actualizar_dispositivo(id_dispositivo, id_tipo=id_tipo, etiqueta=etiqueta)
+            gestor.actualizar_dispositivo(id_dispositivo, id_tipo=id_tipo, estado=estado, etiqueta=etiqueta)
 
         elif opcion == "4":
             id_disp_input = input("Ingrese el ID del dispositivo a eliminar: ").strip()
