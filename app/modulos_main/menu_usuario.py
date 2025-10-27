@@ -74,7 +74,7 @@ def ver_domicilios_usuario(id_usuario: int):
     domicilios_usuario = DomicilioDAO.obtener_domicilio_usuario(id_usuario)
     if domicilios_usuario:    
         for du in domicilios_usuario:
-            print(f"\nMIS DOMICILIOS \nID Domicilio: {du.id_domicilio}\nNombre de Domicilio: {du.nombre_domicilio}\nDirección: {du.direccion}\nCiudad: {du.ciudad}")
+            print(f"\nMI DOMICILIO \nID Domicilio: {du.id_domicilio}\nNombre de Domicilio: {du.nombre_domicilio}\nDirección: {du.direccion}\nCiudad: {du.ciudad}")
     else:
         print("❌ No se encontró domicilio del usuario.")
         
@@ -82,14 +82,14 @@ def ver_dispositivos_usuario(id_usuario: int):
     dispositivos_usuario = DispositivoDAO.obtener_dispositivo_usuario(id_usuario)
     if dispositivos_usuario:
         for disp in dispositivos_usuario:
-            print(f"\nMIS DISPOSITIVOS \nID Dispositivo: {disp.id_dispositivo}\nID Domicilio: {disp.id_domicilio}\nEstado: {disp.estado}\nEtiqueta: {disp.etiqueta}")
+            print(f"\nMI DISPOSITIVO \nID Dispositivo: {disp.id_dispositivo}\nID Domicilio: {disp.id_domicilio}\nEstado: {disp.estado}\nEtiqueta: {disp.etiqueta}")
     else:
         print("❌ No se encontraron dispositivos del usuario.")
         
 def ver_datos_personales(dni: int):
     usuario = UsuarioDAO.obtener_por_dni(dni)
     if usuario:
-        print(f"\nMIS DATOS PERSONALES \nDNI: {usuario['dni']}\nNombre: {usuario['nombre']}\nApellido {usuario['apellido']}\n"
+        print(f"\nMIS DATOS PERSONALES \nDNI: {usuario['dni']}\nNombre: {usuario['nombre']}\nApellido: {usuario['apellido']}\n"
               f"Email: {usuario['email']}\nRol: {usuario['rol']}")
     else:
         print("❌ No se encontró ningún usuario con ese DNI.")

@@ -7,7 +7,7 @@ def main():
     gestor_usuario = GestorUsuario()
     while True:
         print("\nSistema SmartHome - Ejecución en memoria")
-        print("Usuario administrador por defecto: daniel@example.com / 12345678")
+        print("Usuario administrador por defecto: ggonzalez@gmail.com / gaston1234")
         print("1) Registrarse")
         print("2) Iniciar sesión")
         print("0) Salir")
