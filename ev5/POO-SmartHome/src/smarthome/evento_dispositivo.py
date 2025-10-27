@@ -14,7 +14,11 @@ class EventoDispositivo:
     contador_id = 0
     def __init__(self) -> None:
         EventoDispositivo.contador_id +=1
-        self.evento_id: int = EventoDispositivo.contador_id
+        self.__evento_id: int = EventoDispositivo.contador_id
+    
+    @property
+    def evento_id(self):
+        return self.__evento_id
     
     # Comportamiento de la Clase
     def enviar_notificacion(self, evento: bool) -> str:

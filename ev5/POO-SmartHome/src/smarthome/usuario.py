@@ -1,6 +1,5 @@
 from __future__ import annotations
-import os, hmac, hashlib
-from dataclasses import dataclass
+import os, hmac, hashlib, re
 
 #
 USERS_DB: dict[str, dict] = {}
@@ -14,25 +13,44 @@ class Usuario:
     def __init__(self, nombre: str, email: str, rol: str = "user") -> None:
         if not nombre or len(nombre) < 2:
             raise ValueError("Nombre inválido.")
-        self._nombre = nombre
-        self._email = email
-        self._rol = rol
-        self._password_hash: str | None = None
+        self.__nombre = nombre
+        self.__email = email
+        self.__rol = rol
+        self.__password_hash: str | None = None
 
     
     @property
     def nombre(self) -> str:
-        return self._nombre
+        return self.__nombre
+    
+    @nombre.setter
+    def nombre(self, nuevo_nombre):
+        if not isinstance(nuevo_nombre, str) or len(nuevo_nombre) < 2:
+            raise TypeError("El nombre no es válido.")
+        self.__nombre = nuevo_nombre
 
     @property
     def email(self) -> str:
-        return self._email
+        return self.__email
+    
+    @email.setter
+    def email(self, nuevo_email):
+        regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(regex, nuevo_email):
+            raise ValueError(f"Email '{nuevo_email}' inválido.")
+        self.__email = nuevo_email
 
     @property
     def rol(self) -> str:
-        return self._rol
+        return self.__rol
 
-    
+    @rol.setter
+    def rol(self, nuevo_rol):
+        ROLES_PERMITIDOS = ["Admin", "Usuario"]
+        
+        if nuevo_rol not in ROLES_PERMITIDOS:
+            raise ValueError("El rol ingresado no es valido.")
+        self.__rol = nuevo_rol
 
     # ------------------ Métodos privados ------------------
     @staticmethod
@@ -70,35 +88,35 @@ class Usuario:
 
     # ------------------ Métodos de instancia ------------------
     def establecer_password(self, password_plano: str) -> None:
-        self._password_hash = self._implementar_hash_contraseña(password_plano)
+        self.__password_hash = self._implementar_hash_contraseña(password_plano)
 
     def verificar_password(self, password_plano: str) -> bool:
-        return bool(self._password_hash) and self._verificar_contraseña(password_plano, self._password_hash)
+        return bool(self.__password_hash) and self._verificar_contraseña(password_plano, self.__password_hash)
 
     def mostrar_datos_usuario(self) -> str:
-        return f"Usuario(nombre='{self._nombre}', email='{self._email}', rol='{self._rol}')"
+        return f"Usuario(nombre='{self.__nombre}', email='{self.__email}', rol='{self.__rol}')"
     
     def almacenar_usuario_en_diccionario(self) -> dict:
         return {
-            "nombre": self._nombre,
-            "email": self._email,
-            "rol": self._rol,
-            "password_hash": self._password_hash,
+            "nombre": self.__nombre,
+            "email": self.__email,
+            "rol": self.__rol,
+            "password_hash": self.__password_hash,
         }
 
     # ------------------ Métodos de clase ------------------
     def almacenar_usuario_en_diccionario(self) -> dict:
         return {
-            "nombre": self._nombre,
-            "email": self._email,
-            "rol": self._rol,
-            "password_hash": self._password_hash,
+            "nombre": self.__nombre,
+            "email": self.__email,
+            "rol": self.__rol,
+            "password_hash": self.__password_hash,
         }
 
     @classmethod
     def traer_usuario_de_diccionario(cls, rec: dict) -> "Usuario":
         u = cls(nombre=rec["nombre"], email=rec["email"], rol=rec.get("rol", "user"))
-        u._password_hash = rec.get("password_hash")
+        u.__password_hash = rec.get("password_hash")
         return u
 
     @classmethod
@@ -124,4 +142,4 @@ class Usuario:
     def modificar_rol(self, nuevo: str) -> None:
         if not nuevo or len(nuevo) < 3:
             raise ValueError("Rol inválido.")
-        self._rol = nuevo
+        self.__rol = nuevo

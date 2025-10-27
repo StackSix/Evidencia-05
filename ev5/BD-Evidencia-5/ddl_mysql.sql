@@ -1,80 +1,60 @@
--- DDL Data Definition Language
--- Órdenes que crean/modifican la BD y sus objetos
-
-CREATE DATABASE IF NOT EXISTS smarthome_ev5
+CREATE DATABASE IF NOT EXISTS bowtbpbberdfnkr3zske
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE smarthome_ev5;
+USE bowtbpbberdfnkr3zske;
 
--- Limpieza en orden inverso de dependencias
-DROP TABLE IF EXISTS evento_dispositivo;
-DROP TABLE IF EXISTS camara;
-DROP TABLE IF EXISTS dispositivos;
-DROP TABLE IF EXISTS email;
-DROP TABLE IF EXISTS usuario;
+CREATE TABLE rol (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    rol VARCHAR(100) NOT NULL
+);
 
--- usuario (Admin se representa por rol y permisos)
 CREATE TABLE usuario (
-  id               INT AUTO_INCREMENT PRIMARY KEY,
-  nombre           VARCHAR(120)       NOT NULL,
-  contraseña_hash  VARCHAR(255)       NOT NULL,
-  rol              ENUM('user','admin') NOT NULL DEFAULT 'user',
-  permisos         BOOLEAN            NOT NULL DEFAULT FALSE,
-  created_at       TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    dni INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    contrasena VARCHAR(255) NOT NULL,
+    rol VARCHAR(100) NOT NULL
+    
+);
 
--- email (composición 1–1 con usuario)
-CREATE TABLE email (
-  usuario_id       INT             NOT NULL,
-  direccion_email  VARCHAR(190)    NOT NULL,
-  PRIMARY KEY (usuario_id),
-  UNIQUE KEY uq_email_direccion (direccion_email),
-  CONSTRAINT fk_email_usuario
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE domicilio (
+    id_domicilio INT AUTO_INCREMENT PRIMARY KEY,
+    direccion VARCHAR(200) NOT NULL,
+    ciudad VARCHAR(100) NOT NULL,
+    nombre_domicilio VARCHAR(100) NOT NULL,
+    id_usuario INT NOT NULL,
+    CONSTRAINT fk_domicilio_usuario FOREIGN KEY (id_usuario)
+        REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
 
--- dispositivos (agregación 1–N con usuario)
-CREATE TABLE dispositivos (
-  id                  INT            NOT NULL,
-  tipo                VARCHAR(255)   NOT NULL,                -- p.ej. 'CAMARA'
-  estado_dispositivo  VARCHAR(255)   NOT NULL DEFAULT 'OFF',  -- o ENUM('ON','OFF')
-  usuario_id          INT            NOT NULL,
-  PRIMARY KEY (id),
-  KEY idx_disp_usuario (usuario_id),
-  CONSTRAINT fk_disp_usuario
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
-    ON DELETE RESTRICT
-    ON UPDATE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE tipo_dispositivo (
+    id_tipo INT AUTO_INCREMENT PRIMARY KEY,
+    tipo_dispositivo VARCHAR(100) NOT NULL
+);
 
--- camara (subclase 1–1 de dispositivos; PK=FK)
-CREATE TABLE camara (
-  dispositivo_id         INT             NOT NULL,
-  nombre                 VARCHAR(255)    NOT NULL,
-  modelo                 VARCHAR(120)    NOT NULL,
-  grabacion_modo         ENUM('AUTO','MANUAL') NOT NULL DEFAULT 'AUTO',
-  estado_automatizacion  BOOLEAN         NOT NULL DEFAULT FALSE,
-  PRIMARY KEY (dispositivo_id),
-  CONSTRAINT fk_camara_dispositivo
-    FOREIGN KEY (dispositivo_id) REFERENCES dispositivos(id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE dispositivo (
+    id_dispositivo INT AUTO_INCREMENT PRIMARY KEY,
+    id_domicilio INT NOT NULL,
+    id_tipo INT NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    etiqueta VARCHAR(100) NOT NULL,
+    CONSTRAINT fk_dispositivo_domicilio FOREIGN KEY (id_domicilio)
+        REFERENCES domicilio(id_domicilio) ON DELETE CASCADE,
+    CONSTRAINT fk_dispositivo_tipo FOREIGN KEY (id_tipo)
+        REFERENCES tipo_dispositivo(id_tipo)
+);
 
--- evento_dispositivo (agregación 1–N con camara)
-CREATE TABLE evento_dispositivo (
-  id                     INT AUTO_INCREMENT PRIMARY KEY,
-  camara_id              INT            NOT NULL,
-  evento                 VARCHAR(100)   NOT NULL,
-  ocurrido_en            TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  notificacion_enviada   BOOLEAN        NOT NULL DEFAULT FALSE,
-  CONSTRAINT fk_evento_camara
-    FOREIGN KEY (camara_id) REFERENCES camara(dispositivo_id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-) ENGINE=InnoDB;
+CREATE TABLE automatizacion (
+    id_automatizacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_domicilio INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    accion VARCHAR(100) NOT NULL,
+    estado BOOLEAN NOT NULL,
+    hora_encendido TIME,
+    hora_apagado TIME,
+    CONSTRAINT fk_automatizaciones_domicilio FOREIGN KEY (id_domicilio)
+        REFERENCES domicilio(id_domicilio) ON DELETE CASCADE
+);
 
-
-CREATE INDEX idx_email_direccion         ON email(direccion_email);
-CREATE INDEX idx_evento_camara_ocurrido  ON evento_dispositivo(camara_id, ocurrido_en);
+SHOW TABLES;

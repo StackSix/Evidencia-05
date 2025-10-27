@@ -25,9 +25,21 @@ class Dispositivo:
     def tipo(self) -> str:
         return self.__tipo
     
+    @tipo.setter
+    def tipo(self, nuevo_tipo):
+        if not isinstance(nuevo_tipo, int):
+            raise TypeError("El id debe ser un número entero.")
+        self.__tipo = nuevo_tipo
+    
     @property
     def estado_dispositivo(self) -> str:
         return self.__estado_dispositivo
+    
+    @estado_dispositivo.setter
+    def estado_dispositivo(self, nuevo_estado):
+        if nuevo_estado not in ["encendido", "apagado"]:
+            raise ValueError("El estado no es válido. Debe ser 'encendido' o 'apagado'.")
+        self.__estado_dispositivo = nuevo_estado
     
     # Método Mágico: mostra información        
     def __str__(self) -> str:
@@ -41,3 +53,4 @@ class Dispositivo:
         self.__estado_dispositivo = nuevo_estado
         logger.info(f"{self.tipo} (ID {self.id}) cambiado a {self.__estado_dispositivo}")
         return self.__estado_dispositivo
+    

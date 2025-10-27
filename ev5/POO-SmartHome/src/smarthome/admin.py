@@ -1,9 +1,9 @@
 # src/smarthome/admin.py
 from __future__ import annotations
-from .usuario import Usuario, Email, USERS_DB
+from .usuario import Usuario, USERS_DB
 
 class Admin(Usuario):
-    def __init__(self, nombre: str, email: Email):
+    def __init__(self, nombre: str, email: str):
         # Forzamos el rol "admin"
         super().__init__(nombre=nombre, email=email, rol="admin")
 
@@ -12,7 +12,7 @@ class Admin(Usuario):
     def registrar_admin(cls, nombre: str, email: str, password: str) -> "Admin":
         if email in USERS_DB:
             raise ValueError("Ya existe un usuario con ese email.")
-        a = cls(nombre=nombre, email=Email(email))
+        a = cls(nombre=nombre, email=email)
         a.establecer_password(password)
         # En tu Usuario el método se llama almacenar_usuario_en_diccionario
         USERS_DB[email] = a.almacenar_usuario_en_diccionario()
@@ -26,7 +26,7 @@ class Admin(Usuario):
             adm = cls(nombre=u.nombre, email=u.email)
             # preservamos el hash que está en USERS_DB
             rec = USERS_DB.get(email, {})
-            adm._password_hash = rec.get("password_hash")
+            adm.__password_hash = rec.get("password_hash")
             return adm
         return None
 
@@ -59,3 +59,4 @@ class Admin(Usuario):
         if repo_dispositivos is None or not hasattr(repo_dispositivos, "eliminar"):
             raise ValueError("Repositorio de dispositivos inválido.")
         repo_dispositivos.eliminar(device_id)
+        
