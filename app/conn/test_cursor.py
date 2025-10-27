@@ -1,5 +1,5 @@
 # Opción A (recomendada): import desde el paquete
-from app.conn.cursor import get_cursor
+from conn.cursor import get_cursor
 
 def main():
     with get_cursor() as cur:

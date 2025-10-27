@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import Optional, List
 import mysql.connector
-from app.conn.cursor import get_cursor
-from app.conn.logger import logger
-from app.dominio.dispositivo import Dispositivo
-from app.dao.interfaces.i_dispositivo_dao import IDispositivoDAO
+from conn.cursor import get_cursor
+from conn.logger import logger
+from dominio.dispositivo import Dispositivo
+from dao.interfaces.i_dispositivo_dao import IDispositivoDAO
 
 class DispositivoDAO(IDispositivoDAO):
     @staticmethod

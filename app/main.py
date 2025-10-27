@@ -1,6 +1,6 @@
 from __future__ import annotations
-from app.servicios.gestor_usuario import GestorUsuario
-from app.modulos_main.menu_usuario import menu_usuario
+from servicios.gestor_usuario import GestorUsuario
+from modulos_main.menu_usuario import menu_usuario
 
 
 def main():

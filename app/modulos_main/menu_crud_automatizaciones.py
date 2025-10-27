@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Dict
-from app.servicios.gestor_automatizacion import GestorAutomatizacion
-from app.dominio.automatizacion import Automatizacion
-from app.dao.domicilio_dao import DomicilioDAO
+from servicios.gestor_automatizacion import GestorAutomatizacion
+from dominio.automatizacion import Automatizacion
+from dao.domicilio_dao import DomicilioDAO
 
 
 def menu_crud_automatizacion(session: Dict, gestor: GestorAutomatizacion):

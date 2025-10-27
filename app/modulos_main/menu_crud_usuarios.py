@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Dict
-from app.servicios.gestor_usuario import GestorUsuario
+from servicios.gestor_usuario import GestorUsuario
 
 def menu_crud_usuarios(session: Dict, gestor: GestorUsuario):
     """Menú de interacción con usuarios, separado del gestor."""

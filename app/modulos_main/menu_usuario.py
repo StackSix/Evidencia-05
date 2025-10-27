@@ -1,14 +1,14 @@
 from __future__ import annotations
-from app.dao.dispositivo_dao import DispositivoDAO
-from app.dao.usuario_dao import UsuarioDAO
-from app.dao.domicilio_dao import DomicilioDAO
-from app.servicios.gestor_usuario import GestorUsuario
-from app.servicios.gestor_domicilio import GestorDomicilio
-from app.servicios.gestor_automatizacion import GestorAutomatizacion
-from app.modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
-from app.modulos_main.menu_crud_domicilios import menu_crud_domicilios
-from app.modulos_main.menu_crud_usuarios import menu_crud_usuarios
-from app.modulos_main.menu_crud_dispositivos import gestionar_dispositivos
+from dao.dispositivo_dao import DispositivoDAO
+from dao.usuario_dao import UsuarioDAO
+from dao.domicilio_dao import DomicilioDAO
+from servicios.gestor_usuario import GestorUsuario
+from servicios.gestor_domicilio import GestorDomicilio
+from servicios.gestor_automatizacion import GestorAutomatizacion
+from modulos_main.menu_crud_automatizaciones import menu_crud_automatizacion
+from modulos_main.menu_crud_domicilios import menu_crud_domicilios
+from modulos_main.menu_crud_usuarios import menu_crud_usuarios
+from modulos_main.menu_crud_dispositivos import gestionar_dispositivos
 
 def menu_usuario(session):
     print(f"\nBienvenido/a {session['nombre']} ({session['rol']})")

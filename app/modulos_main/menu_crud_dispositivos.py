@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Dict
-from app.servicios.gestor_dispositivo import GestorDispositivo
-from app.servicios.gestor_usuario import GestorUsuario
-from app.dao.domicilio_dao import DomicilioDAO
+from servicios.gestor_dispositivo import GestorDispositivo
+from servicios.gestor_usuario import GestorUsuario
+from dao.domicilio_dao import DomicilioDAO
 
 
 

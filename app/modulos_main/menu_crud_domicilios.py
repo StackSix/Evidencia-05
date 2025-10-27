@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Dict
-from app.servicios.gestor_domicilio import GestorDomicilio
-from app.servicios.gestor_usuario import GestorUsuario
-from app.dao.domicilio_dao import DomicilioDAO
+from servicios.gestor_domicilio import GestorDomicilio
+from servicios.gestor_usuario import GestorUsuario
+from dao.domicilio_dao import DomicilioDAO
 
 
 def menu_crud_domicilios(session: Dict, gestor_domicilio: GestorDomicilio):

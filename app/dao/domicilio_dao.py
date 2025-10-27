@@ -1,10 +1,10 @@
 from __future__ import annotations
 import mysql.connector
 from typing import List, Optional
-from app.conn.cursor import get_cursor
-from app.dao.interfaces.i_domicilio_dao import IDomicilioDAO
-from app.dominio.domicilio import Domicilio
-from app.conn.logger import logger
+from conn.cursor import get_cursor
+from dao.interfaces.i_domicilio_dao import IDomicilioDAO
+from dominio.domicilio import Domicilio
+from conn.logger import logger
 
 class DomicilioDAO(IDomicilioDAO):
     @staticmethod

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional
-from app.dominio.domicilio import Domicilio
-from app.dao.domicilio_dao import DomicilioDAO
+from dominio.domicilio import Domicilio
+from dao.domicilio_dao import DomicilioDAO
 
 class GestorDomicilio:
     """

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Any, List
-from app.dominio.automatizacion import Automatizacion
+from dominio.automatizacion import Automatizacion
 
 class IAutomatizacionDAO(ABC):
     @abstractmethod

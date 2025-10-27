@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List
-from app.servicios.gestor_dispositivo import GestorDispositivo
+from servicios.gestor_dispositivo import GestorDispositivo
 
 class Domicilio:
     "Clase para manejar hogares."

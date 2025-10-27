@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import List, Optional
 import bcrypt
-from app.dominio.usuario import Usuario
-from app.dao.usuario_dao import UsuarioDAO
-from app.modulos_main.funcion_autenticacion import validar_email
+from dominio.usuario import Usuario
+from dao.usuario_dao import UsuarioDAO
+from modulos_main.funcion_autenticacion import validar_email
 
 class GestorUsuario:
     """Gestiona la lógica de negocio de los usuarios, con lista en memoria y sincronización con DB."""

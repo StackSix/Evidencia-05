@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import List, Optional
 from datetime import datetime
-from app.dominio.automatizacion import Automatizacion
-from app.dao.automatizacion_dao import AutomatizacionDAO
+from dominio.automatizacion import Automatizacion
+from dao.automatizacion_dao import AutomatizacionDAO
 
 class GestorAutomatizacion:
     "Gestiona la lógica de negocio de las automatizaciones."
