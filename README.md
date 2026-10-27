@@ -55,3 +55,19 @@ Las pruebas unitarias de evidencias anteriores se mantienen sin modificaciones. 
 ```bash
 pytest
 ```
+
+## Interfaz de inventario
+
+La pantalla web de insumos permite abrir el detalle de un producto, consultar su
+última modificación y editar categoría, ubicación y umbrales. También ofrece un
+borrado confirmado que elimina en cascada sus movimientos y notificaciones. Los
+productos por debajo del mínimo se identifican visualmente y generan un aviso
+flotante.
+
+```bash
+python -m app.inventory_web
+```
+
+La interfaz queda disponible en `http://127.0.0.1:8000`. Para cargar productos se
+puede usar `Inventario.crear`; el servidor conserva los datos en
+`instance/inventario.sqlite3`.

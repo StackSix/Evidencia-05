@@ -1,23 +1,27 @@
+"""Interfaz base opcional para DAO (se mantiene por compatibilidad)."""
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import Any, Iterable, Optional
+
 
 class DataAccessDAO(ABC):
     @abstractmethod
-    def crear(self, object):
-        pass
-    
+    def crear(self, entidad: Any) -> Any:  # pragma: no cover - interfaz
+        raise NotImplementedError
+
     @abstractmethod
-    def leer(self, id: int):
-        pass
-    """
+    def leer(self, identificador: Any) -> Optional[Any]:  # pragma: no cover - interfaz
+        raise NotImplementedError
+
     @abstractmethod
-    def leer_todo(self):
-        pass
-    """
+    def leer_todo(self) -> Iterable[Any]:  # pragma: no cover - interfaz
+        raise NotImplementedError
+
     @abstractmethod
-    def actualizar(self, object):
-        pass
-    
+    def actualizar(self, entidad: Any) -> None:  # pragma: no cover - interfaz
+        raise NotImplementedError
+
     @abstractmethod
-    def eliminar(self, object):
-        pass
-    
+    def eliminar(self, entidad: Any) -> None:  # pragma: no cover - interfaz
+        raise NotImplementedError

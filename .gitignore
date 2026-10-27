@@ -1,8 +1,8 @@
-cat > .gitignore <<'EOF'
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
+*.egg-info/
 
 # Entornos
 .venv/
@@ -18,4 +18,6 @@ htmlcov/
 .vscode/
 .idea/
 .DS_Store
-EOF
+
+# Datos locales del inventario
+instance/
